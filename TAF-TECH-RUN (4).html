@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TAF-TECH</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0b1220}
+    body{background:var(--bg); font-family:'League Spartan', system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif; overscroll-behavior-y: none;}
+    .mono{font-family:'League Spartan', monospace}
+    .runner-card{background-color:#ECECEC !important; color:#000; transition: background-color .35s ease, color .35s ease, box-shadow .35s ease, transform .2s ease}
+    .runner-card.dragging{opacity:.65; outline:2px dashed #38bdf8; outline-offset:4px}
+    .runner-card.flash{animation: flashPulse .6s ease}
+    @keyframes flashPulse{0%{box-shadow:0 0 0 0 rgba(56,189,248,0)}30%{box-shadow:0 0 0 8px rgba(56,189,248,.25)}100%{box-shadow:0 0 0 0 rgba(56,189,248,0)}}
+    .btn-disabled{opacity:.5; cursor:not-allowed; filter:grayscale(30%)}
+    .trash-zone.dragover{background:#1e293b; border-color:#38bdf8; color:#38bdf8}
+    .almost-finish{background-color:#FFFCAF !important; color:#000 !important;}
+    .finished{background-color:#B3FFB9 !important; color:#000 !important;}
+    table{border-collapse:separate;border-spacing:0}
+    thead th{position:sticky;top:0}
+    .lapsTables th, .lapsTables td, .summarySection th, .summarySection td { text-align:center !important; }
+
+    /* Abas */
+    .tab-btn {
+      padding: 10px 28px;
+      border-radius: 12px 12px 0 0;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      border: 2px solid transparent;
+      border-bottom: none;
+      transition: background .2s, color .2s, border-color .2s;
+      cursor: pointer;
+      position: relative;
+      bottom: -2px;
+    }
+    .tab-btn.active {
+      background: #0f172a;
+      color: #38bdf8;
+      border-color: #334155;
+      border-bottom: 2px solid #0f172a;
+      z-index: 2;
+    }
+    .tab-btn:not(.active) {
+      background: #1e293b;
+      color: #94a3b8;
+      border-color: #1e293b;
+    }
+    .tab-btn:not(.active):hover {
+      background: #273549;
+      color: #cbd5e1;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .tab-header {
+      display: flex;
+      gap: 6px;
+      border-bottom: 2px solid #334155;
+      margin-bottom: 0;
+      padding: 0 4px;
+    }
+    .tab-badge {
+      display: inline-block;
+      font-size: 0.7em;
+      background: #334155;
+      color: #94a3b8;
+      border-radius: 6px;
+      padding: 1px 7px;
+      margin-left: 6px;
+      vertical-align: middle;
+      font-weight: 600;
+    }
+    .tab-btn.active .tab-badge {
+      background: #0ea5e9;
+      color: #fff;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-100">
+  <!-- Header -->
+  <header class="sticky top-0 z-20 backdrop-blur bg-slate-900/70 border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
+      <div class="flex-1 text-center">
+        <h1 class="text-xl sm:text-2xl font-bold">TAF-TECH</h1>
+        <p class="text-xs text-slate-400">00878449378005207-004</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-4 grid gap-6">
+
+    <!-- Cronômetro -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+      <div class="flex flex-col items-center gap-3 text-center">
+        <div>
+          <p class="text-sm text-slate-400">Tempo total de prova</p>
+          <div id="displayGlobal" class="mono text-4xl sm:text-5xl font-bold">00:00</div>
+          <div id="status" class="text-xs text-slate-400 mt-1">Parado</div>
+        </div>
+        <div class="flex items-center gap-2 pt-2 justify-center">
+          <button id="btnStart" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold">Iniciar</button>
+          <button id="btnPause" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 font-semibold">Pausar</button>
+          <button id="btnReset" class="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-600 font-semibold">Zerar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Abas -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+      <div class="px-4 pt-4 pb-0">
+        <div class="tab-header">
+          <button class="tab-btn active" data-tab="gola" onclick="switchTab('gola')">
+            Gola
+            <span class="tab-badge">11 voltas + 35m</span>
+          </button>
+          <button class="tab-btn" data-tab="naval" onclick="switchTab('naval')">
+            Naval
+            <span class="tab-badge">14 voltas + 190m</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ABA GOLA -->
+      <div class="tab-panel active p-4 sm:p-6" id="panel-gola">
+        <div class="grid gap-4 sm:grid-cols-2 sm:items-end">
+          <div>
+            <label class="block text-sm mb-1">Número de voltas</label>
+            <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
+              11 voltas + 35m
+            </div>
+          </div>
+          <div class="w-full sm:w-auto">
+            <label class="block text-sm mb-1">Identificação do participante</label>
+            <div class="flex gap-2">
+              <input class="participantInput w-full sm:w-64 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="gola" placeholder="Ex.: João, 12, Equipe A" />
+              <button class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 py-2 font-semibold" data-tab="gola">Adicionar</button>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA NAVAL -->
+      <div class="tab-panel p-4 sm:p-6" id="panel-naval">
+        <div class="grid gap-4 sm:grid-cols-2 sm:items-end">
+          <div>
+            <label class="block text-sm mb-1">Número de voltas</label>
+            <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
+              14 voltas + 190m
+            </div>
+          </div>
+          <div class="w-full sm:w-auto">
+            <label class="block text-sm mb-1">Identificação do participante</label>
+            <div class="flex gap-2">
+              <input class="participantInput w-full sm:w-64 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="naval" placeholder="Ex.: João, 12, Equipe A" />
+              <button class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 py-2 font-semibold" data-tab="naval">Adicionar</button>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lista de Participantes -->
+    <section class="grid md:grid-cols-2 xl:grid-cols-3 gap-4" id="runnersGrid"></section>
+
+    <!-- Lixeira -->
+    <section id="trashContainer" class="trash-zone bg-slate-900/60 border-2 border-slate-800 border-dashed rounded-2xl p-6 text-center text-slate-400 font-semibold">
+      Arraste aqui para remover 🚮
+    </section>
+
+    <!-- Tabelas de Voltas -->
+    <section class="lapsTables grid gap-4" id="lapsTables"></section>
+
+    <!-- Resumo -->
+    <section class="summarySection bg-slate-900/60 border border-slate-800 rounded-2xl p-4 shadow-xl" id="summarySection">
+      <h4 class="text-lg font-semibold mb-2">Resumo</h4>
+      <table class="min-w-full text-sm">
+        <thead class="bg-slate-800/60">
+          <tr>
+            <th class="text-left px-3 py-1">Nº</th>
+            <th class="text-left px-3 py-1">Participante</th>
+            <th class="text-left px-3 py-1">Aba</th>
+            <th class="text-left px-3 py-1">Voltas</th>
+            <th class="text-left px-3 py-1">Última marcação</th>
+          </tr>
+        </thead>
+        <tbody id="summaryTbody"></tbody>
+      </table>
+      <p class="text-xs text-slate-500 mt-2">Linhas em vermelho: ainda não atingiram o total de voltas.</p>
+    </section>
+
+    <!-- Exportações -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btnExportCSV" class="px-3 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500">Exportar CSV (todas as voltas)</button>
+        <button id="btnExportCSVParciais" class="px-3 py-2 text-sm rounded-lg bg-fuchsia-600 hover:bg-fuchsia-500">Exportar CSV (parciais + totais)</button>
+        <button id="btnExportPDF" class="px-3 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600">Exportar PDF (tabelas)</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Template do participante -->
+  <template id="runnerTemplate">
+    <div class="runner-card border border-slate-300 rounded-2xl p-4 shadow-xl flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold">
+          <span class="label"></span>
+          <span class="runner-seq-num text-base font-bold mr-2 text-slate-500"></span><span class="runner-tab-badge text-xs font-semibold rounded px-2 py-0.5 ml-2 align-middle"></span>
+        </h3>
+        <div class="flex items-center gap-2">
+          <button class="btnUndo rounded-lg bg-amber-700 hover:bg-amber-600 px-3 py-1.5 text-sm" title="Desfazer">-</button>
+          <span class="lapsCount text-lg font-semibold">0</span>
+          <button class="btnLap rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 text-sm" title="Marcar volta">+</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    // ======= Utilidades =======
+    const fmt=(ms)=>{const t=Math.max(0,ms|0);const m=Math.floor(t/60000);const s=Math.floor((t%60000)/1000);const pad=(n)=>String(n).padStart(2,'0');return `${pad(m)}:${pad(s)}`};
+
+    // ======= Configuração das abas =======
+    const TAB_CONFIG = {
+      gola:  { lapsGoal: 11, extraMeters: 35,  label: 'Gola' },
+      naval: { lapsGoal: 14, extraMeters: 190, label: 'Naval' }
+    };
+    let activeTab = 'gola';
+    const lapsGoalByTab = { gola: 11, naval: 14 };
+    const runnerSeqByTab = { gola: 0, naval: 0 }; // sequential counter per tab
+
+    // ======= Estado =======
+    let running=false, startEpoch=0, pausedAccum=0, rafId=null;
+    const displayGlobal=document.getElementById('displayGlobal');
+    const statusEl=document.getElementById('status');
+    const btnStart=document.getElementById('btnStart');
+    const runners=new Map(); // key: label (string)
+    const MAX_RUNNERS=12;
+
+    // ======= DOM =======
+    const grid=document.getElementById('runnersGrid');
+    const tablesWrap=document.getElementById('lapsTables');
+    const tpl=document.getElementById('runnerTemplate');
+    const summaryTbody=document.getElementById('summaryTbody');
+
+    // ======= Troca de Abas =======
+    function switchTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
+    }
+
+    // ======= Seletor de nº de voltas por aba =======
+    function clampLaps(v){v=Math.floor(Number(v)||1); return v<1?1:v}
+    function setLaps(tab, v){
+      lapsGoalByTab[tab]=clampLaps(v);
+      const inp=document.querySelector(`.lapsGoalInput[data-tab="${tab}"]`);
+      if(inp) inp.value=String(lapsGoalByTab[tab]);
+      updateLapButtonsState();
+      renderSummary();
+    }
+
+    document.querySelectorAll('.btnLapsDec').forEach(btn => {
+      btn.addEventListener('click', () => { const t=btn.dataset.tab; setLaps(t, lapsGoalByTab[t]-1); });
+    });
+    document.querySelectorAll('.btnLapsInc').forEach(btn => {
+      btn.addEventListener('click', () => { const t=btn.dataset.tab; setLaps(t, lapsGoalByTab[t]+1); });
+    });
+    document.querySelectorAll('.lapsGoalInput').forEach(inp => {
+      inp.addEventListener('input', () => { setLaps(inp.dataset.tab, inp.value); });
+    });
+
+    // ======= Tempo =======
+    function nowGlobalMs(){return running?pausedAccum+(performance.now()-startEpoch):pausedAccum}
+    function updateCardStatus(r){
+      const goal=lapsGoalByTab[r.tab];
+      let newState='normal';
+      if(r.laps.length>=goal) newState='finished';
+      else if(r.laps.length===goal-1) newState='almost';
+      r.cardEl.classList.remove('almost-finish','finished');
+      if(newState==='almost') r.cardEl.classList.add('almost-finish');
+      if(newState==='finished') r.cardEl.classList.add('finished');
+      if(r.state!==newState){ r.cardEl.classList.add('flash'); setTimeout(()=>r.cardEl.classList.remove('flash'),650); r.state=newState; }
+    }
+    function updateLapButtonsState(){
+      for(const [,r] of runners){
+        const goal=lapsGoalByTab[r.tab];
+        const disableLap=!running || r.laps.length>=goal;
+        r.btnLap.disabled=disableLap; r.btnLap.classList.toggle('btn-disabled',disableLap);
+        const disableUndo=!running; r.btnUndo.disabled=disableUndo; r.btnUndo.classList.toggle('btn-disabled',disableUndo);
+        updateCardStatus(r);
+      }
+    }
+    function setStartLabel(){btnStart.textContent=(!running&&pausedAccum>0)?'Retomar':'Iniciar'}
+    function tick(){displayGlobal.textContent=fmt(nowGlobalMs());rafId=requestAnimationFrame(tick)}
+    function start(){if(running) return; running=true; startEpoch=performance.now(); statusEl.textContent='Rodando'; updateLapButtonsState(); setStartLabel(); rafId=requestAnimationFrame(tick)}
+    function pause(){if(!running) return; pausedAccum=nowGlobalMs(); running=false; statusEl.textContent='Pausado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(pausedAccum); updateLapButtonsState(); setStartLabel()}
+    function resetAll(){running=false; pausedAccum=0; startEpoch=0; statusEl.textContent='Parado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(0); for(const [l] of [...runners]) removeRunner(l); runnerSeqByTab.gola=0; runnerSeqByTab.naval=0; updateLapButtonsState(); setStartLabel(); renderSummary()}
+
+    document.getElementById('btnStart')?.addEventListener('click',start);
+    document.getElementById('btnPause')?.addEventListener('click',pause);
+    document.getElementById('btnReset')?.addEventListener('click',resetAll);
+
+    // ======= Drag & Drop =======
+    let dragEl=null;
+    function getDragAfterElement(container,y){
+      const els=[...container.querySelectorAll('.runner-card:not(.dragging)')];
+      return els.reduce((c,ch)=>{const b=ch.getBoundingClientRect();const o=y-b.top-b.height/2;return (o<0&&o>c.offset)?{offset:o,element:ch}:c},{offset:-Infinity,element:null}).element
+    }
+    grid.addEventListener('dragover',e=>{e.preventDefault();const after=getDragAfterElement(grid,e.clientY);if(!dragEl)return;if(after==null)grid.appendChild(dragEl);else grid.insertBefore(dragEl,after)});
+
+    const trash=document.getElementById('trashContainer');
+    trash.addEventListener('dragover',e=>{e.preventDefault();trash.classList.add('dragover')});
+    trash.addEventListener('dragleave',()=>trash.classList.remove('dragover'));
+    trash.addEventListener('drop',e=>{e.preventDefault();trash.classList.remove('dragover');if(dragEl){const label=dragEl.dataset.label;removeRunner(label);dragEl=null}});
+
+    function attachDnD(cardEl,label){
+      cardEl.setAttribute('draggable','true');
+      cardEl.dataset.label=label;
+      cardEl.addEventListener('dragstart',e=>{dragEl=cardEl;cardEl.classList.add('dragging');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',label)}catch(_){}});
+      cardEl.addEventListener('dragend',()=>{dragEl=null;cardEl.classList.remove('dragging');syncTablesOrder()});
+    }
+
+    // ======= Tabelas externas =======
+    function createRunnerTable(label){
+      const section=document.createElement('section');
+      section.className='bg-slate-900/60 border border-slate-800 rounded-2xl p-4 shadow-xl';
+      section.dataset.label=label;
+      const title=document.createElement('h4'); title.className='text-lg font-semibold mb-2'; title.textContent=label;
+      const table=document.createElement('table'); table.className='min-w-full text-sm';
+      const thead=document.createElement('thead'); thead.className='bg-slate-800/60';
+      thead.innerHTML='<tr><th class="text-left px-3 py-1">#</th><th class="text-left px-3 py-1">Parcial</th><th class="text-left px-3 py-1">Marcação</th></tr>';
+      const tbody=document.createElement('tbody'); tbody.className='lapsTbodyOuter';
+      table.appendChild(thead); table.appendChild(tbody);
+      section.appendChild(title); section.appendChild(table);
+      return {section, tbody, title};
+    }
+
+    function syncTablesOrder(){
+      const order=exportOrder();
+      order.forEach(label=>{const r=runners.get(label); if(!r||!r.table) return; tablesWrap.appendChild(r.table.section)});
+      renderSummary();
+    }
+
+    // ======= Participantes =======
+    function addRunner(label, tab){
+      label=String(label||'').trim();
+      if(!label){alert('Digite uma identificação válida.');return}
+      if(runners.has(label)){alert('Esse identificador já foi adicionado.');return}
+      if(runners.size>=MAX_RUNNERS){alert('Limite de 12 participantes atingido.');return}
+
+      const frag=tpl.content.cloneNode(true);
+      const labelSpan=frag.querySelector('.label');
+      labelSpan.textContent=label;
+
+      // Número sequencial por aba
+      runnerSeqByTab[tab]++;
+      const seqNum=runnerSeqByTab[tab];
+      const seqEl=frag.querySelector('.runner-seq-num');
+      if(seqEl) seqEl.textContent='#'+seqNum;
+
+      // Badge da aba
+      const badge=frag.querySelector('.runner-tab-badge');
+      if(badge){
+        badge.textContent=TAB_CONFIG[tab].label;
+        badge.style.background = tab==='gola' ? '#0e7490' : '#7c3aed';
+        badge.style.color = '#fff';
+      }
+
+      grid.appendChild(frag);
+      const cardEl=grid.lastElementChild;
+
+      const btnLap=cardEl.querySelector('.btnLap');
+      const btnUndo=cardEl.querySelector('.btnUndo');
+      const lapsCountEl=cardEl.querySelector('.lapsCount');
+
+      attachDnD(cardEl,label);
+
+      const table=createRunnerTable(label); tablesWrap.appendChild(table.section);
+
+      const runner={ label, tab, seqNum, cardEl, btnLap, btnUndo, lapsCountEl, laps:[], lastMarkMs:0, table, state:'normal' };
+      runners.set(label, runner);
+
+      function lapLabel(lapIndex, tab){
+        // lapIndex is 0-based (i+1 = lap number)
+        const goal=lapsGoalByTab[tab];
+        const extra=TAB_CONFIG[tab].extraMeters+'m';
+        const num=lapIndex+1;
+        return num>goal ? extra : String(num);
+      }
+      function countDisplay(lapsLen, tab){
+        const goal=lapsGoalByTab[tab];
+        const extra=TAB_CONFIG[tab].extraMeters+'m';
+        if(lapsLen===0) return '0';
+        if(lapsLen < goal) return String(lapsLen);
+        return goal + ' + ' + extra;
+      }
+      function renderRunner(){
+        runner.lapsCountEl.textContent=countDisplay(runner.laps.length, runner.tab);
+        const rows=runner.laps.map((lap,i)=>{
+          return `<tr class="odd:bg-slate-900/30"><td class="px-3 py-1">${i+1}</td><td class="px-3 py-1 mono">${fmt(lap.lapMs)}</td><td class="px-3 py-1 mono">${fmt(lap.tsGlobal)}</td></tr>`;
+        }).join('');
+        runner.table.tbody.innerHTML=rows;
+        updateLapButtonsState();
+        renderSummary();
+      }
+
+      runner.btnLap.addEventListener('click',()=>{
+        if(!running) return;
+        const goal=lapsGoalByTab[runner.tab];
+        if(runner.laps.length>=goal) return;
+        const t=nowGlobalMs();
+        const lapMs=t-runner.lastMarkMs;
+        runner.laps.push({ tsGlobal:t, lapMs });
+        runner.lastMarkMs=t;
+        renderRunner();
+      });
+
+      runner.btnUndo.addEventListener('click',()=>{
+        if(!runner.laps.length) return;
+        runner.laps.pop();
+        runner.lastMarkMs = runner.laps.length? runner.laps[runner.laps.length-1].tsGlobal : 0;
+        renderRunner();
+      });
+
+      renderRunner();
+      updateLapButtonsState();
+      syncTablesOrder();
+    }
+
+    function removeRunner(label){
+      const r=runners.get(label); if(!r) return;
+      if(r.table) r.table.section.remove();
+      r.cardEl.remove();
+      runners.delete(label);
+      updateLapButtonsState();
+      renderSummary();
+    }
+
+    // ======= Inputs de adicionar participante =======
+    document.querySelectorAll('.btnAddRunner').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab=btn.dataset.tab;
+        const input=document.querySelector(`.participantInput[data-tab="${tab}"]`);
+        const v=input.value; addRunner(v, tab); input.value=''; input.focus();
+      });
+    });
+    document.querySelectorAll('.participantInput').forEach(inp => {
+      inp.addEventListener('keydown', e => {
+        if(e.key==='Enter'){ e.preventDefault(); document.querySelector(`.btnAddRunner[data-tab="${inp.dataset.tab}"]`).click(); }
+      });
+    });
+
+    // ======= Exportações =======
+    function exportOrder(){return [...grid.querySelectorAll('.runner-card')].map(el=> el.dataset.label || (el.querySelector('.label')?.textContent||'')).filter(Boolean)}
+    function exportCSVAllLaps(){
+      const header=['participante','aba','volta','#parcial_ms','#marcacao_global_ms','parcial','marcacao_global'];
+      const rows=[]; const order=exportOrder();
+      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; r.laps.forEach((lap,i)=>{ rows.push([JSON.stringify(label), r.tab, i+1, lap.lapMs, lap.tsGlobal, fmt(lap.lapMs), fmt(lap.tsGlobal)].join(',')) }) });
+      const csv=[header.join(','), ...rows].join('\n');
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download='voltas.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+    function exportCSVParciais(){
+      const header=['participante','aba','voltas','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt'];
+      const rows=[]; const order=exportOrder(); const total=nowGlobalMs();
+      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; rows.push([JSON.stringify(label), r.tab, v, u, total, fmt(u), fmt(total)].join(',')) });
+      const csv=[header.join(','), ...rows].join('\n');
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download='parciais_totais.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+    function exportPDFTables(){
+      const win=window.open('', '_blank');
+      if(!win){ alert('Bloqueador de pop-up ativo. Permita pop-ups para exportar.'); return; }
+      const when=new Date().toLocaleString();
+      const lapsTables=document.getElementById('lapsTables');
+      const summarySection=document.getElementById('summarySection');
+      const css=`body{font-family:'League Spartan',system-ui,-apple-system,Segoe UI,Roboto,Arial,'Noto Sans',sans-serif;padding:24px;color:#0b1220}
+        h1{font-size:20px;margin:0 0 8px}
+        .meta{font-size:12px;color:#334155;margin:0 0 16px}
+        section{break-inside:avoid-page;margin:0 0 20px;padding:12px;border:1px solid #e5e7eb;border-radius:12px}
+        h4{margin:0 0 10px}
+        table{width:100%;border-collapse:separate;border-spacing:0}
+        th,td{border:1px solid #e5e7eb;padding:6px 8px;text-align:center}
+        thead th{background:#f1f5f9;position:sticky;top:0}
+        .note{font-size:11px;color:#64748b;margin-top:6px}
+        @media print{@page{margin:12mm}body{padding:0}}
+      `;
+      const html=`<!doctype html><html><head><meta charset="utf-8"><title>Relatório de Voltas — TAF-TECH</title>
+        <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;700&display=swap" rel="stylesheet">
+        <style>${css}</style></head><body>
+        <h1>Relatório de Voltas — TAF-TECH</h1>
+        <p class="meta">Gerado em ${when}</p>
+        <section>
+          <h4>Tabelas de Parciais</h4>
+          ${lapsTables.innerHTML}
+        </section>
+        <section>
+          ${summarySection.innerHTML}
+        </section>
+      </body></html>`;
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      win.onload=()=>{ win.print(); };
+    }
+    document.getElementById('btnExportCSV')?.addEventListener('click',exportCSVAllLaps);
+    document.getElementById('btnExportCSVParciais')?.addEventListener('click',exportCSVParciais);
+    document.getElementById('btnExportPDF')?.addEventListener('click',exportPDFTables);
+
+    // ======= Resumo =======
+    function renderSummary(){
+      const order=exportOrder();
+      summaryTbody.innerHTML=order.map(label=>{
+        const r=runners.get(label); if(!r) return '';
+        const goal=lapsGoalByTab[r.tab];
+        const extra=TAB_CONFIG[r.tab].extraMeters+'m';
+        const v=r.laps.length;
+        // Display: laps 1..(goal-1) as numbers; when finished show extra meters
+        const displayV = v===0 ? '0' : v < goal ? String(v) : (goal + ' + ' + extra);
+        const ultima=v? fmt(r.laps[v-1].tsGlobal):'—';
+        const cls=v<goal?'text-rose-400':'';
+        const tabLabel=TAB_CONFIG[r.tab]?.label||r.tab;
+        return `<tr class="${cls}"><td class="px-3 py-1">#${r.seqNum}</td><td class="px-3 py-1">${label}</td><td class="px-3 py-1">${tabLabel}</td><td class="px-3 py-1">${displayV}</td><td class="px-3 py-1 mono">${ultima}</td></tr>`;
+      }).join('');
+    }
+
+    // Estado inicial
+    updateLapButtonsState(); setStartLabel(); renderSummary();
+
+    // ======= Bloquear pull-to-refresh =======
+    document.addEventListener('touchstart', function(e){ this._startY = e.touches[0].clientY; }, {passive: false});
+    document.addEventListener('touchmove', function(e){
+      const startY = this._startY || 0;
+      const currentY = e.touches[0].clientY;
+      if(window.scrollY === 0 && currentY > startY){ e.preventDefault(); }
+    }, {passive: false});
+  </script>
+</body>
+</html>
