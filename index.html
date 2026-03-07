@@ -113,7 +113,7 @@
         <div class="tab-header">
           <button class="tab-btn active" data-tab="gola" onclick="switchTab('gola')">
             Gola
-            <span class="tab-badge">11 voltas + 35m</span>
+            <span class="tab-badge">11 voltas + 350m</span>
           </button>
           <button class="tab-btn" data-tab="naval" onclick="switchTab('naval')">
             Naval
@@ -128,7 +128,7 @@
           <div>
             <label class="block text-sm mb-1">Número de voltas</label>
             <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
-              11 voltas + 35m
+              11 voltas + 350m
             </div>
           </div>
           <div class="w-full sm:w-auto">
@@ -209,7 +209,7 @@
             <th class="text-left px-3 py-1">Aba</th>
             <th class="text-left px-3 py-1">Sexo</th>
             <th class="text-left px-3 py-1">Idade</th>
-            <th class="text-left px-3 py-1">Voltas</th>
+            <th class="text-left px-3 py-1">Distância</th>
             <th class="text-left px-3 py-1">Última marcação</th>
             <th class="text-left px-3 py-1">Nota</th>
           </tr>
@@ -225,9 +225,46 @@
         <button id="btnExportCSV" class="px-3 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500">Exportar CSV (todas as voltas)</button>
         <button id="btnExportCSVParciais" class="px-3 py-2 text-sm rounded-lg bg-fuchsia-600 hover:bg-fuchsia-500">Exportar CSV (parciais + totais)</button>
         <button id="btnExportPDF" class="px-3 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600">Exportar PDF (tabelas)</button>
+        <button id="btnScoreTable" class="px-3 py-2 text-sm rounded-lg bg-teal-700 hover:bg-teal-600">📋 Tabela de Notas</button>
       </div>
     </section>
   </main>
+
+  <!-- Modal Tabela de Notas -->
+  <div id="scoreModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col">
+      <!-- Header do modal -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700">
+        <div class="flex items-center gap-3">
+          <h2 class="text-lg font-bold">Tabela de Notas</h2>
+          <div class="flex gap-2">
+            <button id="modalTabGola" onclick="switchModalTab('gola')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#0f766e;color:#fff">Gola (2400m)</button>
+            <button id="modalTabNaval" onclick="switchModalTab('naval')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">Naval (3200m)</button>
+          </div>
+        </div>
+        <button id="btnCloseModal" class="text-slate-400 hover:text-white text-xl font-bold px-2">✕</button>
+      </div>
+      <!-- Abas Masc/Fem -->
+      <div class="flex gap-2 px-5 pt-3">
+        <button id="modalSexM" onclick="switchModalSex('M')" class="modal-sex-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#0369a1;color:#fff">♂ Masculino</button>
+        <button id="modalSexF" onclick="switchModalSex('F')" class="modal-sex-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">♀ Feminino</button>
+      </div>
+      <!-- Tabela -->
+      <div class="overflow-auto flex-1 px-5 py-4">
+        <table class="min-w-full text-sm border-collapse">
+          <thead id="scoreModalThead"></thead>
+          <tbody id="scoreModalTbody"></tbody>
+        </table>
+        <p class="text-xs text-slate-500 mt-3">Tempo máximo para atingir cada nota. Tempo menor ou igual = nota correspondente.</p>
+        <div class="flex flex-wrap gap-3 mt-2 text-xs font-semibold">
+          <span style="color:#16a34a">● 90–100</span>
+          <span style="color:#3b82f6">● 70–80</span>
+          <span style="color:#f59e0b">● 50–60</span>
+          <span style="color:#dc2626">● &lt;50</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Template do participante -->
   <template id="runnerTemplate">
@@ -256,9 +293,18 @@
 
     // ======= Configuração das abas =======
     const TAB_CONFIG = {
-      gola:  { lapsGoal: 11, extraMeters: 35,  label: 'Gola' },
-      naval: { lapsGoal: 14, extraMeters: 190, label: 'Naval' }
+      gola:  { lapsGoal: 11, extraMeters: 350, lapMeters: 186.36, totalMeters: 2400, label: 'Gola' },
+      naval: { lapsGoal: 14, extraMeters: 190, lapMeters: 215,    totalMeters: 3200, label: 'Naval' }
     };
+
+    function calcDistance(tab, lapsLen){
+      const cfg = TAB_CONFIG[tab];
+      if(!cfg || lapsLen === 0) return '0m';
+      const goal = lapsGoalByTab[tab];
+      const laps = Math.min(lapsLen, goal);
+      const dist = Math.round(laps * cfg.lapMeters) + (lapsLen > goal ? cfg.extraMeters : 0);
+      return dist + 'm';
+    }
 
     // ======= Tabelas de pontuação =======
     // Tempo em segundos (limite máximo para cada nota — tempo <= valor = nota)
@@ -515,7 +561,7 @@
           runner.score=calcScore(runner.tab, runner.sex, runner.age, totalMs);
           if(scoreEl){
             const s=runner.score;
-            const color = s===100?'#16a34a': s>=80?'#2563eb': s>=60?'#d97706':'#dc2626';
+            const color = s===100||s===90 ? '#16a34a' : s===80||s===70 ? '#3b82f6' : s===60||s===50 ? '#f59e0b' : '#dc2626';
             scoreEl.textContent = s!==null ? 'Nota: '+s : '';
             scoreEl.style.color=color;
           }
@@ -587,9 +633,9 @@
       const a=document.createElement('a'); a.href=url; a.download='voltas.csv'; a.click(); URL.revokeObjectURL(url);
     }
     function exportCSVParciais(){
-      const header=['seq','participante','aba','sexo','idade','voltas','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt','nota'];
+      const header=['seq','participante','aba','sexo','idade','distancia','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt','nota'];
       const rows=[]; const order=exportOrder(); const total=nowGlobalMs();
-      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; rows.push(['#'+r.seqNum, JSON.stringify(label), r.tab, r.sex||'', r.age||'', v, u, total, fmt(u), fmt(total), r.score!==null&&r.score!==undefined?r.score:''].join(',')) });
+      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; rows.push(['#'+r.seqNum, JSON.stringify(label), r.tab, r.sex||'', r.age||'', calcDistance(r.tab,v), u, total, fmt(u), fmt(total), r.score!==null&&r.score!==undefined?r.score:''].join(',')) });
       const csv=[header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
       const a=document.createElement('a'); a.href=url; a.download='parciais_totais.csv'; a.click(); URL.revokeObjectURL(url);
@@ -643,7 +689,7 @@
         const extra=TAB_CONFIG[r.tab].extraMeters+'m';
         const v=r.laps.length;
         // Display: laps 1..(goal-1) as numbers; when finished show extra meters
-        const displayV = v===0 ? '0' : v <= goal ? String(v) : extra;
+        const displayV = calcDistance(r.tab, v);
         const ultima=v? fmt(r.laps[v-1].tsGlobal):'—';
         const cls=v<=goal?'text-rose-400':'';
         const tabLabel=TAB_CONFIG[r.tab]?.label||r.tab;
@@ -652,6 +698,70 @@
         return `<tr class="${cls}"><td class="px-3 py-1">#${r.seqNum}</td><td class="px-3 py-1">${label}</td><td class="px-3 py-1">${tabLabel}</td><td class="px-3 py-1">${sexLabel}</td><td class="px-3 py-1">${r.age}</td><td class="px-3 py-1">${displayV}</td><td class="px-3 py-1 mono">${ultima}</td><td class="px-3 py-1 font-bold">${scoreDisp}</td></tr>`;
       }).join('');
     }
+
+    // ======= Modal Tabela de Notas =======
+    let modalTab='gola', modalSex='M';
+
+    function fmtSecs(s){ const m=Math.floor(s/60); const ss=s%60; return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0'); }
+
+    function renderScoreModal(){
+      const table = SCORING[modalTab][modalSex];
+      const thead = document.getElementById('scoreModalThead');
+      const tbody = document.getElementById('scoreModalTbody');
+      thead.innerHTML = `<tr class="bg-slate-800">
+        <th class="px-3 py-2 text-left rounded-tl-lg">Idade</th>
+        <th class="px-3 py-2">50</th>
+        <th class="px-3 py-2">60</th>
+        <th class="px-3 py-2">70</th>
+        <th class="px-3 py-2">80</th>
+        <th class="px-3 py-2">90</th>
+        <th class="px-3 py-2 rounded-tr-lg">100</th>
+      </tr>`;
+      tbody.innerHTML = table.map((row,i) => {
+        const ageLabel = row.max>=999 ? '>'+row.min : row.min+' a '+row.max;
+        const bg = i%2===0 ? 'bg-slate-800/30' : '';
+        return `<tr class="${bg}">
+          <td class="px-3 py-2 font-semibold text-slate-300">${ageLabel}</td>
+          <td class="px-3 py-2 text-center font-semibold" style="color:#f59e0b">${fmtSecs(row.t50)}</td>
+          <td class="px-3 py-2 text-center font-semibold" style="color:#f59e0b">${fmtSecs(row.t60)}</td>
+          <td class="px-3 py-2 text-center font-semibold" style="color:#3b82f6">${fmtSecs(row.t70)}</td>
+          <td class="px-3 py-2 text-center font-semibold" style="color:#3b82f6">${fmtSecs(row.t80)}</td>
+          <td class="px-3 py-2 text-center font-semibold" style="color:#16a34a">${fmtSecs(row.t90)}</td>
+          <td class="px-3 py-2 text-center font-bold"     style="color:#16a34a">${fmtSecs(row.t100)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function switchModalTab(tab){
+      modalTab=tab;
+      document.querySelectorAll('.modal-tab-btn').forEach(b=>{
+        const isActive = b.id==='modalTab'+tab.charAt(0).toUpperCase()+tab.slice(1);
+        b.style.background = isActive ? '#0f766e' : '#334155';
+        b.style.color = isActive ? '#fff' : '#94a3b8';
+      });
+      renderScoreModal();
+    }
+
+    function switchModalSex(sex){
+      modalSex=sex;
+      document.querySelectorAll('.modal-sex-btn').forEach(b=>{
+        const isActive = b.id==='modalSex'+sex;
+        b.style.background = isActive ? '#0369a1' : '#334155';
+        b.style.color = isActive ? '#fff' : '#94a3b8';
+      });
+      renderScoreModal();
+    }
+
+    document.getElementById('btnScoreTable')?.addEventListener('click',()=>{
+      document.getElementById('scoreModal').classList.remove('hidden');
+      renderScoreModal();
+    });
+    document.getElementById('btnCloseModal')?.addEventListener('click',()=>{
+      document.getElementById('scoreModal').classList.add('hidden');
+    });
+    document.getElementById('scoreModal')?.addEventListener('click',e=>{
+      if(e.target===document.getElementById('scoreModal')) document.getElementById('scoreModal').classList.add('hidden');
+    });
 
     // Estado inicial
     updateLapButtonsState(); setStartLabel(); renderSummary();
