@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TAF-TECH</title>
+  <title>TAF-TECH v2 (extra primeiro)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -113,7 +113,7 @@
         <div class="tab-header">
           <button class="tab-btn active" data-tab="gola" onclick="switchTab('gola')">
             Gola
-            <span class="tab-badge">11 voltas + 350m</span>
+            <span class="tab-badge">11 voltas + 35m</span>
           </button>
           <button class="tab-btn" data-tab="naval" onclick="switchTab('naval')">
             Naval
@@ -128,7 +128,7 @@
           <div>
             <label class="block text-sm mb-1">Número de voltas</label>
             <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
-              11 voltas + 350m
+              11 voltas + 35m
             </div>
           </div>
           <div class="w-full sm:w-auto">
@@ -136,7 +136,8 @@
             <div class="flex gap-2 items-stretch">
               <!-- Campos empilhados: nome em cima, sexo+idade embaixo -->
               <div class="flex flex-col gap-2 flex-1">
-                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="gola" placeholder="Ex.: João, Equipe A" />
+                <input class="nipInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" type="text" inputmode="numeric" maxlength="10" data-tab="gola" placeholder="NIP (00.0000.00)" style="letter-spacing:0.1em;font-family:monospace" />
+                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="gola" placeholder="Nome / Identificação" />
                 <div class="flex gap-2">
                   <select class="sexInput flex-1 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" data-tab="gola">
                     <option value="">Sexo</option>
@@ -168,7 +169,8 @@
             <div class="flex gap-2 items-stretch">
               <!-- Campos empilhados: nome em cima, sexo+idade embaixo -->
               <div class="flex flex-col gap-2 flex-1">
-                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="naval" placeholder="Ex.: João, Equipe A" />
+                <input class="nipInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" type="text" inputmode="numeric" maxlength="10" data-tab="naval" placeholder="NIP (00.0000.00)" style="letter-spacing:0.1em;font-family:monospace" />
+                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="naval" placeholder="Nome / Identificação" />
                 <div class="flex gap-2">
                   <select class="sexInput flex-1 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" data-tab="naval">
                     <option value="">Sexo</option>
@@ -204,13 +206,9 @@
       <table class="min-w-full text-sm">
         <thead class="bg-slate-800/60">
           <tr>
-            <th class="text-left px-3 py-1">Nº</th>
-            <th class="text-left px-3 py-1">Participante</th>
-            <th class="text-left px-3 py-1">Aba</th>
-            <th class="text-left px-3 py-1">Sexo</th>
-            <th class="text-left px-3 py-1">Idade</th>
+            <th class="text-left px-3 py-1">Nº / Participante</th>
             <th class="text-left px-3 py-1">Distância</th>
-            <th class="text-left px-3 py-1">Última marcação</th>
+            <th class="text-left px-3 py-1">Marcação</th>
             <th class="text-left px-3 py-1">Nota</th>
           </tr>
         </thead>
@@ -274,12 +272,13 @@
           <span class="runner-seq-num text-base font-bold mr-1 text-slate-400"></span><span class="label"></span><span class="runner-tab-badge text-xs font-semibold rounded px-2 py-0.5 ml-2 align-middle"></span>
         </h3>
         <div class="flex items-center gap-2">
-          <button class="btnUndo rounded-lg bg-amber-700 hover:bg-amber-600 px-3 py-1.5 text-sm" title="Desfazer">-</button>
-          <span class="lapsCount text-lg font-semibold">0</span>
-          <button class="btnLap rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 text-sm" title="Marcar volta">+</button>
+          <button class="btnUndo rounded-xl bg-amber-700 hover:bg-amber-600 font-bold text-xl" style="min-width:52px;min-height:52px" title="Desfazer">−</button>
+          <span class="lapsCount text-xl font-bold" style="min-width:2rem;text-align:center">0</span>
+          <button class="btnLap rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xl" style="min-width:52px;min-height:52px" title="Marcar volta">+</button>
         </div>
       </div>
       <div class="flex items-center gap-3 text-xs text-slate-500 border-t border-slate-300/40 pt-1">
+        <span class="runner-info-nip font-mono"></span>
         <span class="runner-info-sex"></span>
         <span class="runner-info-age"></span>
         <span class="runner-score font-bold text-base text-slate-700 ml-auto"></span>
@@ -293,7 +292,7 @@
 
     // ======= Configuração das abas =======
     const TAB_CONFIG = {
-      gola:  { lapsGoal: 11, extraMeters: 350, lapMeters: 186.36, totalMeters: 2400, label: 'Gola' },
+      gola:  { lapsGoal: 11, extraMeters: 35, lapMeters: 215, totalMeters: 2400, label: 'Gola' },
       naval: { lapsGoal: 14, extraMeters: 190, lapMeters: 215,    totalMeters: 3200, label: 'Naval' }
     };
 
@@ -301,8 +300,9 @@
       const cfg = TAB_CONFIG[tab];
       if(!cfg || lapsLen === 0) return '0m';
       const goal = lapsGoalByTab[tab];
-      const laps = Math.min(lapsLen, goal);
-      const dist = Math.round(laps * cfg.lapMeters) + (lapsLen > goal ? cfg.extraMeters : 0);
+      if(lapsLen === 1) return cfg.extraMeters + 'm'; // only extra segment done
+      const lapsDone = Math.min(lapsLen - 1, goal);   // subtract 1 for the extra click
+      const dist = cfg.extraMeters + Math.round(lapsDone * cfg.lapMeters);
       return dist + 'm';
     }
 
@@ -484,11 +484,13 @@
     }
 
     // ======= Participantes =======
-    function addRunner(label, tab, sex, age){
+    function addRunner(label, tab, sex, age, nip){
       label=String(label||'').trim();
       if(!label){alert('Digite uma identificação válida.');return}
       if(!sex){alert('Selecione o sexo do participante.');return}
       if(!age||age<18){alert('Informe uma idade válida (mínimo 18).');return}
+      nip=String(nip||'').trim();
+      if(nip && nip.replace(/\D/g,'').length!==8){alert('NIP deve ter 8 dígitos numéricos.');return}
       if(runners.has(label)){alert('Esse identificador já foi adicionado.');return}
       if(runners.size>=MAX_RUNNERS){alert('Limite de 12 participantes atingido.');return}
       age=parseInt(age);
@@ -514,7 +516,9 @@
       // Info sexo/idade no card
       const infoSexEl=frag.querySelector('.runner-info-sex');
       const infoAgeEl=frag.querySelector('.runner-info-age');
-      if(infoSexEl) infoSexEl.textContent = sex==='M' ? '♂ Masculino' : '♀ Feminino';
+      const infoNipEl=frag.querySelector('.runner-info-nip');
+      if(infoNipEl) infoNipEl.textContent = nip ? nip : '';
+      if(infoSexEl) infoSexEl.textContent = sex==='M' ? '♂ Masc' : '♀ Fem';
       if(infoAgeEl) infoAgeEl.textContent = age+' anos';
 
       grid.appendChild(frag);
@@ -528,7 +532,7 @@
 
       const table=createRunnerTable(label); tablesWrap.appendChild(table.section);
 
-      const runner={ label, tab, sex, age, seqNum, cardEl, btnLap, btnUndo, lapsCountEl, laps:[], lastMarkMs:0, table, state:'normal', score:null };
+      const runner={ label, tab, sex, age, nip, seqNum, cardEl, btnLap, btnUndo, lapsCountEl, laps:[], lastMarkMs:0, table, state:'normal', score:null };
       runners.set(label, runner);
 
       function lapLabel(lapIndex, tab){
@@ -542,15 +546,15 @@
         const goal=lapsGoalByTab[tab];
         const extra=TAB_CONFIG[tab].extraMeters+'m';
         if(lapsLen===0) return '0';
-        if(lapsLen <= goal) return String(lapsLen);
-        return extra; // goal+1 th click = extra meters
+        if(lapsLen===1) return extra;        // 1º clique = extra metros
+        return String(lapsLen-1);            // cliques 2..goal+1 = voltas 1..goal
       }
       function renderRunner(){
         runner.lapsCountEl.textContent=countDisplay(runner.laps.length, runner.tab);
         const goal_r=lapsGoalByTab[runner.tab];
         const extra_r=TAB_CONFIG[runner.tab].extraMeters+'m';
         const rows=runner.laps.map((lap,i)=>{
-          const rowLabel = (i+1) <= goal_r ? String(i+1) : extra_r;
+          const rowLabel = i===0 ? extra_r : String(i); // i=0 → extra, i=1..goal → volta 1..goal
           return `<tr class="odd:bg-slate-900/30"><td class="px-3 py-1">${rowLabel}</td><td class="px-3 py-1 mono">${fmt(lap.lapMs)}</td><td class="px-3 py-1 mono">${fmt(lap.tsGlobal)}</td></tr>`;
         }).join('');
         runner.table.tbody.innerHTML=rows;
@@ -612,8 +616,23 @@
         const input=document.querySelector(`.participantInput[data-tab="${tab}"]`);
         const sexSel=document.querySelector(`.sexInput[data-tab="${tab}"]`);
         const ageInp=document.querySelector(`.ageInput[data-tab="${tab}"]`);
+        const nipInp=document.querySelector(`.nipInput[data-tab="${tab}"]`);
+        const rawNip=(nipInp?.value||'').replace(/\D/g,'');
+        const nip = rawNip.length===8 ? rawNip.slice(0,2)+'.'+rawNip.slice(2,6)+'.'+rawNip.slice(6) : rawNip;
         const v=input.value, s=sexSel?.value, a=ageInp?.value;
-        if(addRunner(v, tab, s, a)!==false){ input.value=''; sexSel.value=''; ageInp.value=''; input.focus(); }
+        if(addRunner(v, tab, s, a, nip)!==false){ nipInp.value=''; input.value=''; sexSel.value=''; ageInp.value=''; input.focus(); }
+      });
+    });
+    document.querySelectorAll('.nipInput').forEach(inp => {
+      inp.addEventListener('input', () => {
+        let raw = inp.value.replace(/\D/g,'').slice(0,8);
+        let fmt2 = raw;
+        if(raw.length>2) fmt2 = raw.slice(0,2)+'.'+raw.slice(2);
+        if(raw.length>6) fmt2 = raw.slice(0,2)+'.'+raw.slice(2,6)+'.'+raw.slice(6);
+        inp.value = fmt2;
+      });
+      inp.addEventListener('keydown', e => {
+        if(e.key==='Enter'){ e.preventDefault(); document.querySelector(`.participantInput[data-tab="${inp.dataset.tab}"]`).focus(); }
       });
     });
     document.querySelectorAll('.participantInput').forEach(inp => {
@@ -625,17 +644,17 @@
     // ======= Exportações =======
     function exportOrder(){return [...grid.querySelectorAll('.runner-card')].map(el=> el.dataset.label || (el.querySelector('.label')?.textContent||'')).filter(Boolean)}
     function exportCSVAllLaps(){
-      const header=['seq','participante','aba','sexo','idade','volta','#parcial_ms','#marcacao_global_ms','parcial','marcacao_global','nota'];
+      const header=['seq','nip','participante','aba','sexo','idade','volta','#parcial_ms','#marcacao_global_ms','parcial','marcacao_global','nota'];
       const rows=[]; const order=exportOrder();
-      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; r.laps.forEach((lap,i)=>{ const isLast=i===r.laps.length-1&&r.laps.length>lapsGoalByTab[r.tab]; rows.push(['#'+r.seqNum, JSON.stringify(label), r.tab, r.sex||'', r.age||'', i+1, lap.lapMs, lap.tsGlobal, fmt(lap.lapMs), fmt(lap.tsGlobal), isLast?(r.score||''):''].join(',')) }) });
+      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; r.laps.forEach((lap,i)=>{ const isLast=i===r.laps.length-1&&r.laps.length>lapsGoalByTab[r.tab]; rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', i+1, lap.lapMs, lap.tsGlobal, fmt(lap.lapMs), fmt(lap.tsGlobal), isLast?(r.score||''):''].join(',')) }) });
       const csv=[header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
       const a=document.createElement('a'); a.href=url; a.download='voltas.csv'; a.click(); URL.revokeObjectURL(url);
     }
     function exportCSVParciais(){
-      const header=['seq','participante','aba','sexo','idade','distancia','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt','nota'];
+      const header=['seq','nip','participante','aba','sexo','idade','distancia','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt','nota'];
       const rows=[]; const order=exportOrder(); const total=nowGlobalMs();
-      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; rows.push(['#'+r.seqNum, JSON.stringify(label), r.tab, r.sex||'', r.age||'', calcDistance(r.tab,v), u, total, fmt(u), fmt(total), r.score!==null&&r.score!==undefined?r.score:''].join(',')) });
+      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', calcDistance(r.tab,v), u, total, fmt(u), fmt(total), r.score!==null&&r.score!==undefined?r.score:''].join(',')) });
       const csv=[header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
       const a=document.createElement('a'); a.href=url; a.download='parciais_totais.csv'; a.click(); URL.revokeObjectURL(url);
@@ -686,16 +705,26 @@
       summaryTbody.innerHTML=order.map(label=>{
         const r=runners.get(label); if(!r) return '';
         const goal=lapsGoalByTab[r.tab];
-        const extra=TAB_CONFIG[r.tab].extraMeters+'m';
         const v=r.laps.length;
-        // Display: laps 1..(goal-1) as numbers; when finished show extra meters
         const displayV = calcDistance(r.tab, v);
         const ultima=v? fmt(r.laps[v-1].tsGlobal):'—';
-        const cls=v<=goal?'text-rose-400':'';
-        const tabLabel=TAB_CONFIG[r.tab]?.label||r.tab;
-        const sexLabel = r.sex==='M' ? 'M' : r.sex==='F' ? 'F' : '—';
-        const scoreDisp = r.score!==null && r.score!==undefined ? `<strong>${r.score}</strong>` : '—';
-        return `<tr class="${cls}"><td class="px-3 py-1">#${r.seqNum}</td><td class="px-3 py-1">${label}</td><td class="px-3 py-1">${tabLabel}</td><td class="px-3 py-1">${sexLabel}</td><td class="px-3 py-1">${r.age}</td><td class="px-3 py-1">${displayV}</td><td class="px-3 py-1 mono">${ultima}</td><td class="px-3 py-1 font-bold">${scoreDisp}</td></tr>`;
+        const finished = v > goal;
+        const rowColor = finished ? '' : 'color:#f87171';
+        const tabLabel = TAB_CONFIG[r.tab]?.label||r.tab;
+        const sexLabel = r.sex==='M' ? '♂ Masc' : '♀ Fem';
+        const scoreVal = r.score!==null && r.score!==undefined ? r.score : null;
+        const scoreColor = scoreVal===100||scoreVal===90 ? '#16a34a' : scoreVal===80||scoreVal===70 ? '#3b82f6' : scoreVal===60||scoreVal===50 ? '#f59e0b' : scoreVal!==null ? '#dc2626' : '#94a3b8';
+        const scoreDisp = scoreVal!==null ? `<strong style="color:${scoreColor};font-size:1.1em">${scoreVal}</strong>` : '—';
+        return `
+          <tr style="${rowColor}">
+            <td class="px-3 pt-2 pb-0 font-semibold">#${r.seqNum} ${label}</td>
+            <td class="px-3 pt-2 pb-0">${displayV}</td>
+            <td class="px-3 pt-2 pb-0 mono">${ultima}</td>
+            <td class="px-3 pt-2 pb-0" rowspan="2" style="vertical-align:middle;text-align:center">${scoreDisp}</td>
+          </tr>
+          <tr style="${rowColor}">
+            <td colspan="3" class="px-3 pt-0 pb-2 text-xs" style="color:#94a3b8">${r.nip ? '<span style="font-family:monospace">'+r.nip+'</span> · ' : ''}${tabLabel} · ${sexLabel} · ${r.age} anos</td>
+          </tr>`;
       }).join('');
     }
 
