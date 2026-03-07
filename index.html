@@ -103,21 +103,27 @@
           </div>
           <div>
             <label class="block text-sm font-semibold mb-1 text-slate-300">Avaliador</label>
-            <div class="flex gap-2">
-              <input id="avaliadorInput" type="text" maxlength="60" placeholder="Nome do avaliador..."
-                class="flex-1 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" />
-              <button id="btnConfirmAvaliador" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-sm font-semibold">✓ Confirmar</button>
-            </div>
-            <p id="avaliadorStatus" class="text-xs text-slate-500 mt-1">Preencha OM e Avaliador e clique em Confirmar</p>
+            <input id="avaliadorInput" type="text" maxlength="60" placeholder="Nome do avaliador..."
+              class="w-full rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-slate-300">Tamanho da volta (m)</label>
+            <input id="lapMetersInput" type="number" min="50" max="1000" value="215" placeholder="Ex.: 215"
+              class="w-full rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" />
+            <p class="text-xs text-slate-500 mt-1">Padrão: 215m. O sistema calcula as voltas automaticamente.</p>
+          </div>
+          <div class="flex items-end">
+            <button id="btnConfirmAvaliador" class="w-full px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-sm font-semibold">✓ Confirmar</button>
           </div>
         </div>
         <div id="omAvError" class="hidden text-xs font-semibold rounded-xl px-3 py-2 mt-2" style="background:#7f1d1d;color:#fca5a5"></div>
       </div>
       <!-- COMPACT MODE (after confirmed) -->
       <div id="omAvCompact" class="hidden flex items-center justify-between gap-3">
-        <div class="text-xs text-slate-400 flex gap-4">
+        <div class="text-xs text-slate-400 flex flex-wrap gap-4">
           <span>⚓ <span id="omDisplay" class="text-slate-200 font-semibold"></span></span>
           <span>🫡 <span id="avDisplay" class="text-slate-200 font-semibold"></span></span>
+          <span>📐 <span id="lapDisplay" class="text-slate-200 font-semibold"></span></span>
         </div>
         <button id="btnClearAvaliador" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-rose-800 text-xs font-semibold text-slate-300 flex items-center gap-1">🗑️ Editar</button>
       </div>
@@ -146,11 +152,11 @@
         <div class="tab-header">
           <button class="tab-btn active" data-tab="gola" onclick="switchTab('gola')">
             Gola
-            <span class="tab-badge">11 voltas + 35m</span>
+            <span class="tab-badge" id="golaBadge">11 voltas + 35m</span>
           </button>
           <button class="tab-btn" data-tab="naval" onclick="switchTab('naval')">
             Naval
-            <span class="tab-badge">14 voltas + 190m</span>
+            <span class="tab-badge" id="navalBadge">14 voltas + 190m</span>
           </button>
         </div>
       </div>
@@ -161,7 +167,7 @@
           <div>
             <label class="block text-sm mb-1">Número de voltas</label>
             <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
-              11 voltas + 35m
+              <span id="golaLapsDisplay">11 voltas + 35m</span>
             </div>
           </div>
           <div class="w-full sm:w-auto">
@@ -195,7 +201,7 @@
           <div>
             <label class="block text-sm mb-1">Número de voltas</label>
             <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
-              14 voltas + 190m
+              <span id="navalLapsDisplay">14 voltas + 190m</span>
             </div>
           </div>
           <div class="w-full sm:w-auto">
@@ -327,21 +333,32 @@
     // ======= Utilidades =======
     const fmt=(ms)=>{const t=Math.max(0,ms|0);const m=Math.floor(t/60000);const s=Math.floor((t%60000)/1000);const pad=(n)=>String(n).padStart(2,'0');return `${pad(m)}:${pad(s)}`};
 
+    // ======= Configuração das abas =======
+    // TAB_CONFIG is mutable — recalculated when lap size is confirmed
+    const TAB_CONFIG = {
+      gola:  { lapsGoal: 11, extraMeters: 35,  lapMeters: 215, totalMeters: 2400, label: 'Corpo Gola',  shortLabel: 'Gola',  extraAtStart: true },
+      naval: { lapsGoal: 14, extraMeters: 190, lapMeters: 215, totalMeters: 3200, label: 'Corpo Naval', shortLabel: 'Naval', extraAtStart: true }
+    };
+    const lapsGoalByTab = { gola: TAB_CONFIG.gola.lapsGoal, naval: TAB_CONFIG.naval.lapsGoal };
+
     // ======= OM e Avaliador =======
     let avaliadorConfirmado = '';
     let omConfirmado = '';
 
-    function omAvSetCompact(){
+    function omAvSetCompact(lapMeters, extraPos){
       document.getElementById('omAvEdit').classList.add('hidden');
       document.getElementById('omAvCompact').classList.remove('hidden');
       document.getElementById('omDisplay').textContent = omConfirmado;
       document.getElementById('avDisplay').textContent = avaliadorConfirmado;
+      const lapInfo = lapMeters + 'm/volta';
+      document.getElementById('lapDisplay').textContent = lapInfo;
     }
     function omAvSetEdit(){
       document.getElementById('omAvEdit').classList.remove('hidden');
       document.getElementById('omAvCompact').classList.add('hidden');
       document.getElementById('omInput').value = omConfirmado;
       document.getElementById('avaliadorInput').value = avaliadorConfirmado;
+      document.getElementById('lapMetersInput').value = TAB_CONFIG['gola'].lapMeters || 215;
     }
 
     function showOmAvError(msg){
@@ -353,11 +370,59 @@
     document.getElementById('btnConfirmAvaliador')?.addEventListener('click', () => {
       const om  = document.getElementById('omInput').value.trim();
       const av  = document.getElementById('avaliadorInput').value.trim();
+      const lapM = parseInt(document.getElementById('lapMetersInput').value) || 0;
       if(!om){ showOmAvError('⚠️ Preencha o campo Organização Militar.'); return; }
       if(!av){ showOmAvError('⚠️ Preencha o campo Avaliador.'); return; }
-      omConfirmado = om;
-      avaliadorConfirmado = av;
-      omAvSetCompact();
+      if(lapM < 50 || lapM > 1000){ showOmAvError('⚠️ Tamanho da volta deve ser entre 50 e 1000 metros.'); return; }
+
+      // Check if there is a remainder for any tab
+      const hasRemainder = ['gola','naval'].some(tab => TAB_CONFIG[tab].totalMeters % lapM !== 0);
+      const doConfirm = (extraPos) => {
+        omConfirmado = om;
+        avaliadorConfirmado = av;
+        // Recalc with chosen extra position
+        ['gola','naval'].forEach(tab => {
+          const total = TAB_CONFIG[tab].totalMeters;
+          const lapsGoal = Math.floor(total / lapM);
+          const extraMeters = total - lapsGoal * lapM;
+          TAB_CONFIG[tab].lapMeters    = lapM;
+          TAB_CONFIG[tab].lapsGoal     = lapsGoal;
+          TAB_CONFIG[tab].extraMeters  = extraMeters;
+          TAB_CONFIG[tab].extraAtStart = (extraPos === 'inicio');
+          lapsGoalByTab[tab]           = lapsGoal;
+        });
+        omAvSetCompact(lapM, extraPos);
+        // Update all lap display elements in tab panels and badges
+        ['gola','naval'].forEach(tab => {
+          const cfg = TAB_CONFIG[tab];
+          const pos = cfg.extraAtStart ? 'início' : 'final';
+          const text = cfg.extraMeters > 0
+            ? `${cfg.lapsGoal} voltas + ${cfg.extraMeters}m (${pos})`
+            : `${cfg.lapsGoal} voltas`;
+          const display = document.getElementById(tab+'LapsDisplay');
+          if(display) display.textContent = text;
+          const badge = document.getElementById(tab+'Badge');
+          if(badge) badge.textContent = cfg.extraMeters > 0
+            ? `${cfg.lapsGoal} voltas + ${cfg.extraMeters}m`
+            : `${cfg.lapsGoal} voltas`;
+        });
+      };
+
+      if(hasRemainder){
+        // Build summary of remainders
+        const lines = ['gola','naval'].map(tab => {
+          const total = TAB_CONFIG[tab].totalMeters;
+          const laps  = Math.floor(total / lapM);
+          const extra = total - laps * lapM;
+          return extra > 0 ? `${TAB_CONFIG[tab].label}: ${laps} voltas + ${extra}m` : `${TAB_CONFIG[tab].label}: ${laps} voltas`;
+        }).join('\n');
+        const choice = confirm(
+          'Com volta de '+lapM+'m:\n'+lines+'\n\nOs metros restantes ficam no INÍCIO da prova?\n\n(OK = Início | Cancelar = Final)'
+        );
+        doConfirm(choice ? 'inicio' : 'final');
+      } else {
+        doConfirm('final');
+      }
     });
 
     document.getElementById('btnClearAvaliador')?.addEventListener('click', () => {
@@ -367,20 +432,28 @@
       document.getElementById('avaliadorStatus').style.color = '';
     });
 
-    // ======= Configuração das abas =======
-    const TAB_CONFIG = {
-      gola:  { lapsGoal: 11, extraMeters: 35, lapMeters: 215, totalMeters: 2400, label: 'Gola' },
-      naval: { lapsGoal: 14, extraMeters: 190, lapMeters: 215,    totalMeters: 3200, label: 'Naval' }
-    };
-
+    // ======= Cálculo de distância =======
     function calcDistance(tab, lapsLen){
       const cfg = TAB_CONFIG[tab];
       if(!cfg || lapsLen === 0) return '0m';
       const goal = lapsGoalByTab[tab];
-      if(lapsLen === 1) return cfg.extraMeters + 'm'; // only extra segment done
-      const lapsDone = Math.min(lapsLen - 1, goal);   // subtract 1 for the extra click
-      const dist = cfg.extraMeters + Math.round(lapsDone * cfg.lapMeters);
-      return dist + 'm';
+      const hasExtra = cfg.extraMeters > 0;
+      if(!hasExtra){
+        // Exact laps, no extra segment
+        const lapsDone = Math.min(lapsLen, goal);
+        return Math.round(lapsDone * cfg.lapMeters) + 'm';
+      }
+      const extraFirst = cfg.extraAtStart !== false;
+      if(extraFirst){
+        if(lapsLen === 1) return cfg.extraMeters + 'm';
+        const lapsDone = Math.min(lapsLen - 1, goal);
+        const dist = cfg.extraMeters + Math.round(lapsDone * cfg.lapMeters);
+        return dist + 'm';
+      } else {
+        const lapsDone = Math.min(lapsLen, goal);
+        const dist = Math.round(lapsDone * cfg.lapMeters) + (lapsLen > goal ? cfg.extraMeters : 0);
+        return dist + 'm';
+      }
     }
 
     // ======= Tabelas de pontuação =======
@@ -432,7 +505,9 @@
       // laps: array of {lapMs} — lap 0 is extra segment (v2), laps 1..N are running laps
       // Use average of ALL running laps for stable projection
       const goal = lapsGoalByTab[tab];
-      const runningLaps = laps.slice(1); // exclude first extra segment click
+      const hasExtra_p = TAB_CONFIG[tab].extraMeters > 0;
+      const extraFirst_p = TAB_CONFIG[tab].extraAtStart !== false;
+      const runningLaps = (hasExtra_p && extraFirst_p) ? laps.slice(1) : laps;
       if(runningLaps.length < 1) return null;
       // Use ALL running laps for stable average
       const avgLapMs = runningLaps.reduce((s,l)=>s+l.lapMs,0) / runningLaps.length;
@@ -461,7 +536,6 @@
       return '<50'; // below minimum
     }
     let activeTab = 'gola';
-    const lapsGoalByTab = { gola: 11, naval: 14 };
     let runnerSeqGlobal = 0; // single global sequential counter
 
     // ======= Estado =======
@@ -508,10 +582,12 @@
     // ======= Tempo =======
     function nowGlobalMs(){return running?pausedAccum+(performance.now()-startEpoch):pausedAccum}
     function updateCardStatus(r){
-      const goal=lapsGoalByTab[r.tab];
+      const goal=r.lapsGoalSnap!==undefined?r.lapsGoalSnap:lapsGoalByTab[r.tab];
+      const hasExtra_f=(r.extraMetersSnap!==undefined?r.extraMetersSnap:TAB_CONFIG[r.tab].extraMeters)>0;
+      const maxC_f=hasExtra_f?goal+1:goal;
       let newState='normal';
-      if(r.laps.length>goal) newState='finished';
-      else if(r.laps.length===goal) newState='almost';
+      if(r.laps.length>=maxC_f) newState='finished';
+      else if(r.laps.length===maxC_f-1) newState='almost';
       r.cardEl.classList.remove('almost-finish','finished');
       if(newState==='almost') r.cardEl.classList.add('almost-finish');
       if(newState==='finished') r.cardEl.classList.add('finished');
@@ -519,8 +595,10 @@
     }
     function updateLapButtonsState(){
       for(const [,r] of runners){
-        const goal=lapsGoalByTab[r.tab];
-        const disableLap=!running || r.laps.length>goal; // allow goal+1 clicks (last = extra meters)
+        const goal=r.lapsGoalSnap!==undefined?r.lapsGoalSnap:lapsGoalByTab[r.tab];
+        const hasExtra_d=(r.extraMetersSnap!==undefined?r.extraMetersSnap:TAB_CONFIG[r.tab].extraMeters)>0;
+        const maxClicks=hasExtra_d?goal+1:goal;
+        const disableLap=!running||r.laps.length>=maxClicks;
         r.btnLap.disabled=disableLap; r.btnLap.classList.toggle('btn-disabled',disableLap);
         const disableUndo=!running; r.btnUndo.disabled=disableUndo; r.btnUndo.classList.toggle('btn-disabled',disableUndo);
         updateCardStatus(r);
@@ -623,7 +701,7 @@
       // Badge da aba
       const badge=frag.querySelector('.runner-tab-badge');
       if(badge){
-        badge.textContent=TAB_CONFIG[tab].label;
+        badge.textContent=TAB_CONFIG[tab].shortLabel||TAB_CONFIG[tab].label;
         badge.style.background = tab==='gola' ? '#0e7490' : '#7c3aed';
         badge.style.color = '#fff';
       }
@@ -647,7 +725,8 @@
 
       const table=createRunnerTable(label); tablesWrap.appendChild(table.section);
 
-      const runner={ label, tab, sex, age, nip, seqNum, cardEl, btnLap, btnUndo, lapsCountEl, laps:[], lastMarkMs:0, table, state:'normal', score:null };
+      const lapsGoalSnap=lapsGoalByTab[tab], extraMetersSnap=TAB_CONFIG[tab].extraMeters, extraAtStartSnap=TAB_CONFIG[tab].extraAtStart!==false;
+      const runner={ label, tab, sex, age, nip, seqNum, cardEl, btnLap, btnUndo, lapsCountEl, laps:[], lastMarkMs:0, table, state:'normal', score:null, lapsGoalSnap, extraMetersSnap, extraAtStartSnap };
       runners.set(label, runner);
 
       function lapLabel(lapIndex, tab){
@@ -657,19 +736,36 @@
         const num=lapIndex+1;
         return num>goal ? extra : String(num);
       }
-      function countDisplay(lapsLen, tab){
-        const goal=lapsGoalByTab[tab];
-        const extra=TAB_CONFIG[tab].extraMeters+'m';
+      function countDisplay(lapsLen, goal, extraMeters, extraAtStart){
         if(lapsLen===0) return '0';
-        if(lapsLen===1) return extra;        // 1º clique = extra metros
-        return String(lapsLen-1);            // cliques 2..goal+1 = voltas 1..goal
+        const hasExtra = extraMeters > 0;
+        if(!hasExtra){
+          // Voltas exatas, sem segmento extra — cada clique = 1 volta
+          if(lapsLen >= goal) return goal+'✓';
+          return String(lapsLen)+'/'+goal;
+        }
+        if(extraAtStart){
+          // Extra primeiro, depois voltas
+          if(lapsLen===1) return extraMeters+'m';
+          if(lapsLen > goal+1) return goal+'✓';
+          return String(lapsLen-1)+'/'+goal;
+        } else {
+          // Voltas primeiro, extra no final
+          if(lapsLen > goal) return goal+'✓';
+          return String(lapsLen)+'/'+goal;
+        }
       }
       function renderRunner(){
-        runner.lapsCountEl.textContent=countDisplay(runner.laps.length, runner.tab);
-        const goal_r=lapsGoalByTab[runner.tab];
-        const extra_r=TAB_CONFIG[runner.tab].extraMeters+'m';
+        runner.lapsCountEl.textContent=countDisplay(runner.laps.length, runner.lapsGoalSnap, runner.extraMetersSnap, runner.extraAtStartSnap);
+        const goal_r=runner.lapsGoalSnap;
+        const extra_r=runner.extraMetersSnap+'m';
         const rows=runner.laps.map((lap,i)=>{
-          const rowLabel = i===0 ? extra_r : String(i); // i=0 → extra, i=1..goal → volta 1..goal
+          const hasExtra_r = TAB_CONFIG[runner.tab].extraMeters > 0;
+          const extraFirst_r = TAB_CONFIG[runner.tab].extraAtStart !== false;
+          let rowLabel;
+          if(!hasExtra_r){ rowLabel = String(i+1); }
+          else if(extraFirst_r){ rowLabel = i===0 ? extra_r : String(i); }
+          else { rowLabel = i===runner.laps.length-1 && runner.laps.length>lapsGoalByTab[runner.tab] ? extra_r : String(i+1); }
           return `<tr class="odd:bg-slate-900/30"><td class="px-3 py-1">${rowLabel}</td><td class="px-3 py-1 mono">${fmt(lap.lapMs)}</td><td class="px-3 py-1 mono">${fmt(lap.tsGlobal)}</td></tr>`;
         }).join('');
         runner.table.tbody.innerHTML=rows;
@@ -677,7 +773,8 @@
         const scoreEl=runner.cardEl.querySelector('.runner-score');
         const projEl=runner.cardEl.querySelector('.runner-projection');
         const scoreColor = s => s===100||s===90 ? '#16a34a' : s===80||s===70 ? '#3b82f6' : s===60||s===50 ? '#f59e0b' : '#dc2626';
-        if(runner.laps.length > goal_r){
+        const maxC_s = runner.extraMetersSnap>0 ? goal_r+1 : goal_r;
+        if(runner.laps.length >= maxC_s){
           // Finished — show final score
           const totalMs=runner.laps[runner.laps.length-1].tsGlobal;
           runner.score=calcScore(runner.tab, runner.sex, runner.age, totalMs);
@@ -710,8 +807,8 @@
 
       runner.btnLap.addEventListener('click',()=>{
         if(!running) return;
-        const goal=lapsGoalByTab[runner.tab];
-        if(runner.laps.length>goal) return; // allow up to goal+1 clicks
+        const totalClicksGuard=runner.extraMetersSnap>0?runner.lapsGoalSnap+1:runner.lapsGoalSnap;
+        if(runner.laps.length>=totalClicksGuard) return;
         const t=nowGlobalMs();
         const lapMs=t-runner.lastMarkMs;
         runner.laps.push({ tsGlobal:t, lapMs });
@@ -781,9 +878,9 @@
       const titleRow1=['"Avaliação de TAF"'].concat(Array(numCols1-1).fill('')).join(',');
       const avRow1=['"Avaliador: '+avaliador1+'"'].concat(Array(numCols1-1).fill('')).join(',');
       const omRow1=['"OM: '+om1+'"'].concat(Array(numCols1-1).fill('')).join(',');
-      const header=['seq','nip','participante','aba','sexo','idade','volta','#parcial_ms','#marcacao_global_ms','parcial','marcacao_global','nota'];
+      const header=['seq','nip','participante','corpo','sexo','idade','volta','#parcial_ms','#marcacao_global_ms','parcial','marcacao_global','nota'];
       const rows=[]; const order=exportOrder();
-      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; r.laps.forEach((lap,i)=>{ const isLast=i===r.laps.length-1&&r.laps.length>lapsGoalByTab[r.tab]; rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', i+1, lap.lapMs, lap.tsGlobal, fmt(lap.lapMs), fmt(lap.tsGlobal), isLast?(r.score||''):''].join(',')) }) });
+      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; r.laps.forEach((lap,i)=>{ const isLast=i===r.laps.length-1&&(r.laps.length>=(TAB_CONFIG[r.tab].extraMeters>0?lapsGoalByTab[r.tab]+1:lapsGoalByTab[r.tab])); rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', i+1, lap.lapMs, lap.tsGlobal, fmt(lap.lapMs), fmt(lap.tsGlobal), isLast?(r.score||''):''].join(',')) }) });
       const csv=[titleRow1,avRow1,omRow1,header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
       const a=document.createElement('a'); a.href=url; a.download='voltas.csv'; a.click(); URL.revokeObjectURL(url);
@@ -796,7 +893,7 @@
       const titleRow = ['"Avaliação de TAF"'].concat(Array(numCols-1).fill('')).join(',');
       const avRow = ['"Avaliador: '+avaliador+'"'].concat(Array(numCols-1).fill('')).join(',');
       const omRow = ['"OM: '+om+'"'].concat(Array(numCols-1).fill('')).join(',');
-      const header=['seq','nip','participante','aba','sexo','idade','tempo_total','nota'];
+      const header=['seq','nip','participante','corpo','sexo','idade','tempo_total','nota'];
       const rows=[];
       order.forEach((label)=>{ const r=runners.get(label); if(!r) return;
         const v=r.laps.length;
@@ -815,7 +912,7 @@
       const titleRow2=['"Avaliação de TAF"'].concat(Array(numCols2-1).fill('')).join(',');
       const avRow2=['"Avaliador: '+avaliador2+'"'].concat(Array(numCols2-1).fill('')).join(',');
       const omRow2=['"OM: '+om2+'"'].concat(Array(numCols2-1).fill('')).join(',');
-      const header=['seq','nip','participante','aba','sexo','idade','distancia','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt','nota'];
+      const header=['seq','nip','participante','corpo','sexo','idade','distancia','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt','nota'];
       const rows=[]; const order=exportOrder(); const total=nowGlobalMs();
       order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', calcDistance(r.tab,v), u, total, fmt(u), fmt(total), r.score!==null&&r.score!==undefined?r.score:''].join(',')) });
       const csv=[titleRow2,avRow2,omRow2,header.join(','), ...rows].join('\n');
@@ -868,11 +965,13 @@
       const order=exportOrder();
       summaryTbody.innerHTML=order.map(label=>{
         const r=runners.get(label); if(!r) return '';
-        const goal=lapsGoalByTab[r.tab];
         const v=r.laps.length;
+        const goal=r.lapsGoalSnap!==undefined?r.lapsGoalSnap:lapsGoalByTab[r.tab];
+        const extraM=r.extraMetersSnap!==undefined?r.extraMetersSnap:TAB_CONFIG[r.tab].extraMeters;
+        const totalClicks=extraM>0?goal+1:goal;
+        const finished=v>=totalClicks;
         const displayV = calcDistance(r.tab, v);
         const ultima=v? fmt(r.laps[v-1].tsGlobal):'—';
-        const finished = v > goal;
         const rowColor = finished ? '' : 'color:#f87171';
         const tabLabel = TAB_CONFIG[r.tab]?.label||r.tab;
         const sexLabel = r.sex==='M' ? '♂ Masc' : '♀ Fem';
