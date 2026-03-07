@@ -207,8 +207,7 @@
     <div class="runner-card border border-slate-300 rounded-2xl p-4 shadow-xl flex flex-col gap-3">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold">
-          <span class="label"></span>
-          <span class="runner-seq-num text-base font-bold mr-2 text-slate-500"></span><span class="runner-tab-badge text-xs font-semibold rounded px-2 py-0.5 ml-2 align-middle"></span>
+          <span class="runner-seq-num text-base font-bold mr-1 text-slate-400"></span><span class="label"></span><span class="runner-tab-badge text-xs font-semibold rounded px-2 py-0.5 ml-2 align-middle"></span>
         </h3>
         <div class="flex items-center gap-2">
           <button class="btnUndo rounded-lg bg-amber-700 hover:bg-amber-600 px-3 py-1.5 text-sm" title="Desfazer">-</button>
@@ -230,7 +229,7 @@
     };
     let activeTab = 'gola';
     const lapsGoalByTab = { gola: 11, naval: 14 };
-    const runnerSeqByTab = { gola: 0, naval: 0 }; // sequential counter per tab
+    let runnerSeqGlobal = 0; // single global sequential counter
 
     // ======= Estado =======
     let running=false, startEpoch=0, pausedAccum=0, rafId=null;
@@ -278,8 +277,8 @@
     function updateCardStatus(r){
       const goal=lapsGoalByTab[r.tab];
       let newState='normal';
-      if(r.laps.length>=goal) newState='finished';
-      else if(r.laps.length===goal-1) newState='almost';
+      if(r.laps.length>goal) newState='finished';
+      else if(r.laps.length===goal) newState='almost';
       r.cardEl.classList.remove('almost-finish','finished');
       if(newState==='almost') r.cardEl.classList.add('almost-finish');
       if(newState==='finished') r.cardEl.classList.add('finished');
@@ -288,7 +287,7 @@
     function updateLapButtonsState(){
       for(const [,r] of runners){
         const goal=lapsGoalByTab[r.tab];
-        const disableLap=!running || r.laps.length>=goal;
+        const disableLap=!running || r.laps.length>goal; // allow goal+1 clicks (last = extra meters)
         r.btnLap.disabled=disableLap; r.btnLap.classList.toggle('btn-disabled',disableLap);
         const disableUndo=!running; r.btnUndo.disabled=disableUndo; r.btnUndo.classList.toggle('btn-disabled',disableUndo);
         updateCardStatus(r);
@@ -298,7 +297,7 @@
     function tick(){displayGlobal.textContent=fmt(nowGlobalMs());rafId=requestAnimationFrame(tick)}
     function start(){if(running) return; running=true; startEpoch=performance.now(); statusEl.textContent='Rodando'; updateLapButtonsState(); setStartLabel(); rafId=requestAnimationFrame(tick)}
     function pause(){if(!running) return; pausedAccum=nowGlobalMs(); running=false; statusEl.textContent='Pausado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(pausedAccum); updateLapButtonsState(); setStartLabel()}
-    function resetAll(){running=false; pausedAccum=0; startEpoch=0; statusEl.textContent='Parado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(0); for(const [l] of [...runners]) removeRunner(l); runnerSeqByTab.gola=0; runnerSeqByTab.naval=0; updateLapButtonsState(); setStartLabel(); renderSummary()}
+    function resetAll(){running=false; pausedAccum=0; startEpoch=0; statusEl.textContent='Parado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(0); for(const [l] of [...runners]) removeRunner(l); runnerSeqGlobal=0; updateLapButtonsState(); setStartLabel(); renderSummary()}
 
     document.getElementById('btnStart')?.addEventListener('click',start);
     document.getElementById('btnPause')?.addEventListener('click',pause);
@@ -357,8 +356,8 @@
       labelSpan.textContent=label;
 
       // Número sequencial por aba
-      runnerSeqByTab[tab]++;
-      const seqNum=runnerSeqByTab[tab];
+      runnerSeqGlobal++;
+      const seqNum=runnerSeqGlobal;
       const seqEl=frag.querySelector('.runner-seq-num');
       if(seqEl) seqEl.textContent='#'+seqNum;
 
@@ -395,13 +394,16 @@
         const goal=lapsGoalByTab[tab];
         const extra=TAB_CONFIG[tab].extraMeters+'m';
         if(lapsLen===0) return '0';
-        if(lapsLen < goal) return String(lapsLen);
-        return goal + ' + ' + extra;
+        if(lapsLen <= goal) return String(lapsLen);
+        return extra; // goal+1 th click = extra meters
       }
       function renderRunner(){
         runner.lapsCountEl.textContent=countDisplay(runner.laps.length, runner.tab);
+        const goal_r=lapsGoalByTab[runner.tab];
+        const extra_r=TAB_CONFIG[runner.tab].extraMeters+'m';
         const rows=runner.laps.map((lap,i)=>{
-          return `<tr class="odd:bg-slate-900/30"><td class="px-3 py-1">${i+1}</td><td class="px-3 py-1 mono">${fmt(lap.lapMs)}</td><td class="px-3 py-1 mono">${fmt(lap.tsGlobal)}</td></tr>`;
+          const rowLabel = (i+1) <= goal_r ? String(i+1) : extra_r;
+          return `<tr class="odd:bg-slate-900/30"><td class="px-3 py-1">${rowLabel}</td><td class="px-3 py-1 mono">${fmt(lap.lapMs)}</td><td class="px-3 py-1 mono">${fmt(lap.tsGlobal)}</td></tr>`;
         }).join('');
         runner.table.tbody.innerHTML=rows;
         updateLapButtonsState();
@@ -411,7 +413,7 @@
       runner.btnLap.addEventListener('click',()=>{
         if(!running) return;
         const goal=lapsGoalByTab[runner.tab];
-        if(runner.laps.length>=goal) return;
+        if(runner.laps.length>goal) return; // allow up to goal+1 clicks
         const t=nowGlobalMs();
         const lapMs=t-runner.lastMarkMs;
         runner.laps.push({ tsGlobal:t, lapMs });
@@ -521,9 +523,9 @@
         const extra=TAB_CONFIG[r.tab].extraMeters+'m';
         const v=r.laps.length;
         // Display: laps 1..(goal-1) as numbers; when finished show extra meters
-        const displayV = v===0 ? '0' : v < goal ? String(v) : (goal + ' + ' + extra);
+        const displayV = v===0 ? '0' : v <= goal ? String(v) : extra;
         const ultima=v? fmt(r.laps[v-1].tsGlobal):'—';
-        const cls=v<goal?'text-rose-400':'';
+        const cls=v<=goal?'text-rose-400':'';
         const tabLabel=TAB_CONFIG[r.tab]?.label||r.tab;
         return `<tr class="${cls}"><td class="px-3 py-1">#${r.seqNum}</td><td class="px-3 py-1">${label}</td><td class="px-3 py-1">${tabLabel}</td><td class="px-3 py-1">${displayV}</td><td class="px-3 py-1 mono">${ultima}</td></tr>`;
       }).join('');
