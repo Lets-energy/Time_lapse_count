@@ -622,7 +622,19 @@
       updateLapButtonsState(); setStartLabel(); rafId=requestAnimationFrame(tick);
     }
     function pause(){if(!running) return; pausedAccum=nowGlobalMs(); running=false; statusEl.textContent='Pausado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(pausedAccum); updateLapButtonsState(); setStartLabel()}
-    function resetAll(){running=false; pausedAccum=0; startEpoch=0; statusEl.textContent='Parado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(0); for(const [l] of [...runners]) removeRunner(l); runnerSeqGlobal=0; updateLapButtonsState(); setStartLabel(); renderSummary()}
+    function resetAll(){
+      if(runners.size>0||pausedAccum>0){
+        if(!confirm('Zerar apagar\u00e1 todos os participantes e reiniciar\u00e1 o cron\u00f4metro.\nConfirma?')) return;
+      }
+      running=false; pausedAccum=0; startEpoch=0; statusEl.textContent='Parado';
+      if(rafId) cancelAnimationFrame(rafId);
+      displayGlobal.textContent=fmt(0);
+      for(const [l] of [...runners]) removeRunner(l);
+      runnerSeqGlobal=0;
+      omConfirmado=''; avaliadorConfirmado=''; omAvSetEdit();
+      clearLocalSession();
+      updateLapButtonsState(); setStartLabel(); renderSummary();
+    }
 
     document.getElementById('btnStart')?.addEventListener('click',start);
     document.getElementById('btnPause')?.addEventListener('click',pause);
@@ -1055,8 +1067,127 @@
       if(e.target===document.getElementById('scoreModal')) document.getElementById('scoreModal').classList.add('hidden');
     });
 
+    // Auto-salvar: encapsula renderSummary para chamar saveLocalSession depois
+    const _renderSummaryOrig = renderSummary;
+    renderSummary = function(){
+      _renderSummaryOrig();
+      if(runners.size > 0 || pausedAccum > 0) saveLocalSession();
+    };
+
+    // countDisplay precisa ser acessivel no restore — reexportar do closure
+    function countDisplay(lapsLen, goal, extraMeters, extraAtStart){
+      if(lapsLen===0) return '0';
+      if(extraAtStart){ if(lapsLen===1) return extraMeters+'m'; return String(lapsLen-1)+'/'+goal; }
+      else { if(lapsLen<=goal) return String(lapsLen)+'/'+goal; return extraMeters+'m'; }
+    }
+
     // Estado inicial
     updateLapButtonsState(); setStartLabel(); renderSummary();
+    tryRestoreSession();
+
+    // ======= Aviso ao fechar/recarregar =======
+    window.addEventListener('beforeunload', e => {
+      if(running || pausedAccum > 0 || runners.size > 0){
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+
+    // ======= Sessao local (localStorage) =======
+    const LS_KEY = 'taf_tech_run_session';
+
+    function clearLocalSession(){
+      try{ localStorage.removeItem(LS_KEY); }catch(_){}
+    }
+
+    function saveLocalSession(){
+      try{
+        const payload = {
+          om: omConfirmado,
+          avaliador: avaliadorConfirmado,
+          lapMeters: TAB_CONFIG.gola.lapMeters,
+          extraAtStart: TAB_CONFIG.gola.extraAtStart,
+          pausedAccum,
+          runnerSeqGlobal,
+          savedAt: Date.now(),
+          runners: [...runners.values()].map(r=>({
+            label:r.label, tab:r.tab, sex:r.sex, age:r.age, nip:r.nip||'',
+            seqNum:r.seqNum,
+            lapsGoalSnap:r.lapsGoalSnap, extraMetersSnap:r.extraMetersSnap, extraAtStartSnap:r.extraAtStartSnap,
+            laps:r.laps
+          }))
+        };
+        localStorage.setItem(LS_KEY, JSON.stringify(payload));
+      }catch(e){ console.warn('Erro ao salvar sessao:', e); }
+    }
+
+    function tryRestoreSession(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if(!raw) return;
+        const d = JSON.parse(raw);
+        if(!d || !Array.isArray(d.runners) || d.runners.length === 0){ clearLocalSession(); return; }
+        const mins = Math.round((Date.now()-(d.savedAt||0))/60000);
+        const timeStr = mins < 120 ? ' ('+mins+' min atras)' : '';
+        const msg = 'Sessao anterior encontrada'+timeStr+'.\n'
+          +'OM: '+(d.om||'-')+'\nAvaliador: '+(d.avaliador||'-')+'\n'
+          +d.runners.length+' participante(s)\n\nDeseja restaurar?';
+        if(!confirm(msg)){ clearLocalSession(); return; }
+
+        // Restaurar OM/Avaliador
+        omConfirmado = d.om || '';
+        avaliadorConfirmado = d.avaliador || '';
+        const lapM = d.lapMeters || 215;
+        const extraAtStart = d.extraAtStart !== false;
+        ['gola','naval'].forEach(tab=>{
+          const total = TAB_CONFIG[tab].totalMeters;
+          const lapsGoal = Math.floor(total/lapM);
+          const extraMeters = total - lapsGoal*lapM;
+          TAB_CONFIG[tab].lapMeters   = lapM;
+          TAB_CONFIG[tab].lapsGoal    = lapsGoal;
+          TAB_CONFIG[tab].extraMeters = extraMeters;
+          TAB_CONFIG[tab].extraAtStart = extraAtStart;
+          lapsGoalByTab[tab]          = lapsGoal;
+        });
+        omAvSetCompact(lapM, extraAtStart ? 'inicio' : 'final');
+        ['gola','naval'].forEach(tab=>{
+          const el=document.getElementById(tab+'LapsDisplay'); if(!el) return;
+          const cfg=TAB_CONFIG[tab];
+          const pos=cfg.extraAtStart?'in\u00edcio':'final';
+          el.textContent=cfg.extraMeters>0?cfg.lapsGoal+' voltas + '+cfg.extraMeters+'m ('+pos+')':cfg.lapsGoal+' voltas';
+        });
+
+        // Restaurar tempo
+        pausedAccum = d.pausedAccum || 0;
+        if(pausedAccum > 0){ displayGlobal.textContent=fmt(pausedAccum); statusEl.textContent='Pausado'; }
+
+        // Restaurar participantes
+        runnerSeqGlobal = 0;
+        d.runners.forEach(rd=>{
+          runnerSeqGlobal = rd.seqNum - 1;
+          addRunner(rd.label, rd.tab, rd.sex, rd.age, rd.nip||'');
+          const r = runners.get(rd.label);
+          if(!r) return;
+          r.laps = rd.laps || [];
+          r.lastMarkMs = r.laps.length ? r.laps[r.laps.length-1].tsGlobal : 0;
+          r.lapsGoalSnap    = rd.lapsGoalSnap;
+          r.extraMetersSnap = rd.extraMetersSnap;
+          r.extraAtStartSnap= rd.extraAtStartSnap;
+          // re-render tabela de voltas
+          const g=r.lapsGoalSnap, ex=r.extraMetersSnap+'m', eaS=r.extraAtStartSnap;
+          const rows=r.laps.map((lap,i)=>{
+            let lbl;
+            if(eaS){ lbl=i===0?ex:String(i); }
+            else { lbl=i<g?String(i+1):ex; }
+            return '<tr class="odd:bg-slate-900/30"><td class="px-3 py-1">'+lbl+'</td><td class="px-3 py-1 mono">'+fmt(lap.lapMs)+'</td><td class="px-3 py-1 mono">'+fmt(lap.tsGlobal)+'</td></tr>';
+          }).join('');
+          r.table.tbody.innerHTML=rows;
+          r.lapsCountEl.textContent=countDisplay(r.laps.length,r.lapsGoalSnap,r.extraMetersSnap,r.extraAtStartSnap);
+        });
+        runnerSeqGlobal = d.runnerSeqGlobal || runnerSeqGlobal;
+        updateLapButtonsState(); setStartLabel(); renderSummary();
+      }catch(e){ console.warn('Erro ao restaurar sessao:', e); clearLocalSession(); }
+    }
 
     // ======= Bloquear pull-to-refresh =======
     document.addEventListener('touchstart', function(e){ this._startY = e.touches[0].clientY; }, {passive: false});
