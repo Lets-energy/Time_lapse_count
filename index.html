@@ -283,6 +283,7 @@
         <span class="runner-info-age"></span>
         <span class="runner-score font-bold text-base text-slate-700 ml-auto"></span>
       </div>
+      <div class="runner-projection text-xs text-center rounded-lg py-1 hidden" style="background:rgba(0,0,0,0.08)"></div>
     </div>
   </template>
 
@@ -350,6 +351,23 @@
         ]
       }
     };
+
+    function calcProjection(tab, sex, age, laps){
+      // laps: array of {lapMs} — lap 0 is extra segment (v2), laps 1..N are running laps
+      // Use average of ALL running laps for stable projection
+      const goal = lapsGoalByTab[tab];
+      const runningLaps = laps.slice(1); // exclude first extra segment click
+      if(runningLaps.length < 1) return null;
+      // Use ALL running laps for stable average
+      const avgLapMs = runningLaps.reduce((s,l)=>s+l.lapMs,0) / runningLaps.length;
+      const lapsRemaining = goal - runningLaps.length;
+      if(lapsRemaining < 0) return null;
+      // projected total = time already elapsed at last lap mark + remaining laps * avg pace
+      const elapsedMs = laps[laps.length-1].tsGlobal;
+      const projectedMs = elapsedMs + lapsRemaining * avgLapMs;
+      const projScore = calcScore(tab, sex, age, projectedMs);
+      return { projectedMs, projScore, avgLapMs };
+    }
 
     function calcScore(tab, sex, age, totalMs){
       if(!sex || !age || totalMs<=0) return null;
@@ -558,20 +576,36 @@
           return `<tr class="odd:bg-slate-900/30"><td class="px-3 py-1">${rowLabel}</td><td class="px-3 py-1 mono">${fmt(lap.lapMs)}</td><td class="px-3 py-1 mono">${fmt(lap.tsGlobal)}</td></tr>`;
         }).join('');
         runner.table.tbody.innerHTML=rows;
-        // Compute score when finished (all laps including extra done)
+        // Compute final score or projection
         const scoreEl=runner.cardEl.querySelector('.runner-score');
+        const projEl=runner.cardEl.querySelector('.runner-projection');
+        const scoreColor = s => s===100||s===90 ? '#16a34a' : s===80||s===70 ? '#3b82f6' : s===60||s===50 ? '#f59e0b' : '#dc2626';
         if(runner.laps.length > goal_r){
+          // Finished — show final score
           const totalMs=runner.laps[runner.laps.length-1].tsGlobal;
           runner.score=calcScore(runner.tab, runner.sex, runner.age, totalMs);
           if(scoreEl){
             const s=runner.score;
-            const color = s===100||s===90 ? '#16a34a' : s===80||s===70 ? '#3b82f6' : s===60||s===50 ? '#f59e0b' : '#dc2626';
             scoreEl.textContent = s!==null ? 'Nota: '+s : '';
-            scoreEl.style.color=color;
+            scoreEl.style.color=scoreColor(s);
+          }
+          if(projEl){ projEl.textContent=''; projEl.classList.add('hidden'); }
+        } else if(runner.laps.length >= 2){
+          // In progress — show projection based on average of all laps so far
+          runner.score=null;
+          if(scoreEl){ scoreEl.textContent=''; }
+          const proj=calcProjection(runner.tab, runner.sex, runner.age, runner.laps);
+          if(proj && projEl){
+            const s=proj.projScore;
+            const col=scoreColor(s);
+            const pace=fmt(proj.avgLapMs);
+            projEl.classList.remove('hidden');
+            projEl.innerHTML=`<span style="color:#64748b">Projeção: </span><strong style="color:${col}">${s!==null?s:'—'}</strong><span style="color:#94a3b8"> · pace ${pace}/volta</span>`;
           }
         } else {
           runner.score=null;
-          if(scoreEl) scoreEl.textContent='';
+          if(scoreEl){ scoreEl.textContent=''; }
+          if(projEl){ projEl.textContent=''; projEl.classList.add('hidden'); }
         }
         updateLapButtonsState();
         renderSummary();
