@@ -91,6 +91,38 @@
 
   <main class="max-w-6xl mx-auto p-4 grid gap-6">
 
+    <!-- OM e Avaliador -->
+    <section id="omAvSection" class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+      <!-- EDIT MODE -->
+      <div id="omAvEdit">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-slate-300">Organização Militar</label>
+            <input id="omInput" type="text" maxlength="60" placeholder="Ex.: 1º BEC, COLOG, IME..."
+              class="w-full rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1 text-slate-300">Avaliador</label>
+            <div class="flex gap-2">
+              <input id="avaliadorInput" type="text" maxlength="60" placeholder="Nome do avaliador..."
+                class="flex-1 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" />
+              <button id="btnConfirmAvaliador" class="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-sm font-semibold">✓ Confirmar</button>
+            </div>
+            <p id="avaliadorStatus" class="text-xs text-slate-500 mt-1">Preencha OM e Avaliador e clique em Confirmar</p>
+          </div>
+        </div>
+        <div id="omAvError" class="hidden text-xs font-semibold rounded-xl px-3 py-2 mt-2" style="background:#7f1d1d;color:#fca5a5"></div>
+      </div>
+      <!-- COMPACT MODE (after confirmed) -->
+      <div id="omAvCompact" class="hidden flex items-center justify-between gap-3">
+        <div class="text-xs text-slate-400 flex gap-4">
+          <span>⚓ <span id="omDisplay" class="text-slate-200 font-semibold"></span></span>
+          <span>🫡 <span id="avDisplay" class="text-slate-200 font-semibold"></span></span>
+        </div>
+        <button id="btnClearAvaliador" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-rose-800 text-xs font-semibold text-slate-300 flex items-center gap-1">🗑️ Editar</button>
+      </div>
+    </section>
+
     <!-- Cronômetro -->
     <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
       <div class="flex flex-col items-center gap-3 text-center">
@@ -104,6 +136,7 @@
           <button id="btnPause" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 font-semibold">Pausar</button>
           <button id="btnReset" class="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-600 font-semibold">Zerar</button>
         </div>
+        <div id="startError" class="hidden text-xs font-semibold rounded-xl px-3 py-2 mt-1" style="background:#7f1d1d;color:#fca5a5"></div>
       </div>
     </section>
 
@@ -151,6 +184,7 @@
               <button class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 font-semibold self-stretch" data-tab="gola">Adicionar</button>
             </div>
             <p class="text-xs text-slate-500 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
+            <p id="runnerError-gola" class="text-xs font-semibold mt-1" style="color:#fca5a5;min-height:1rem"></p>
           </div>
         </div>
       </div>
@@ -184,6 +218,7 @@
               <button class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 font-semibold self-stretch" data-tab="naval">Adicionar</button>
             </div>
             <p class="text-xs text-slate-500 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
+            <p id="runnerError-naval" class="text-xs font-semibold mt-1" style="color:#fca5a5;min-height:1rem"></p>
           </div>
         </div>
       </div>
@@ -220,9 +255,10 @@
     <!-- Exportações -->
     <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
       <div class="flex flex-wrap items-center gap-2">
-        <button id="btnExportCSV" class="px-3 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500">Exportar CSV (todas as voltas)</button>
-        <button id="btnExportCSVParciais" class="px-3 py-2 text-sm rounded-lg bg-fuchsia-600 hover:bg-fuchsia-500">Exportar CSV (parciais + totais)</button>
-        <button id="btnExportPDF" class="px-3 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600">Exportar PDF (tabelas)</button>
+        <button id="btnExportCSV" class="px-3 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500">📄 CSV (todas as voltas)</button>
+        <button id="btnExportCSVParciais" class="px-3 py-2 text-sm rounded-lg bg-fuchsia-600 hover:bg-fuchsia-500">📄 CSV (parciais + finais)</button>
+        <button id="btnExportCSVTotais" class="px-3 py-2 text-sm rounded-lg bg-violet-600 hover:bg-violet-500">📄 CSV (somente tempos totais)</button>
+        <button id="btnExportPDF" class="px-3 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600">🖨️ PDF (tabelas)</button>
         <button id="btnScoreTable" class="px-3 py-2 text-sm rounded-lg bg-teal-700 hover:bg-teal-600">📋 Tabela de Notas</button>
       </div>
     </section>
@@ -290,6 +326,46 @@
   <script>
     // ======= Utilidades =======
     const fmt=(ms)=>{const t=Math.max(0,ms|0);const m=Math.floor(t/60000);const s=Math.floor((t%60000)/1000);const pad=(n)=>String(n).padStart(2,'0');return `${pad(m)}:${pad(s)}`};
+
+    // ======= OM e Avaliador =======
+    let avaliadorConfirmado = '';
+    let omConfirmado = '';
+
+    function omAvSetCompact(){
+      document.getElementById('omAvEdit').classList.add('hidden');
+      document.getElementById('omAvCompact').classList.remove('hidden');
+      document.getElementById('omDisplay').textContent = omConfirmado;
+      document.getElementById('avDisplay').textContent = avaliadorConfirmado;
+    }
+    function omAvSetEdit(){
+      document.getElementById('omAvEdit').classList.remove('hidden');
+      document.getElementById('omAvCompact').classList.add('hidden');
+      document.getElementById('omInput').value = omConfirmado;
+      document.getElementById('avaliadorInput').value = avaliadorConfirmado;
+    }
+
+    function showOmAvError(msg){
+      let el = document.getElementById('omAvError');
+      el.textContent = msg; el.classList.remove('hidden');
+      clearTimeout(el._t); el._t = setTimeout(() => el.classList.add('hidden'), 4000);
+    }
+
+    document.getElementById('btnConfirmAvaliador')?.addEventListener('click', () => {
+      const om  = document.getElementById('omInput').value.trim();
+      const av  = document.getElementById('avaliadorInput').value.trim();
+      if(!om){ showOmAvError('⚠️ Preencha o campo Organização Militar.'); return; }
+      if(!av){ showOmAvError('⚠️ Preencha o campo Avaliador.'); return; }
+      omConfirmado = om;
+      avaliadorConfirmado = av;
+      omAvSetCompact();
+    });
+
+    document.getElementById('btnClearAvaliador')?.addEventListener('click', () => {
+      // Keeps runners intact — only unlocks OM/Avaliador fields
+      omAvSetEdit();
+      document.getElementById('avaliadorStatus').textContent = 'Preencha OM e Avaliador e clique em Confirmar';
+      document.getElementById('avaliadorStatus').style.color = '';
+    });
 
     // ======= Configuração das abas =======
     const TAB_CONFIG = {
@@ -452,7 +528,21 @@
     }
     function setStartLabel(){btnStart.textContent=(!running&&pausedAccum>0)?'Retomar':'Iniciar'}
     function tick(){displayGlobal.textContent=fmt(nowGlobalMs());rafId=requestAnimationFrame(tick)}
-    function start(){if(running) return; running=true; startEpoch=performance.now(); statusEl.textContent='Rodando'; updateLapButtonsState(); setStartLabel(); rafId=requestAnimationFrame(tick)}
+
+    function showStartError(msg){
+      const el=document.getElementById('startError');
+      el.textContent=msg; el.classList.remove('hidden');
+      setTimeout(()=>el.classList.add('hidden'), 4000);
+    }
+
+    function start(){
+      if(running) return;
+      if(!omConfirmado){ showStartError('⚠️ Informe a Organização Militar antes de iniciar.'); return; }
+      if(!avaliadorConfirmado){ showStartError('⚠️ Confirme o Avaliador antes de iniciar.'); return; }
+      if(runners.size===0){ showStartError('⚠️ Adicione ao menos 1 participante antes de iniciar.'); return; }
+      running=true; startEpoch=performance.now(); statusEl.textContent='Rodando';
+      updateLapButtonsState(); setStartLabel(); rafId=requestAnimationFrame(tick);
+    }
     function pause(){if(!running) return; pausedAccum=nowGlobalMs(); running=false; statusEl.textContent='Pausado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(pausedAccum); updateLapButtonsState(); setStartLabel()}
     function resetAll(){running=false; pausedAccum=0; startEpoch=0; statusEl.textContent='Parado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(0); for(const [l] of [...runners]) removeRunner(l); runnerSeqGlobal=0; updateLapButtonsState(); setStartLabel(); renderSummary()}
 
@@ -504,13 +594,20 @@
     // ======= Participantes =======
     function addRunner(label, tab, sex, age, nip){
       label=String(label||'').trim();
-      if(!label){alert('Digite uma identificação válida.');return}
-      if(!sex){alert('Selecione o sexo do participante.');return}
-      if(!age||age<18){alert('Informe uma idade válida (mínimo 18).');return}
+      function runnerErr(tab, msg){
+        const el=document.getElementById('runnerError-'+tab);
+        if(!el) return;
+        el.textContent=msg;
+        clearTimeout(el._t);
+        el._t=setTimeout(()=>{ el.textContent=''; }, 4000);
+      }
+      if(!label){ runnerErr(tab,'⚠️ Digite uma identificação válida.'); return false; }
+      if(!sex){ runnerErr(tab,'⚠️ Selecione o sexo.'); return false; }
+      if(!age||age<18){ runnerErr(tab,'⚠️ Informe uma idade válida (mínimo 18).'); return false; }
       nip=String(nip||'').trim();
-      if(nip && nip.replace(/\D/g,'').length!==8){alert('NIP deve ter 8 dígitos numéricos.');return}
-      if(runners.has(label)){alert('Esse identificador já foi adicionado.');return}
-      if(runners.size>=MAX_RUNNERS){alert('Limite de 12 participantes atingido.');return}
+      if(nip && nip.replace(/\D/g,'').length!==8){ runnerErr(tab,'⚠️ NIP deve ter 8 dígitos numéricos.'); return false; }
+      if(runners.has(label)){ runnerErr(tab,'⚠️ Esse identificador já foi adicionado.'); return false; }
+      if(runners.size>=MAX_RUNNERS){ runnerErr(tab,'⚠️ Limite de 12 participantes atingido.'); return false; }
       age=parseInt(age);
 
       const frag=tpl.content.cloneNode(true);
@@ -678,20 +775,52 @@
     // ======= Exportações =======
     function exportOrder(){return [...grid.querySelectorAll('.runner-card')].map(el=> el.dataset.label || (el.querySelector('.label')?.textContent||'')).filter(Boolean)}
     function exportCSVAllLaps(){
+      const avaliador1=avaliadorConfirmado||'(não informado)';
+      const om1=document.getElementById('omInput')?.value.trim()||'(não informada)';
+      const numCols1=12;
+      const titleRow1=['"Avaliação de TAF"'].concat(Array(numCols1-1).fill('')).join(',');
+      const avRow1=['"Avaliador: '+avaliador1+'"'].concat(Array(numCols1-1).fill('')).join(',');
+      const omRow1=['"OM: '+om1+'"'].concat(Array(numCols1-1).fill('')).join(',');
       const header=['seq','nip','participante','aba','sexo','idade','volta','#parcial_ms','#marcacao_global_ms','parcial','marcacao_global','nota'];
       const rows=[]; const order=exportOrder();
       order.forEach((label)=>{ const r=runners.get(label); if(!r) return; r.laps.forEach((lap,i)=>{ const isLast=i===r.laps.length-1&&r.laps.length>lapsGoalByTab[r.tab]; rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', i+1, lap.lapMs, lap.tsGlobal, fmt(lap.lapMs), fmt(lap.tsGlobal), isLast?(r.score||''):''].join(',')) }) });
-      const csv=[header.join(','), ...rows].join('\n');
+      const csv=[titleRow1,avRow1,omRow1,header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
       const a=document.createElement('a'); a.href=url; a.download='voltas.csv'; a.click(); URL.revokeObjectURL(url);
     }
+    function exportCSVTotais(){
+      const avaliador = avaliadorConfirmado || '(não informado)';
+      const om = document.getElementById('omInput')?.value.trim() || '(não informada)';
+      const order=exportOrder();
+      const numCols = 8; // seq,nip,participante,aba,sexo,idade,tempo_total,nota
+      const titleRow = ['"Avaliação de TAF"'].concat(Array(numCols-1).fill('')).join(',');
+      const avRow = ['"Avaliador: '+avaliador+'"'].concat(Array(numCols-1).fill('')).join(',');
+      const omRow = ['"OM: '+om+'"'].concat(Array(numCols-1).fill('')).join(',');
+      const header=['seq','nip','participante','aba','sexo','idade','tempo_total','nota'];
+      const rows=[];
+      order.forEach((label)=>{ const r=runners.get(label); if(!r) return;
+        const v=r.laps.length;
+        const totalMs = v? r.laps[v-1].tsGlobal : 0;
+        rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', fmt(totalMs), r.score!==null&&r.score!==undefined?r.score:''].join(','));
+      });
+      const csv=[titleRow, avRow, omRow, header.join(','), ...rows].join('\n');
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download='tempos_totais.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+
     function exportCSVParciais(){
+      const avaliador2=avaliadorConfirmado||'(não informado)';
+      const om2=document.getElementById('omInput')?.value.trim()||'(não informada)';
+      const numCols2=12;
+      const titleRow2=['"Avaliação de TAF"'].concat(Array(numCols2-1).fill('')).join(',');
+      const avRow2=['"Avaliador: '+avaliador2+'"'].concat(Array(numCols2-1).fill('')).join(',');
+      const omRow2=['"OM: '+om2+'"'].concat(Array(numCols2-1).fill('')).join(',');
       const header=['seq','nip','participante','aba','sexo','idade','distancia','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt','nota'];
       const rows=[]; const order=exportOrder(); const total=nowGlobalMs();
       order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', calcDistance(r.tab,v), u, total, fmt(u), fmt(total), r.score!==null&&r.score!==undefined?r.score:''].join(',')) });
-      const csv=[header.join(','), ...rows].join('\n');
+      const csv=[titleRow2,avRow2,omRow2,header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
-      const a=document.createElement('a'); a.href=url; a.download='parciais_totais.csv'; a.click(); URL.revokeObjectURL(url);
+      const a=document.createElement('a'); a.href=url; a.download='parciais_finais.csv'; a.click(); URL.revokeObjectURL(url);
     }
     function exportPDFTables(){
       const win=window.open('', '_blank');
@@ -731,6 +860,7 @@
     }
     document.getElementById('btnExportCSV')?.addEventListener('click',exportCSVAllLaps);
     document.getElementById('btnExportCSVParciais')?.addEventListener('click',exportCSVParciais);
+    document.getElementById('btnExportCSVTotais')?.addEventListener('click',exportCSVTotais);
     document.getElementById('btnExportPDF')?.addEventListener('click',exportPDFTables);
 
     // ======= Resumo =======
