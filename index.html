@@ -133,9 +133,21 @@
           </div>
           <div class="w-full sm:w-auto">
             <label class="block text-sm mb-1">Identificação do participante</label>
-            <div class="flex gap-2">
-              <input class="participantInput w-full sm:w-64 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="gola" placeholder="Ex.: João, 12, Equipe A" />
-              <button class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 py-2 font-semibold" data-tab="gola">Adicionar</button>
+            <div class="flex gap-2 items-stretch">
+              <!-- Campos empilhados: nome em cima, sexo+idade embaixo -->
+              <div class="flex flex-col gap-2 flex-1">
+                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="gola" placeholder="Ex.: João, Equipe A" />
+                <div class="flex gap-2">
+                  <select class="sexInput flex-1 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" data-tab="gola">
+                    <option value="">Sexo</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                  </select>
+                  <input class="ageInput w-24 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 text-center outline-none focus:ring-2 focus:ring-sky-500 text-sm" type="number" min="18" max="99" data-tab="gola" placeholder="Idade" />
+                </div>
+              </div>
+              <!-- Botão ocupando a altura das duas linhas -->
+              <button class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 font-semibold self-stretch" data-tab="gola">Adicionar</button>
             </div>
             <p class="text-xs text-slate-500 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
           </div>
@@ -153,9 +165,21 @@
           </div>
           <div class="w-full sm:w-auto">
             <label class="block text-sm mb-1">Identificação do participante</label>
-            <div class="flex gap-2">
-              <input class="participantInput w-full sm:w-64 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="naval" placeholder="Ex.: João, 12, Equipe A" />
-              <button class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 py-2 font-semibold" data-tab="naval">Adicionar</button>
+            <div class="flex gap-2 items-stretch">
+              <!-- Campos empilhados: nome em cima, sexo+idade embaixo -->
+              <div class="flex flex-col gap-2 flex-1">
+                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="naval" placeholder="Ex.: João, Equipe A" />
+                <div class="flex gap-2">
+                  <select class="sexInput flex-1 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" data-tab="naval">
+                    <option value="">Sexo</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                  </select>
+                  <input class="ageInput w-24 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 text-center outline-none focus:ring-2 focus:ring-sky-500 text-sm" type="number" min="18" max="99" data-tab="naval" placeholder="Idade" />
+                </div>
+              </div>
+              <!-- Botão ocupando a altura das duas linhas -->
+              <button class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 font-semibold self-stretch" data-tab="naval">Adicionar</button>
             </div>
             <p class="text-xs text-slate-500 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
           </div>
@@ -183,8 +207,11 @@
             <th class="text-left px-3 py-1">Nº</th>
             <th class="text-left px-3 py-1">Participante</th>
             <th class="text-left px-3 py-1">Aba</th>
+            <th class="text-left px-3 py-1">Sexo</th>
+            <th class="text-left px-3 py-1">Idade</th>
             <th class="text-left px-3 py-1">Voltas</th>
             <th class="text-left px-3 py-1">Última marcação</th>
+            <th class="text-left px-3 py-1">Nota</th>
           </tr>
         </thead>
         <tbody id="summaryTbody"></tbody>
@@ -204,9 +231,9 @@
 
   <!-- Template do participante -->
   <template id="runnerTemplate">
-    <div class="runner-card border border-slate-300 rounded-2xl p-4 shadow-xl flex flex-col gap-3">
+    <div class="runner-card border border-slate-300 rounded-2xl p-4 shadow-xl flex flex-col gap-2">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold">
+        <h3 class="text-lg font-semibold leading-tight">
           <span class="runner-seq-num text-base font-bold mr-1 text-slate-400"></span><span class="label"></span><span class="runner-tab-badge text-xs font-semibold rounded px-2 py-0.5 ml-2 align-middle"></span>
         </h3>
         <div class="flex items-center gap-2">
@@ -214,6 +241,11 @@
           <span class="lapsCount text-lg font-semibold">0</span>
           <button class="btnLap rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 text-sm" title="Marcar volta">+</button>
         </div>
+      </div>
+      <div class="flex items-center gap-3 text-xs text-slate-500 border-t border-slate-300/40 pt-1">
+        <span class="runner-info-sex"></span>
+        <span class="runner-info-age"></span>
+        <span class="runner-score font-bold text-base text-slate-700 ml-auto"></span>
       </div>
     </div>
   </template>
@@ -227,6 +259,67 @@
       gola:  { lapsGoal: 11, extraMeters: 35,  label: 'Gola' },
       naval: { lapsGoal: 14, extraMeters: 190, label: 'Naval' }
     };
+
+    // ======= Tabelas de pontuação =======
+    // Tempo em segundos (limite máximo para cada nota — tempo <= valor = nota)
+    // Formato: { faixaIdade: { pontos: tempoMaxSegundos } }
+    // Nota: tempo MENOR ou IGUAL ao limite recebe aquela nota (arredonda para baixo)
+    const SCORING = {
+      gola: {
+        M: [
+          { min:18, max:25, t50:870,  t60:810,  t70:738,  t80:678,  t90:612,  t100:576  },
+          { min:26, max:33, t50:900,  t60:840,  t70:762,  t80:702,  t90:636,  t100:600  },
+          { min:34, max:39, t50:930,  t60:870,  t70:804,  t80:744,  t90:696,  t100:648  },
+          { min:40, max:45, t50:984,  t60:936,  t70:858,  t80:780,  t90:744,  t100:696  },
+          { min:46, max:49, t50:1050, t60:972,  t70:924,  t80:876,  t90:840,  t100:792  },
+          { min:50, max:999,t50:1128, t60:1044, t70:1002, t80:960,  t90:936,  t100:888  },
+        ],
+        F: [
+          { min:18, max:25, t50:940,  t60:900,  t70:846,  t80:792,  t90:708,  t100:672  },
+          { min:26, max:33, t50:976,  t60:930,  t70:876,  t80:822,  t90:768,  t100:720  },
+          { min:34, max:39, t50:1000, t60:978,  t70:936,  t80:870,  t90:816,  t100:768  },
+          { min:40, max:45, t50:1072, t60:1038, t70:978,  t80:924,  t90:876,  t100:816  },
+          { min:46, max:49, t50:1138, t60:1098, t70:1038, t80:984,  t90:924,  t100:864  },
+          { min:50, max:999,t50:1204, t60:1170, t70:1116, t80:1050, t90:1020, t100:960  },
+        ]
+      },
+      naval: {
+        M: [
+          { min:18, max:25, t50:1110, t60:1040, t70:992,  t80:928,  t90:864,  t100:784  },
+          { min:26, max:33, t50:1140, t60:1072, t70:1024, t80:960,  t90:896,  t100:816  },
+          { min:34, max:39, t50:1170, t60:1136, t70:1088, t80:1024, t90:960,  t100:880  },
+          { min:40, max:45, t50:1248, t60:1200, t70:1104, t80:1040, t90:976,  t100:896  },
+          { min:46, max:49, t50:1344, t60:1296, t70:1184, t80:1120, t90:1056, t100:976  },
+          { min:50, max:54, t50:1376, t60:1328, t70:1216, t80:1152, t90:1088, t100:1008 },
+          { min:55, max:999,t50:1408, t60:1300, t70:1248, t80:1184, t90:1120, t100:1040 },
+        ],
+        F: [
+          { min:18, max:25, t50:1230, t60:1056, t70:1024, t80:992,  t90:960,  t100:912  },
+          { min:26, max:33, t50:1260, t60:1152, t70:1120, t80:1072, t90:1024, t100:960  },
+          { min:34, max:39, t50:1290, t60:1216, t70:1184, t80:1136, t90:1088, t100:1024 },
+          { min:40, max:45, t50:1400, t60:1344, t70:1296, t80:1232, t90:1168, t100:1104 },
+          { min:46, max:49, t50:1472, t60:1424, t70:1376, t80:1312, t90:1248, t100:1184 },
+          { min:50, max:54, t50:1600, t60:1552, t70:1472, t80:1392, t90:1312, t100:1232 },
+          { min:55, max:999,t50:1648, t60:1584, t70:1504, t80:1424, t90:1344, t100:1264 },
+        ]
+      }
+    };
+
+    function calcScore(tab, sex, age, totalMs){
+      if(!sex || !age || totalMs<=0) return null;
+      const table = SCORING[tab]?.[sex];
+      if(!table) return null;
+      const row = table.find(r => age >= r.min && age <= r.max);
+      if(!row) return null;
+      const secs = Math.floor(totalMs / 1000);
+      if(secs <= row.t100) return 100;
+      if(secs <= row.t90)  return 90;
+      if(secs <= row.t80)  return 80;
+      if(secs <= row.t70)  return 70;
+      if(secs <= row.t60)  return 60;
+      if(secs <= row.t50)  return 50;
+      return '<50'; // below minimum
+    }
     let activeTab = 'gola';
     const lapsGoalByTab = { gola: 11, naval: 14 };
     let runnerSeqGlobal = 0; // single global sequential counter
@@ -345,11 +438,14 @@
     }
 
     // ======= Participantes =======
-    function addRunner(label, tab){
+    function addRunner(label, tab, sex, age){
       label=String(label||'').trim();
       if(!label){alert('Digite uma identificação válida.');return}
+      if(!sex){alert('Selecione o sexo do participante.');return}
+      if(!age||age<18){alert('Informe uma idade válida (mínimo 18).');return}
       if(runners.has(label)){alert('Esse identificador já foi adicionado.');return}
       if(runners.size>=MAX_RUNNERS){alert('Limite de 12 participantes atingido.');return}
+      age=parseInt(age);
 
       const frag=tpl.content.cloneNode(true);
       const labelSpan=frag.querySelector('.label');
@@ -369,6 +465,12 @@
         badge.style.color = '#fff';
       }
 
+      // Info sexo/idade no card
+      const infoSexEl=frag.querySelector('.runner-info-sex');
+      const infoAgeEl=frag.querySelector('.runner-info-age');
+      if(infoSexEl) infoSexEl.textContent = sex==='M' ? '♂ Masculino' : '♀ Feminino';
+      if(infoAgeEl) infoAgeEl.textContent = age+' anos';
+
       grid.appendChild(frag);
       const cardEl=grid.lastElementChild;
 
@@ -380,7 +482,7 @@
 
       const table=createRunnerTable(label); tablesWrap.appendChild(table.section);
 
-      const runner={ label, tab, seqNum, cardEl, btnLap, btnUndo, lapsCountEl, laps:[], lastMarkMs:0, table, state:'normal' };
+      const runner={ label, tab, sex, age, seqNum, cardEl, btnLap, btnUndo, lapsCountEl, laps:[], lastMarkMs:0, table, state:'normal', score:null };
       runners.set(label, runner);
 
       function lapLabel(lapIndex, tab){
@@ -406,6 +508,21 @@
           return `<tr class="odd:bg-slate-900/30"><td class="px-3 py-1">${rowLabel}</td><td class="px-3 py-1 mono">${fmt(lap.lapMs)}</td><td class="px-3 py-1 mono">${fmt(lap.tsGlobal)}</td></tr>`;
         }).join('');
         runner.table.tbody.innerHTML=rows;
+        // Compute score when finished (all laps including extra done)
+        const scoreEl=runner.cardEl.querySelector('.runner-score');
+        if(runner.laps.length > goal_r){
+          const totalMs=runner.laps[runner.laps.length-1].tsGlobal;
+          runner.score=calcScore(runner.tab, runner.sex, runner.age, totalMs);
+          if(scoreEl){
+            const s=runner.score;
+            const color = s===100?'#16a34a': s>=80?'#2563eb': s>=60?'#d97706':'#dc2626';
+            scoreEl.textContent = s!==null ? 'Nota: '+s : '';
+            scoreEl.style.color=color;
+          }
+        } else {
+          runner.score=null;
+          if(scoreEl) scoreEl.textContent='';
+        }
         updateLapButtonsState();
         renderSummary();
       }
@@ -447,7 +564,10 @@
       btn.addEventListener('click', () => {
         const tab=btn.dataset.tab;
         const input=document.querySelector(`.participantInput[data-tab="${tab}"]`);
-        const v=input.value; addRunner(v, tab); input.value=''; input.focus();
+        const sexSel=document.querySelector(`.sexInput[data-tab="${tab}"]`);
+        const ageInp=document.querySelector(`.ageInput[data-tab="${tab}"]`);
+        const v=input.value, s=sexSel?.value, a=ageInp?.value;
+        if(addRunner(v, tab, s, a)!==false){ input.value=''; sexSel.value=''; ageInp.value=''; input.focus(); }
       });
     });
     document.querySelectorAll('.participantInput').forEach(inp => {
@@ -459,17 +579,17 @@
     // ======= Exportações =======
     function exportOrder(){return [...grid.querySelectorAll('.runner-card')].map(el=> el.dataset.label || (el.querySelector('.label')?.textContent||'')).filter(Boolean)}
     function exportCSVAllLaps(){
-      const header=['participante','aba','volta','#parcial_ms','#marcacao_global_ms','parcial','marcacao_global'];
+      const header=['seq','participante','aba','sexo','idade','volta','#parcial_ms','#marcacao_global_ms','parcial','marcacao_global','nota'];
       const rows=[]; const order=exportOrder();
-      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; r.laps.forEach((lap,i)=>{ rows.push([JSON.stringify(label), r.tab, i+1, lap.lapMs, lap.tsGlobal, fmt(lap.lapMs), fmt(lap.tsGlobal)].join(',')) }) });
+      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; r.laps.forEach((lap,i)=>{ const isLast=i===r.laps.length-1&&r.laps.length>lapsGoalByTab[r.tab]; rows.push(['#'+r.seqNum, JSON.stringify(label), r.tab, r.sex||'', r.age||'', i+1, lap.lapMs, lap.tsGlobal, fmt(lap.lapMs), fmt(lap.tsGlobal), isLast?(r.score||''):''].join(',')) }) });
       const csv=[header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
       const a=document.createElement('a'); a.href=url; a.download='voltas.csv'; a.click(); URL.revokeObjectURL(url);
     }
     function exportCSVParciais(){
-      const header=['participante','aba','voltas','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt'];
+      const header=['seq','participante','aba','sexo','idade','voltas','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt','nota'];
       const rows=[]; const order=exportOrder(); const total=nowGlobalMs();
-      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; rows.push([JSON.stringify(label), r.tab, v, u, total, fmt(u), fmt(total)].join(',')) });
+      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; rows.push(['#'+r.seqNum, JSON.stringify(label), r.tab, r.sex||'', r.age||'', v, u, total, fmt(u), fmt(total), r.score!==null&&r.score!==undefined?r.score:''].join(',')) });
       const csv=[header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
       const a=document.createElement('a'); a.href=url; a.download='parciais_totais.csv'; a.click(); URL.revokeObjectURL(url);
@@ -527,7 +647,9 @@
         const ultima=v? fmt(r.laps[v-1].tsGlobal):'—';
         const cls=v<=goal?'text-rose-400':'';
         const tabLabel=TAB_CONFIG[r.tab]?.label||r.tab;
-        return `<tr class="${cls}"><td class="px-3 py-1">#${r.seqNum}</td><td class="px-3 py-1">${label}</td><td class="px-3 py-1">${tabLabel}</td><td class="px-3 py-1">${displayV}</td><td class="px-3 py-1 mono">${ultima}</td></tr>`;
+        const sexLabel = r.sex==='M' ? 'M' : r.sex==='F' ? 'F' : '—';
+        const scoreDisp = r.score!==null && r.score!==undefined ? `<strong>${r.score}</strong>` : '—';
+        return `<tr class="${cls}"><td class="px-3 py-1">#${r.seqNum}</td><td class="px-3 py-1">${label}</td><td class="px-3 py-1">${tabLabel}</td><td class="px-3 py-1">${sexLabel}</td><td class="px-3 py-1">${r.age}</td><td class="px-3 py-1">${displayV}</td><td class="px-3 py-1 mono">${ultima}</td><td class="px-3 py-1 font-bold">${scoreDisp}</td></tr>`;
       }).join('');
     }
 
