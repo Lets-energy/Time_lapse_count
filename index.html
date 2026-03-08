@@ -880,11 +880,13 @@
         runner.cardEl.classList.remove('almost-finish','finished','flash');
         runner.cardEl.classList.add('dnf');
         runner.state='dnf';
-        // Show DNF badge in score area
+        checkAllFinished();
+        // Show NC badge in score area
         const scoreEl=runner.cardEl.querySelector('.runner-score');
         if(scoreEl){ scoreEl.textContent='NC'; scoreEl.style.color='#ef4444'; }
         renderSummary();
         saveLocalSession();
+        checkAllFinished();
       });
 
       renderRunner();
