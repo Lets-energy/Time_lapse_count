@@ -693,13 +693,37 @@
       const section=document.createElement('section');
       section.className='bg-slate-900/60 border border-slate-800 rounded-2xl p-4 shadow-xl';
       section.dataset.label=label;
-      const title=document.createElement('h4'); title.className='text-lg font-semibold mb-2'; title.textContent=label;
+
+      // Header row: title + toggle button
+      const header=document.createElement('div');
+      header.className='flex items-center justify-between mb-2';
+      const title=document.createElement('h4'); title.className='text-lg font-semibold'; title.textContent=label;
+      const toggleBtn=document.createElement('button');
+      toggleBtn.className='text-slate-400 hover:text-slate-100 transition-colors px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-bold select-none';
+      toggleBtn.title='Expandir/recolher voltas';
+      toggleBtn.textContent='+';
+      toggleBtn.setAttribute('aria-expanded','false');
+      header.appendChild(title);
+      header.appendChild(toggleBtn);
+
+      const tableWrap=document.createElement('div');
+      tableWrap.style.display='none'; // collapsed by default
       const table=document.createElement('table'); table.className='min-w-full text-sm';
       const thead=document.createElement('thead'); thead.className='bg-slate-800/60';
       thead.innerHTML='<tr><th class="text-left px-3 py-1">#</th><th class="text-left px-3 py-1">Parcial</th><th class="text-left px-3 py-1">Marcação</th></tr>';
       const tbody=document.createElement('tbody'); tbody.className='lapsTbodyOuter';
       table.appendChild(thead); table.appendChild(tbody);
-      section.appendChild(title); section.appendChild(table);
+      tableWrap.appendChild(table);
+
+      toggleBtn.addEventListener('click',()=>{
+        const expanded = toggleBtn.getAttribute('aria-expanded')==='true';
+        toggleBtn.setAttribute('aria-expanded', String(!expanded));
+        toggleBtn.textContent = expanded ? '+' : '−';
+        tableWrap.style.display = expanded ? 'none' : 'block';
+      });
+
+      section.appendChild(header);
+      section.appendChild(tableWrap);
       return {section, tbody, title};
     }
 
