@@ -13,11 +13,13 @@
     .runner-card{background-color:#ECECEC !important; color:#000; transition: background-color .35s ease, color .35s ease, box-shadow .35s ease, transform .2s ease}
     .runner-card.dragging{opacity:.65; outline:2px dashed #38bdf8; outline-offset:4px}
     .runner-card.flash{animation: flashPulse .6s ease}
+    .runner-card.dnf{background-color:#e5e7eb !important; opacity:0.72; filter:grayscale(40%)}
     @keyframes flashPulse{0%{box-shadow:0 0 0 0 rgba(56,189,248,0)}30%{box-shadow:0 0 0 8px rgba(56,189,248,.25)}100%{box-shadow:0 0 0 0 rgba(56,189,248,0)}}
     .btn-disabled{opacity:.5; cursor:not-allowed; filter:grayscale(30%)}
     .trash-zone.dragover{background:#1e293b; border-color:#38bdf8; color:#38bdf8}
     .almost-finish{background-color:#FFFCAF !important; color:#000 !important;}
     .finished{background-color:#B3FFB9 !important; color:#000 !important;}
+    .withdrew{background-color:#fecaca !important; color:#7f1d1d !important;}
     table{border-collapse:separate;border-spacing:0}
     thead th{position:sticky;top:0}
     .lapsTables th, .lapsTables td, .summarySection th, .summarySection td { text-align:center !important; }
@@ -147,7 +149,7 @@
     </section>
 
     <!-- Abas -->
-    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+    <section id="tabsSection" class="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
       <div class="px-4 pt-4 pb-0">
         <div class="tab-header">
           <button class="tab-btn active" data-tab="gola" onclick="switchTab('gola')">
@@ -317,6 +319,7 @@
           <button class="btnUndo rounded-xl bg-amber-700 hover:bg-amber-600 font-bold text-xl" style="min-width:52px;min-height:52px" title="Desfazer">−</button>
           <span class="lapsCount text-xl font-bold" style="min-width:2rem;text-align:center">0</span>
           <button class="btnLap rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xl" style="min-width:52px;min-height:52px" title="Marcar volta">+</button>
+          <button class="btnDnf rounded-xl bg-rose-700 hover:bg-rose-600 font-bold text-lg" style="min-width:40px;min-height:52px;padding:0 10px" title="Registrar desistência">✕</button>
         </div>
       </div>
       <div class="flex items-center gap-3 text-xs text-slate-500 border-t border-slate-300/40 pt-1">
@@ -591,16 +594,34 @@
       r.cardEl.classList.remove('almost-finish','finished');
       if(newState==='almost') r.cardEl.classList.add('almost-finish');
       if(newState==='finished') r.cardEl.classList.add('finished');
-      if(r.state!==newState){ r.cardEl.classList.add('flash'); setTimeout(()=>r.cardEl.classList.remove('flash'),650); r.state=newState; }
+      if(r.state!==newState){
+        r.cardEl.classList.add('flash'); setTimeout(()=>r.cardEl.classList.remove('flash'),650);
+        r.state=newState;
+        if(newState==='finished') checkAllFinished();
+      }
+    }
+    function checkAllFinished(){
+      if(!running||runners.size===0) return;
+      const all=[...runners.values()];
+      const everyDone=all.every(r=>{
+        if(r.dnf) return true;
+        const goal=r.lapsGoalSnap!==undefined?r.lapsGoalSnap:lapsGoalByTab[r.tab];
+        const hasExtra=(r.extraMetersSnap!==undefined?r.extraMetersSnap:TAB_CONFIG[r.tab].extraMeters)>0;
+        const maxC=hasExtra?goal+1:goal;
+        return r.laps.length>=maxC;
+      });
+      if(everyDone) pause();
     }
     function updateLapButtonsState(){
       for(const [,r] of runners){
+        if(r.dnf) continue; // DNF runners stay locked
         const goal=r.lapsGoalSnap!==undefined?r.lapsGoalSnap:lapsGoalByTab[r.tab];
         const hasExtra_d=(r.extraMetersSnap!==undefined?r.extraMetersSnap:TAB_CONFIG[r.tab].extraMeters)>0;
         const maxClicks=hasExtra_d?goal+1:goal;
         const disableLap=!running||r.laps.length>=maxClicks;
         r.btnLap.disabled=disableLap; r.btnLap.classList.toggle('btn-disabled',disableLap);
         const disableUndo=!running; r.btnUndo.disabled=disableUndo; r.btnUndo.classList.toggle('btn-disabled',disableUndo);
+        const disableDnf=!running; r.btnDnf.disabled=disableDnf; r.btnDnf.classList.toggle('btn-disabled',disableDnf);
         updateCardStatus(r);
       }
     }
@@ -613,12 +634,18 @@
       setTimeout(()=>el.classList.add('hidden'), 4000);
     }
 
+    function setRaceMode(on){
+      const ids=['omAvSection','tabsSection','trashContainer'];
+      ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=on?'none':''; });
+    }
+
     function start(){
       if(running) return;
       if(!omConfirmado){ showStartError('⚠️ Informe a Organização Militar antes de iniciar.'); return; }
       if(!avaliadorConfirmado){ showStartError('⚠️ Confirme o Avaliador antes de iniciar.'); return; }
       if(runners.size===0){ showStartError('⚠️ Adicione ao menos 1 participante antes de iniciar.'); return; }
       running=true; startEpoch=performance.now(); statusEl.textContent='Rodando';
+      setRaceMode(true);
       updateLapButtonsState(); setStartLabel(); rafId=requestAnimationFrame(tick);
     }
     function pause(){if(!running) return; pausedAccum=nowGlobalMs(); running=false; statusEl.textContent='Pausado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(pausedAccum); updateLapButtonsState(); setStartLabel()}
@@ -632,6 +659,7 @@
       for(const [l] of [...runners]) removeRunner(l);
       runnerSeqGlobal=0;
       omConfirmado=''; avaliadorConfirmado=''; omAvSetEdit();
+      setRaceMode(false);
       clearLocalSession();
       updateLapButtonsState(); setStartLabel(); renderSummary();
     }
@@ -731,6 +759,7 @@
 
       const btnLap=cardEl.querySelector('.btnLap');
       const btnUndo=cardEl.querySelector('.btnUndo');
+      const btnDnf=cardEl.querySelector('.btnDnf');
       const lapsCountEl=cardEl.querySelector('.lapsCount');
 
       attachDnD(cardEl,label);
@@ -738,7 +767,7 @@
       const table=createRunnerTable(label); tablesWrap.appendChild(table.section);
 
       const lapsGoalSnap=lapsGoalByTab[tab], extraMetersSnap=TAB_CONFIG[tab].extraMeters, extraAtStartSnap=TAB_CONFIG[tab].extraAtStart!==false;
-      const runner={ label, tab, sex, age, nip, seqNum, cardEl, btnLap, btnUndo, lapsCountEl, laps:[], lastMarkMs:0, table, state:'normal', score:null, lapsGoalSnap, extraMetersSnap, extraAtStartSnap };
+      const runner={ label, tab, sex, age, nip, seqNum, cardEl, btnLap, btnUndo, btnDnf, lapsCountEl, laps:[], lastMarkMs:0, table, state:'normal', score:null, dnf:false, lapsGoalSnap, extraMetersSnap, extraAtStartSnap };
       runners.set(label, runner);
 
       function lapLabel(lapIndex, tab){
@@ -835,6 +864,29 @@
         renderRunner();
       });
 
+      runner.btnDnf.addEventListener('click',()=>{
+        if(runner.dnf) return;
+        const dist = calcDistance(runner.tab, runner.laps.length);
+        const msg = 'Confirmar desistência de "'+runner.label+'"?\n\n'
+          +'Voltas registradas até agora: '+dist+'\n'
+          +'Os dados obtidos serão mantidos.\n\nConfirma?';
+        if(!confirm(msg)) return;
+        runner.dnf = true;
+        // Lock all buttons
+        runner.btnLap.disabled=true; runner.btnLap.classList.add('btn-disabled');
+        runner.btnUndo.disabled=true; runner.btnUndo.classList.add('btn-disabled');
+        runner.btnDnf.disabled=true; runner.btnDnf.classList.add('btn-disabled');
+        // Visual state
+        runner.cardEl.classList.remove('almost-finish','finished','flash');
+        runner.cardEl.classList.add('dnf');
+        runner.state='dnf';
+        // Show DNF badge in score area
+        const scoreEl=runner.cardEl.querySelector('.runner-score');
+        if(scoreEl){ scoreEl.textContent='NC'; scoreEl.style.color='#ef4444'; }
+        renderSummary();
+        saveLocalSession();
+      });
+
       renderRunner();
       updateLapButtonsState();
       syncTablesOrder();
@@ -905,12 +957,13 @@
       const titleRow = ['"Avaliação de TAF"'].concat(Array(numCols-1).fill('')).join(',');
       const avRow = ['"Avaliador: '+avaliador+'"'].concat(Array(numCols-1).fill('')).join(',');
       const omRow = ['"OM: '+om+'"'].concat(Array(numCols-1).fill('')).join(',');
-      const header=['seq','nip','participante','corpo','sexo','idade','tempo_total','nota'];
+      const header=['seq','nip','participante','corpo','sexo','idade','tempo_total','nota','status'];
       const rows=[];
       order.forEach((label)=>{ const r=runners.get(label); if(!r) return;
         const v=r.laps.length;
         const totalMs = v? r.laps[v-1].tsGlobal : 0;
-        rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', fmt(totalMs), r.score!==null&&r.score!==undefined?r.score:''].join(','));
+        const status = r.dnf ? 'NC' : '';
+        rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', fmt(totalMs), r.score!==null&&r.score!==undefined?r.score:'', status].join(','));
       });
       const csv=[titleRow, avRow, omRow, header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
@@ -924,9 +977,9 @@
       const titleRow2=['"Avaliação de TAF"'].concat(Array(numCols2-1).fill('')).join(',');
       const avRow2=['"Avaliador: '+avaliador2+'"'].concat(Array(numCols2-1).fill('')).join(',');
       const omRow2=['"OM: '+om2+'"'].concat(Array(numCols2-1).fill('')).join(',');
-      const header=['seq','nip','participante','corpo','sexo','idade','distancia','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt','nota'];
+      const header=['seq','nip','participante','corpo','sexo','idade','distancia','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt','nota','status'];
       const rows=[]; const order=exportOrder(); const total=nowGlobalMs();
-      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', calcDistance(r.tab,v), u, total, fmt(u), fmt(total), r.score!==null&&r.score!==undefined?r.score:''].join(',')) });
+      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; const status=r.dnf?'NC':''; rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', calcDistance(r.tab,v), u, total, fmt(u), fmt(total), r.score!==null&&r.score!==undefined?r.score:'', status].join(',')) });
       const csv=[titleRow2,avRow2,omRow2,header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
       const a=document.createElement('a'); a.href=url; a.download='parciais_finais.csv'; a.click(); URL.revokeObjectURL(url);
@@ -984,22 +1037,19 @@
         const finished=v>=totalClicks;
         const displayV = calcDistance(r.tab, v);
         const ultima=v? fmt(r.laps[v-1].tsGlobal):'—';
-        const rowColor = finished ? '' : 'color:#f87171';
         const tabLabel = TAB_CONFIG[r.tab]?.label||r.tab;
         const sexLabel = r.sex==='M' ? '♂ Masc' : '♀ Fem';
         const scoreVal = r.score!==null && r.score!==undefined ? r.score : null;
         const scoreColor = scoreVal===100||scoreVal===90 ? '#16a34a' : scoreVal===80||scoreVal===70 ? '#3b82f6' : scoreVal===60||scoreVal===50 ? '#f59e0b' : scoreVal!==null ? '#dc2626' : '#94a3b8';
-        const scoreDisp = scoreVal!==null ? `<strong style="color:${scoreColor};font-size:1.1em">${scoreVal}</strong>` : '—';
-        return `
-          <tr style="${rowColor}">
-            <td class="px-3 pt-2 pb-0 font-semibold">#${r.seqNum} ${label}</td>
-            <td class="px-3 pt-2 pb-0">${displayV}</td>
-            <td class="px-3 pt-2 pb-0 mono">${ultima}</td>
-            <td class="px-3 pt-2 pb-0" rowspan="2" style="vertical-align:middle;text-align:center">${scoreDisp}</td>
-          </tr>
-          <tr style="${rowColor}">
-            <td colspan="3" class="px-3 pt-0 pb-2 text-xs" style="color:#94a3b8">${r.nip ? '<span style="font-family:monospace">'+r.nip+'</span> · ' : ''}${tabLabel} · ${sexLabel} · ${r.age} anos</td>
-          </tr>`;
+        const scoreDisp = r.dnf
+          ? '<span style="color:#b91c1c;font-weight:700;font-size:1em">NC</span>'
+          : scoreVal!==null ? '<strong style="color:'+scoreColor+';font-size:1.1em">'+scoreVal+'</strong>' : '—';
+        const rowColor = r.dnf ? 'color:#b91c1c;background:rgba(254,202,202,0.3)' : finished ? '' : 'color:#f87171';
+        const nameDisp = r.dnf
+          ? '#'+r.seqNum+' '+label+' <span style="font-size:0.75em;background:#fca5a5;color:#7f1d1d;border-radius:4px;padding:1px 5px;font-weight:700">DESISTIU</span>'
+          : '#'+r.seqNum+' '+label;
+        return '<tr style="'+rowColor+'"><td class="px-3 pt-2 pb-0 font-semibold">'+nameDisp+'</td><td class="px-3 pt-2 pb-0">'+displayV+'</td><td class="px-3 pt-2 pb-0 mono">'+ultima+'</td><td class="px-3 pt-2 pb-0" rowspan="2" style="vertical-align:middle;text-align:center">'+scoreDisp+'</td></tr>'
+          +'<tr style="'+rowColor+'"><td colspan="3" class="px-3 pt-0 pb-2 text-xs" style="color:#94a3b8">'+(r.nip ? '<span style="font-family:monospace">'+r.nip+'</span> &middot; ' : '')+tabLabel+' &middot; '+sexLabel+' &middot; '+r.age+' anos</td></tr>';
       }).join('');
     }
 
@@ -1112,7 +1162,7 @@
           savedAt: Date.now(),
           runners: [...runners.values()].map(r=>({
             label:r.label, tab:r.tab, sex:r.sex, age:r.age, nip:r.nip||'',
-            seqNum:r.seqNum,
+            seqNum:r.seqNum, dnf:r.dnf||false,
             lapsGoalSnap:r.lapsGoalSnap, extraMetersSnap:r.extraMetersSnap, extraAtStartSnap:r.extraAtStartSnap,
             laps:r.laps
           }))
@@ -1159,7 +1209,7 @@
 
         // Restaurar tempo
         pausedAccum = d.pausedAccum || 0;
-        if(pausedAccum > 0){ displayGlobal.textContent=fmt(pausedAccum); statusEl.textContent='Pausado'; }
+        if(pausedAccum > 0){ displayGlobal.textContent=fmt(pausedAccum); statusEl.textContent='Pausado'; setRaceMode(true); }
 
         // Restaurar participantes
         runnerSeqGlobal = 0;
@@ -1173,6 +1223,16 @@
           r.lapsGoalSnap    = rd.lapsGoalSnap;
           r.extraMetersSnap = rd.extraMetersSnap;
           r.extraAtStartSnap= rd.extraAtStartSnap;
+          // Restaurar DNF
+          if(rd.dnf){
+            r.dnf=true;
+            r.btnLap.disabled=true; r.btnLap.classList.add('btn-disabled');
+            r.btnUndo.disabled=true; r.btnUndo.classList.add('btn-disabled');
+            r.btnDnf.disabled=true; r.btnDnf.classList.add('btn-disabled');
+            r.cardEl.classList.add('dnf'); r.state='dnf';
+            const scoreEl=r.cardEl.querySelector('.runner-score');
+            if(scoreEl){ scoreEl.textContent='NC'; scoreEl.style.color='#ef4444'; }
+          }
           // re-render tabela de voltas
           const g=r.lapsGoalSnap, ex=r.extraMetersSnap+'m', eaS=r.extraAtStartSnap;
           const rows=r.laps.map((lap,i)=>{
