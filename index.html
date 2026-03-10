@@ -10,7 +10,7 @@
     :root{--bg:#0b1220}
     body{background:var(--bg); font-family:'League Spartan', system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif; overscroll-behavior-y: none;}
     .mono{font-family:'League Spartan', monospace}
-    .runner-card{background-color:#ECECEC !important; color:#000; transition: background-color .35s ease, color .35s ease, box-shadow .35s ease, transform .2s ease}
+    .runner-card{background-color:#ECECEC; color:#000; transition: background-color .35s ease, color .35s ease, box-shadow .35s ease, transform .2s ease}
     .runner-card.dragging{opacity:.65; outline:2px dashed #38bdf8; outline-offset:4px}
     .runner-card.flash{animation: flashPulse .6s ease}
     .runner-card.dnf{background-color:#e5e7eb !important; opacity:0.72; filter:grayscale(40%)}
@@ -178,7 +178,7 @@
               <!-- Campos empilhados: nome em cima, sexo+idade embaixo -->
               <div class="flex flex-col gap-2 flex-1">
                 <input class="nipInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" type="text" inputmode="numeric" maxlength="10" data-tab="gola" placeholder="NIP (00.0000.00)" style="letter-spacing:0.1em;font-family:monospace" />
-                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="gola" placeholder="Nome / Identificação" />
+                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="gola" placeholder="Posto/Grad + Nome de guerra" />
                 <div class="flex gap-2">
                   <select class="sexInput flex-1 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" data-tab="gola">
                     <option value="">Sexo</option>
@@ -212,7 +212,7 @@
               <!-- Campos empilhados: nome em cima, sexo+idade embaixo -->
               <div class="flex flex-col gap-2 flex-1">
                 <input class="nipInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" type="text" inputmode="numeric" maxlength="10" data-tab="naval" placeholder="NIP (00.0000.00)" style="letter-spacing:0.1em;font-family:monospace" />
-                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="naval" placeholder="Nome / Identificação" />
+                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="naval" placeholder="Posto/Grad + Nome de guerra" />
                 <div class="flex gap-2">
                   <select class="sexInput flex-1 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" data-tab="naval">
                     <option value="">Sexo</option>
@@ -310,25 +310,30 @@
 
   <!-- Template do participante -->
   <template id="runnerTemplate">
-    <div class="runner-card border border-slate-300 rounded-2xl p-4 shadow-xl flex flex-col gap-2">
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold leading-tight">
-          <span class="runner-seq-num text-base font-bold mr-1 text-slate-400"></span><span class="label"></span><span class="runner-tab-badge text-xs font-semibold rounded px-2 py-0.5 ml-2 align-middle"></span>
-        </h3>
-        <div class="flex items-center gap-2">
-          <button class="btnUndo rounded-xl bg-amber-700 hover:bg-amber-600 font-bold text-xl" style="min-width:52px;min-height:52px" title="Desfazer">−</button>
-          <span class="lapsCount text-xl font-bold" style="min-width:2rem;text-align:center">0</span>
-          <button class="btnLap rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xl" style="min-width:52px;min-height:52px" title="Marcar volta">+</button>
-          <button class="btnDnf rounded-xl bg-rose-700 hover:bg-rose-600 font-bold text-lg" style="min-width:40px;min-height:52px;padding:0 10px" title="Registrar desistência">✕</button>
+    <div class="runner-card border border-slate-300 rounded-2xl shadow-xl flex flex-col gap-2" style="overflow:hidden">
+      <div class="runner-top-strip" style="height:5px;"></div>
+      <div class="p-4 flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold leading-tight">
+            <span class="runner-seq-num text-xl font-bold mr-2 align-middle" style="border-radius:8px;padding:3px 10px;color:#fff;"></span><span class="label"></span>
+          </h3>
+          <div class="flex items-center gap-2">
+            <button class="btnUndo rounded-xl bg-amber-700 hover:bg-amber-600 font-bold text-xl" style="min-width:52px;min-height:52px" title="Desfazer">−</button>
+            <span class="lapsCount text-xl font-bold" style="min-width:2rem;text-align:center">0</span>
+            <button class="btnLap rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xl" style="min-width:52px;min-height:52px" title="Marcar volta">+</button>
+            <button class="btnDnf rounded-xl bg-rose-700 hover:bg-rose-600 font-bold text-lg" style="min-width:40px;min-height:52px;padding:0 10px" title="Registrar desistência">✕</button>
+          </div>
         </div>
+        <div class="flex items-center gap-3 text-xs text-black border-t border-slate-300/40 pt-1">
+          <span class="runner-info-nip font-mono"></span>
+          <span class="runner-info-sex font-bold" style="font-size:1rem;"></span>
+          <span class="runner-info-age"></span>
+          <span class="runner-tab-badge text-xs font-semibold rounded px-2 py-0.5 align-middle"></span>
+          <span class="runner-score font-bold text-base text-slate-700 ml-auto"></span>
+          <span class="runner-seq-num-copy text-xs font-bold" style="border-radius:6px;padding:1px 7px;color:#fff;"></span>
+        </div>
+        <div class="runner-projection text-xs text-center rounded-lg py-1 hidden" style="background:rgba(0,0,0,0.08)"></div>
       </div>
-      <div class="flex items-center gap-3 text-xs text-slate-500 border-t border-slate-300/40 pt-1">
-        <span class="runner-info-nip font-mono"></span>
-        <span class="runner-info-sex"></span>
-        <span class="runner-info-age"></span>
-        <span class="runner-score font-bold text-base text-slate-700 ml-auto"></span>
-      </div>
-      <div class="runner-projection text-xs text-center rounded-lg py-1 hidden" style="background:rgba(0,0,0,0.08)"></div>
     </div>
   </template>
 
@@ -431,8 +436,7 @@
     document.getElementById('btnClearAvaliador')?.addEventListener('click', () => {
       // Keeps runners intact — only unlocks OM/Avaliador fields
       omAvSetEdit();
-      document.getElementById('avaliadorStatus').textContent = 'Preencha OM e Avaliador e clique em Confirmar';
-      document.getElementById('avaliadorStatus').style.color = '';
+      // avaliadorStatus removed — omAvSetEdit handles UI reset
     });
 
     // ======= Cálculo de distância =======
@@ -599,6 +603,10 @@
         r.state=newState;
         if(newState==='finished') checkAllFinished();
       }
+      if(r.cardEl&&!r.cardEl.classList.contains('almost-finish')&&!r.cardEl.classList.contains('finished')){
+        const idx=[...grid.querySelectorAll('.runner-card')].indexOf(r.cardEl);
+        if(idx>=0) r.cardEl.style.backgroundColor=CARD_COLORS[idx%2];
+      }
     }
     function checkAllFinished(){
       if(!running||runners.size===0) return;
@@ -727,9 +735,19 @@
       return {section, tbody, title};
     }
 
+    const CARD_COLORS = ['#F2EFE8', '#9E9E9E'];
+    function updateGridColors(){
+      const cards=[...grid.querySelectorAll('.runner-card')];
+      cards.forEach((el,i)=>{
+        if(el.classList.contains('almost-finish')||el.classList.contains('finished')) return;
+        el.style.backgroundColor = CARD_COLORS[i % 2];
+      });
+    }
+
     function syncTablesOrder(){
       const order=exportOrder();
-      order.forEach(label=>{const r=runners.get(label); if(!r||!r.table) return; tablesWrap.appendChild(r.table.section)});
+      order.forEach(key=>{const r=runners.get(key); if(!r||!r.table) return; tablesWrap.appendChild(r.table.section)});
+      updateGridColors();
       renderSummary();
     }
 
@@ -743,12 +761,13 @@
         clearTimeout(el._t);
         el._t=setTimeout(()=>{ el.textContent=''; }, 4000);
       }
-      if(!label){ runnerErr(tab,'⚠️ Digite uma identificação válida.'); return false; }
+      if(!label){ runnerErr(tab,'⚠️ Digite o Posto/Grad + Nome de guerra.'); return false; }
       if(!sex){ runnerErr(tab,'⚠️ Selecione o sexo.'); return false; }
       if(!age||age<18){ runnerErr(tab,'⚠️ Informe uma idade válida (mínimo 18).'); return false; }
       nip=String(nip||'').trim();
-      if(nip && nip.replace(/\D/g,'').length!==8){ runnerErr(tab,'⚠️ NIP deve ter 8 dígitos numéricos.'); return false; }
-      if(runners.has(label)){ runnerErr(tab,'⚠️ Esse identificador já foi adicionado.'); return false; }
+      if(!nip||nip.replace(/\D/g,'').length!==8){ runnerErr(tab,'⚠️ NIP obrigatório (8 dígitos).'); return false; }
+      const nipKey=nip.replace(/\D/g,'');
+      if(runners.has(nipKey)){ runnerErr(tab,'⚠️ NIP já cadastrado.'); return false; }
       if(runners.size>=MAX_RUNNERS){ runnerErr(tab,'⚠️ Limite de 12 participantes atingido.'); return false; }
       age=parseInt(age);
 
@@ -759,8 +778,7 @@
       // Número sequencial por aba
       runnerSeqGlobal++;
       const seqNum=runnerSeqGlobal;
-      const seqEl=frag.querySelector('.runner-seq-num');
-      if(seqEl) seqEl.textContent='#'+seqNum;
+      // Número esquerdo e direito
 
       // Badge da aba
       const badge=frag.querySelector('.runner-tab-badge');
@@ -781,18 +799,25 @@
       grid.appendChild(frag);
       const cardEl=grid.lastElementChild;
 
+      const seqEl=cardEl.querySelector('.runner-seq-num');
+      const seqCopy=cardEl.querySelector('.runner-seq-num-copy');
+      const seqBg = tab==='gola' ? '#0e7490' : '#7c3aed';
+      if(seqEl){ seqEl.textContent='#'+seqNum; seqEl.style.background=seqBg; }
+      if(seqCopy){ seqCopy.textContent='#'+seqNum; seqCopy.style.background=seqBg; }
+      const strip=cardEl.querySelector('.runner-top-strip'); if(strip) strip.style.background=seqBg;
+
       const btnLap=cardEl.querySelector('.btnLap');
       const btnUndo=cardEl.querySelector('.btnUndo');
       const btnDnf=cardEl.querySelector('.btnDnf');
       const lapsCountEl=cardEl.querySelector('.lapsCount');
 
-      attachDnD(cardEl,label);
+      attachDnD(cardEl,nipKey);
 
       const table=createRunnerTable(label); tablesWrap.appendChild(table.section);
 
       const lapsGoalSnap=lapsGoalByTab[tab], extraMetersSnap=TAB_CONFIG[tab].extraMeters, extraAtStartSnap=TAB_CONFIG[tab].extraAtStart!==false;
-      const runner={ label, tab, sex, age, nip, seqNum, cardEl, btnLap, btnUndo, btnDnf, lapsCountEl, laps:[], lastMarkMs:0, table, state:'normal', score:null, dnf:false, lapsGoalSnap, extraMetersSnap, extraAtStartSnap };
-      runners.set(label, runner);
+      const runner={ label, tab, sex, age, nip, nipKey, seqNum, cardEl, btnLap, btnUndo, btnDnf, lapsCountEl, laps:[], lastMarkMs:0, table, state:'normal', score:null, dnf:false, lapsGoalSnap, extraMetersSnap, extraAtStartSnap };
+      runners.set(nipKey, runner);
 
       function lapLabel(lapIndex, tab){
         // lapIndex is 0-based (i+1 = lap number)
@@ -918,11 +943,11 @@
       syncTablesOrder();
     }
 
-    function removeRunner(label){
-      const r=runners.get(label); if(!r) return;
+    function removeRunner(key){
+      const r=runners.get(key); if(!r) return;
       if(r.table) r.table.section.remove();
       r.cardEl.remove();
-      runners.delete(label);
+      runners.delete(key);
       updateLapButtonsState();
       renderSummary();
     }
@@ -960,7 +985,7 @@
     });
 
     // ======= Exportações =======
-    function exportOrder(){return [...grid.querySelectorAll('.runner-card')].map(el=> el.dataset.label || (el.querySelector('.label')?.textContent||'')).filter(Boolean)}
+    function exportOrder(){return [...grid.querySelectorAll('.runner-card')].map(el=> el.dataset.label).filter(Boolean)}
     function exportCSVAllLaps(){
       const avaliador1=avaliadorConfirmado||'(não informado)';
       const om1=document.getElementById('omInput')?.value.trim()||'(não informada)';
@@ -973,7 +998,11 @@
       order.forEach((label)=>{ const r=runners.get(label); if(!r) return; r.laps.forEach((lap,i)=>{ const isLast=i===r.laps.length-1&&(r.laps.length>=(TAB_CONFIG[r.tab].extraMeters>0?lapsGoalByTab[r.tab]+1:lapsGoalByTab[r.tab])); rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', i+1, lap.lapMs, lap.tsGlobal, fmt(lap.lapMs), fmt(lap.tsGlobal), isLast?(r.score||''):''].join(',')) }) });
       const csv=[titleRow1,avRow1,omRow1,header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
-      const a=document.createElement('a'); a.href=url; a.download='voltas.csv'; a.click(); URL.revokeObjectURL(url);
+      const _om=(omConfirmado||'OM').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
+      const _av=(avaliadorConfirmado||'Avaliador').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
+      const _now=new Date(); const _dd=String(_now.getDate()).padStart(2,'0'); const _mm=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][_now.getMonth()]; const _yyyy=_now.getFullYear(); const _hh=String(_now.getHours()).padStart(2,'0'); const _min=String(_now.getMinutes()).padStart(2,'0');
+      const _prefix=`${_om}_${_av}_${_dd}${_mm}${_yyyy}_${_hh}${_min}`;
+      const a=document.createElement('a'); a.href=url; a.download=_prefix+'-voltas.csv'; a.click(); URL.revokeObjectURL(url);
     }
     function exportCSVTotais(){
       const avaliador = avaliadorConfirmado || '(não informado)';
@@ -993,7 +1022,11 @@
       });
       const csv=[titleRow, avRow, omRow, header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
-      const a=document.createElement('a'); a.href=url; a.download='tempos_totais.csv'; a.click(); URL.revokeObjectURL(url);
+      const _om2=(omConfirmado||'OM').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
+      const _av2=(avaliadorConfirmado||'Avaliador').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
+      const _now2=new Date(); const _dd2=String(_now2.getDate()).padStart(2,'0'); const _mm2=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][_now2.getMonth()]; const _yyyy2=_now2.getFullYear(); const _hh2=String(_now2.getHours()).padStart(2,'0'); const _min2=String(_now2.getMinutes()).padStart(2,'0');
+      const _prefix2=`${_om2}_${_av2}_${_dd2}${_mm2}${_yyyy2}_${_hh2}${_min2}`;
+      const a=document.createElement('a'); a.href=url; a.download=_prefix2+'-tempos_totais.csv'; a.click(); URL.revokeObjectURL(url);
     }
 
     function exportCSVParciais(){
@@ -1008,7 +1041,11 @@
       order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; const status=r.dnf?'NC':''; rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', calcDistance(r.tab,v), u, total, fmt(u), fmt(total), r.score!==null&&r.score!==undefined?r.score:'', status].join(',')) });
       const csv=[titleRow2,avRow2,omRow2,header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
-      const a=document.createElement('a'); a.href=url; a.download='parciais_finais.csv'; a.click(); URL.revokeObjectURL(url);
+      const _om3=(omConfirmado||'OM').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
+      const _av3=(avaliadorConfirmado||'Avaliador').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
+      const _now3=new Date(); const _dd3=String(_now3.getDate()).padStart(2,'0'); const _mm3=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][_now3.getMonth()]; const _yyyy3=_now3.getFullYear(); const _hh3=String(_now3.getHours()).padStart(2,'0'); const _min3=String(_now3.getMinutes()).padStart(2,'0');
+      const _prefix3=`${_om3}_${_av3}_${_dd3}${_mm3}${_yyyy3}_${_hh3}${_min3}`;
+      const a=document.createElement('a'); a.href=url; a.download=_prefix3+'-parciais_finais.csv'; a.click(); URL.revokeObjectURL(url);
     }
     function exportPDFTables(){
       const win=window.open('', '_blank');
@@ -1242,7 +1279,8 @@
         d.runners.forEach(rd=>{
           runnerSeqGlobal = rd.seqNum - 1;
           addRunner(rd.label, rd.tab, rd.sex, rd.age, rd.nip||'');
-          const r = runners.get(rd.label);
+          const rKey=(rd.nip||'').replace(/\D/g,'');
+          const r = runners.get(rKey);
           if(!r) return;
           r.laps = rd.laps || [];
           r.lastMarkMs = r.laps.length ? r.laps[r.laps.length-1].tsGlobal : 0;
