@@ -201,6 +201,12 @@
             <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
               <span id="golaLapsDisplay">11 voltas + 35m</span>
             </div>
+            <div class="flex items-center gap-2 mt-2">
+              <div style="display:inline-flex;border-radius:10px;overflow:hidden;border:1px solid #334155;gap:1px;background:#334155">
+                <button id="btnModeCorreida" onclick="setGolaMode('corrida')" style="padding:6px 16px;background:#0e7490;color:#fff;font-weight:700;font-size:.85rem;border:none;cursor:pointer;border-radius:9px 0 0 9px;">🏃 Corrida</button>
+                <button id="btnModeCaminhada" onclick="setGolaMode('caminhada')" style="padding:6px 16px;background:#1e293b;color:#64748b;font-weight:600;font-size:.85rem;border:none;cursor:pointer;border-radius:0 9px 9px 0;">🚶 Caminhada</button>
+              </div>
+            </div>
           </div>
           <div class="w-full sm:w-auto">
             <label class="block text-sm mb-1">Identificação do participante</label>
@@ -219,7 +225,7 @@
                 </div>
               </div>
               <!-- Botão ocupando a altura das duas linhas -->
-              <button class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 font-semibold self-stretch" data-tab="gola">Adicionar</button>
+              <button id="btnAddRunnerGola" class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 font-semibold self-stretch" data-tab="gola">Adicionar</button>
             </div>
             <p class="text-xs text-slate-500 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
             <p id="runnerError-gola" class="text-xs font-semibold mt-1" style="color:#fca5a5;min-height:1rem"></p>
@@ -341,10 +347,15 @@
       <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700">
         <div class="flex items-center gap-3">
           <h2 class="text-lg font-bold">Tabela de Notas</h2>
-          <div class="flex gap-2">
-            <button id="modalTabGola" onclick="switchModalTab('gola')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#0f766e;color:#fff">Gola (2400m)</button>
-            <button id="modalTabNaval" onclick="switchModalTab('naval')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">Naval (3200m)</button>
-            <button id="modalTabAluno" onclick="switchModalTab('aluno')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">Aluno (2400m)</button>
+          <div class="flex flex-col gap-1">
+            <div class="flex gap-2">
+              <button id="modalTabGola" onclick="switchModalTab('gola')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#0f766e;color:#fff">Gola (2400m)</button>
+              <button id="modalTabNaval" onclick="switchModalTab('naval')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">Naval (3200m)</button>
+            </div>
+            <div class="flex gap-2">
+              <button id="modalTabAluno" onclick="switchModalTab('aluno')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">Aluno (2400m)</button>
+              <button id="modalTabGolaCaminhada" onclick="switchModalTab('gola-caminhada')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">Caminhada (4800m)</button>
+            </div>
           </div>
         </div>
         <button id="btnCloseModal" class="text-slate-400 hover:text-white text-xl font-bold px-2">✕</button>
@@ -409,9 +420,31 @@
     const TAB_CONFIG = {
       gola:  { lapsGoal: 11, extraMeters: 35,  lapMeters: 215, totalMeters: 2400, label: 'Corpo Gola',  shortLabel: 'Gola',  extraAtStart: true },
       naval: { lapsGoal: 14, extraMeters: 190, lapMeters: 215, totalMeters: 3200, label: 'Corpo Naval', shortLabel: 'Naval', extraAtStart: true },
-      aluno: { lapsGoal: 11, extraMeters: 35,  lapMeters: 215, totalMeters: 2400, label: 'Aluno',       shortLabel: 'Aluno', extraAtStart: true }
+      aluno: { lapsGoal: 11, extraMeters: 35,  lapMeters: 215, totalMeters: 2400, label: 'Aluno',       shortLabel: 'Aluno', extraAtStart: true },
+      'gola-caminhada': { lapsGoal: 22, extraMeters: 90, lapMeters: 215, totalMeters: 4800, label: 'Gola Caminhada', shortLabel: 'Caminhada', extraAtStart: true }
     };
-    const lapsGoalByTab = { gola: TAB_CONFIG.gola.lapsGoal, naval: TAB_CONFIG.naval.lapsGoal, aluno: TAB_CONFIG.aluno.lapsGoal };
+    const lapsGoalByTab = { gola: TAB_CONFIG.gola.lapsGoal, naval: TAB_CONFIG.naval.lapsGoal, aluno: TAB_CONFIG.aluno.lapsGoal, 'gola-caminhada': TAB_CONFIG['gola-caminhada'].lapsGoal };
+
+    // ======= Toggle Caminhada (Gola) =======
+    let golaIsCaminhada = false;
+    function setGolaMode(mode){
+      golaIsCaminhada = mode === 'caminhada';
+      const btnC=document.getElementById('btnModeCorreida');
+      const btnW=document.getElementById('btnModeCaminhada');
+      const lapsDisp=document.getElementById('golaLapsDisplay');
+      const addBtn=document.getElementById('btnAddRunnerGola');
+      if(golaIsCaminhada){
+        btnC.style.background='#1e293b'; btnC.style.color='#64748b'; btnC.style.fontWeight='600';
+        btnW.style.background='#15803d'; btnW.style.color='#fff'; btnW.style.fontWeight='700';
+        if(lapsDisp) lapsDisp.textContent='22 voltas + 90m';
+        if(addBtn){ addBtn.dataset.tab='gola-caminhada'; addBtn.style.background='#15803d'; }
+      } else {
+        btnC.style.background='#0e7490'; btnC.style.color='#fff'; btnC.style.fontWeight='700';
+        btnW.style.background='#1e293b'; btnW.style.color='#64748b'; btnW.style.fontWeight='600';
+        if(lapsDisp) lapsDisp.textContent=TAB_CONFIG.gola.lapsGoal+' voltas + '+TAB_CONFIG.gola.extraMeters+'m';
+        if(addBtn){ addBtn.dataset.tab='gola'; addBtn.style.background=''; }
+      }
+    }
 
     // ======= Modo da aplicação (militar | aluno) =======
     let appMode = 'militar'; // 'militar' | 'aluno'
@@ -429,6 +462,26 @@
       if(isMilitar){ switchTab('gola'); }
       else          { switchTab('aluno'); }
     }
+
+    // SCORING CAMINHADA — notas 50/60/70/80/90/100, tempo máximo em segundos
+    const SCORING_CAMINHADA = {
+      M: [
+        { min:18, max:25,  t100:38*60, t90:40*60, t80:42*60, t70:44*60, t60:46*60, t50:48*60 },
+        { min:26, max:33,  t100:39*60, t90:41*60, t80:43*60, t70:45*60, t60:47*60, t50:49*60 },
+        { min:34, max:39,  t100:40*60, t90:42*60, t80:44*60, t70:46*60, t60:48*60, t50:51*60 },
+        { min:40, max:45,  t100:42*60, t90:44*60, t80:46*60, t70:48*60, t60:51*60, t50:54*60 },
+        { min:46, max:49,  t100:43*60, t90:45*60, t80:47*60, t70:50*60, t60:53*60, t50:56*60 },
+        { min:50, max:999, t100:45*60, t90:47*60, t80:49*60, t70:52*60, t60:55*60, t50:58*60 }
+      ],
+      F: [
+        { min:18, max:25,  t100:39*60, t90:41*60, t80:43*60, t70:45*60, t60:47*60, t50:49*60 },
+        { min:26, max:33,  t100:40*60, t90:42*60, t80:44*60, t70:46*60, t60:48*60, t50:51*60 },
+        { min:34, max:39,  t100:42*60, t90:44*60, t80:46*60, t70:48*60, t60:51*60, t50:54*60 },
+        { min:40, max:45,  t100:43*60, t90:45*60, t80:47*60, t70:50*60, t60:53*60, t50:56*60 },
+        { min:46, max:49,  t100:45*60, t90:47*60, t80:49*60, t70:52*60, t60:55*60, t50:58*60 },
+        { min:50, max:999, t100:47*60, t90:49*60, t80:51*60, t70:54*60, t60:57*60, t50:60*60 }
+      ]
+    };
 
     // SCORING ALUNO — notas 0 a 10 (passo 0.5), tempo total em segundos
     // Estrutura: array de {min, max, scores: [{score, maxSecs}]} — nota se tempo <= maxSecs
@@ -547,12 +600,12 @@
       if(lapM < 50 || lapM > 1000){ showOmAvError('⚠️ Tamanho da volta deve ser entre 50 e 1000 metros.'); return; }
 
       // Check if there is a remainder for any tab
-      const hasRemainder = ['gola','naval','aluno'].some(tab => TAB_CONFIG[tab].totalMeters % lapM !== 0);
+      const hasRemainder = ['gola','naval','aluno','gola-caminhada'].some(tab => TAB_CONFIG[tab].totalMeters % lapM !== 0);
       const doConfirm = (extraPos) => {
         omConfirmado = om.toUpperCase();
         avaliadorConfirmado = av;
         // Recalc with chosen extra position
-        ['gola','naval','aluno'].forEach(tab => {
+        ['gola','naval','aluno','gola-caminhada'].forEach(tab => {
           const total = TAB_CONFIG[tab].totalMeters;
           const lapsGoal = Math.floor(total / lapM);
           const extraMeters = total - lapsGoal * lapM;
@@ -564,7 +617,7 @@
         });
         omAvSetCompact(lapM, extraPos);
         // Update all lap display elements in tab panels and badges
-        ['gola','naval','aluno'].forEach(tab => {
+        ['gola','naval','aluno','gola-caminhada'].forEach(tab => {
           const cfg = TAB_CONFIG[tab];
           const pos = cfg.extraAtStart ? 'início' : 'final';
           const text = cfg.extraMeters > 0
@@ -579,7 +632,7 @@
         });
       };
 
-      const lines = ['gola','naval','aluno'].map(tab => {
+      const lines = ['gola','naval','aluno','gola-caminhada'].map(tab => {
         const total = TAB_CONFIG[tab].totalMeters;
         const laps  = Math.floor(total / lapM);
         const extra = total - laps * lapM;
@@ -692,6 +745,20 @@
 
     function calcScore(tab, sex, age, totalMs){
       if(!sex || !age || totalMs<=0) return null;
+      if(tab === 'gola-caminhada'){
+        const table = SCORING_CAMINHADA[sex];
+        if(!table) return null;
+        const row = table.find(r => age >= r.min && age <= r.max);
+        if(!row) return null;
+        const secs = Math.floor(totalMs / 1000);
+        if(secs <= row.t100) return 100;
+        if(secs <= row.t90)  return 90;
+        if(secs <= row.t80)  return 80;
+        if(secs <= row.t70)  return 70;
+        if(secs <= row.t60)  return 60;
+        if(secs <= row.t50)  return 50;
+        return '<50';
+      }
       if(tab === 'aluno'){
         const tbl = SCORING_ALUNO[sex];
         if(!tbl) return null;
@@ -956,7 +1023,7 @@
       const badge=frag.querySelector('.runner-tab-badge');
       if(badge){
         badge.textContent=TAB_CONFIG[tab].shortLabel||TAB_CONFIG[tab].label;
-        badge.style.background = tab==='gola' ? '#0e7490' : tab==='naval' ? '#7c3aed' : '#ea580c';
+        badge.style.background = tab==='gola' ? '#0e7490' : tab==='gola-caminhada' ? '#15803d' : tab==='naval' ? '#7c3aed' : '#ea580c';
         badge.style.color = '#fff';
       }
 
@@ -973,7 +1040,7 @@
 
       const seqEl=cardEl.querySelector('.runner-seq-num');
       const seqCopy=cardEl.querySelector('.runner-seq-num-copy');
-      const seqBg = tab==='gola' ? '#0e7490' : tab==='naval' ? '#7c3aed' : '#ea580c';
+      const seqBg = tab==='gola' ? '#0e7490' : tab==='gola-caminhada' ? '#15803d' : tab==='naval' ? '#7c3aed' : '#ea580c';
       if(seqEl){ seqEl.textContent='#'+seqNum; seqEl.style.background=seqBg; }
       if(seqCopy){ seqCopy.textContent='#'+seqNum; seqCopy.style.background=seqBg; }
       const strip=cardEl.querySelector('.runner-top-strip'); if(strip) strip.style.background=seqBg;
@@ -1280,7 +1347,7 @@
         const scoreVal = r.score!==null && r.score!==undefined ? r.score : null;
         const isAluno = r.tab==='aluno';
         const scoreColor = isAluno
-          ? (scoreVal>=8 ? '#16a34a' : scoreVal>=6 ? '#3b82f6' : scoreVal>=4 ? '#f59e0b' : '#dc2626')
+          ? (scoreVal>=8 ? '#16a34a' : scoreVal>=6 ? '#3b82f6' : scoreVal>=5 ? '#f59e0b' : '#dc2626')
           : (scoreVal===100||scoreVal===90 ? '#16a34a' : scoreVal===80||scoreVal===70 ? '#3b82f6' : scoreVal===60||scoreVal===50 ? '#f59e0b' : scoreVal!==null ? '#dc2626' : '#94a3b8');
         const scoreDisp = r.dnf
           ? '<span style="color:#b91c1c;font-weight:700;font-size:1em">NC</span>'
@@ -1302,26 +1369,36 @@
     function renderScoreModal(){
       const thead = document.getElementById('scoreModalThead');
       const tbody = document.getElementById('scoreModalTbody');
+      if(modalTab === 'gola-caminhada'){
+        const table = SCORING_CAMINHADA[modalSex];
+        thead.innerHTML = `<tr class="bg-slate-800"><th class="px-3 py-2 text-left rounded-tl-lg">Idade</th><th class="px-3 py-2" style="color:#f59e0b">50</th><th class="px-3 py-2" style="color:#f59e0b">60</th><th class="px-3 py-2" style="color:#3b82f6">70</th><th class="px-3 py-2" style="color:#3b82f6">80</th><th class="px-3 py-2" style="color:#16a34a">90</th><th class="px-3 py-2 rounded-tr-lg" style="color:#16a34a">100</th></tr>`;
+        tbody.innerHTML = table.map((row,i)=>{
+          const ag=row.max>=999?'>'+row.min+' anos':row.min+' a '+row.max+' anos';
+          const bg=i%2===0?'bg-slate-800/30':'';
+          return `<tr class="${bg}"><td class="px-3 py-2 font-semibold text-slate-300 whitespace-nowrap">${ag}</td><td class="px-3 py-2 text-center font-semibold" style="color:#f59e0b">${fmtSecs(row.t50)}</td><td class="px-3 py-2 text-center font-semibold" style="color:#f59e0b">${fmtSecs(row.t60)}</td><td class="px-3 py-2 text-center font-semibold" style="color:#3b82f6">${fmtSecs(row.t70)}</td><td class="px-3 py-2 text-center font-semibold" style="color:#3b82f6">${fmtSecs(row.t80)}</td><td class="px-3 py-2 text-center font-semibold" style="color:#16a34a">${fmtSecs(row.t90)}</td><td class="px-3 py-2 text-center font-bold" style="color:#16a34a">${fmtSecs(row.t100)}</td></tr>`;
+        }).join('');
+        return;
+      }
       if(modalTab === 'aluno'){
         const tbl = SCORING_ALUNO[modalSex];
         thead.innerHTML = `<tr class="bg-slate-800">
           <th class="px-3 py-2 text-left rounded-tl-lg">Idade</th>
           <th class="px-3 py-2 rounded-tr-lg" colspan="21">Nota → Tempo máximo</th>
         </tr><tr class="bg-slate-800/60">
-          <th class="px-2 py-1 text-left text-xs">Faixa</th>
+          <th class="px-3 py-2 text-left">Faixa</th>
           ${[10,9.5,9,8.5,8,7.5,7,6.5,6,5.5,5,4.5,4,3.5,3,2.5,2,1.5,1,0.5,0].map(s=>{
-            const col = s>=8 ? '#16a34a' : s>=6 ? '#3b82f6' : s>=4 ? '#f59e0b' : '#dc2626';
-            return '<th class="px-1 py-1 text-center text-xs font-bold" style="color:'+col+'">'+s+'</th>';
+            const col = s>=8 ? '#16a34a' : s>=6 ? '#3b82f6' : s>=5 ? '#f59e0b' : '#dc2626';
+            return '<th class="px-3 py-2 text-center font-bold" style="color:'+col+'">'+s+'</th>';
           }).join('')}
         </tr>`;
         tbody.innerHTML = tbl.map((row,i) => {
           const ageLabel = row.max>=999 ? '>'+row.min+' anos' : row.min+' a '+row.max+' anos';
           const bg = i%2===0 ? 'bg-slate-800/30' : '';
-          return '<tr class="'+bg+'"><td class="px-2 py-1 text-xs font-semibold text-slate-300 whitespace-nowrap">'+ageLabel+'</td>'
+          return '<tr class="'+bg+'"><td class="px-3 py-2 font-semibold text-slate-300 whitespace-nowrap">'+ageLabel+'</td>'
             + row.entries.map(e => {
-                const col = e.s>=8 ? '#16a34a' : e.s>=6 ? '#3b82f6' : e.s>=4 ? '#f59e0b' : '#dc2626';
+                const col = e.s>=8 ? '#16a34a' : e.s>=6 ? '#3b82f6' : e.s>=5 ? '#f59e0b' : '#dc2626';
                 const disp = e.s===0 ? '—' : fmtSecs(e.ms);
-                return '<td class="px-1 py-1 text-center text-xs font-semibold" style="color:'+col+'">'+disp+'</td>';
+                return '<td class="px-3 py-2 text-center font-semibold" style="color:'+col+'">'+disp+'</td>';
               }).join('')
             + '</tr>';
         }).join('');
@@ -1338,10 +1415,10 @@
         <th class="px-3 py-2 rounded-tr-lg">100</th>
       </tr>`;
       tbody.innerHTML = table.map((row,i) => {
-        const ageLabel = row.max>=999 ? '>'+row.min : row.min+' a '+row.max;
+        const ageLabel = row.max>=999 ? '>'+row.min+' anos' : row.min+' a '+row.max+' anos';
         const bg = i%2===0 ? 'bg-slate-800/30' : '';
         return `<tr class="${bg}">
-          <td class="px-3 py-2 font-semibold text-slate-300">${ageLabel}</td>
+          <td class="px-3 py-2 font-semibold text-slate-300 whitespace-nowrap">${ageLabel}</td>
           <td class="px-3 py-2 text-center font-semibold" style="color:#f59e0b">${fmtSecs(row.t50)}</td>
           <td class="px-3 py-2 text-center font-semibold" style="color:#f59e0b">${fmtSecs(row.t60)}</td>
           <td class="px-3 py-2 text-center font-semibold" style="color:#3b82f6">${fmtSecs(row.t70)}</td>
@@ -1354,9 +1431,10 @@
 
     function switchModalTab(tab){
       modalTab=tab;
-      const colors = {gola:'#0f766e', naval:'#7c3aed', aluno:'#ea580c'};
+      const colors = {gola:'#0f766e', naval:'#7c3aed', aluno:'#ea580c', 'gola-caminhada':'#15803d'};
       document.querySelectorAll('.modal-tab-btn').forEach(b=>{
-        const isActive = b.id==='modalTab'+tab.charAt(0).toUpperCase()+tab.slice(1);
+        const _idMap={gola:'modalTabGola',naval:'modalTabNaval',aluno:'modalTabAluno','gola-caminhada':'modalTabGolaCaminhada'};
+        const isActive = b.id===(_idMap[tab]||'');
         b.style.background = isActive ? (colors[tab]||'#0f766e') : '#334155';
         b.style.color = isActive ? '#fff' : '#94a3b8';
       });
@@ -1453,6 +1531,7 @@
 
         // Restaurar OM/Avaliador
         omConfirmado = d.om || '';
+        if(d.golaProva) setGolaProva(d.golaProva);
         avaliadorConfirmado = d.avaliador || '';
         const lapM = d.lapMeters || 215;
         const extraAtStart = d.extraAtStart !== false;
