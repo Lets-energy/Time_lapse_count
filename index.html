@@ -78,6 +78,25 @@
       background: #0ea5e9;
       color: #fff;
     }
+    .mode-toggle-btn {
+      padding: 8px 22px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .mode-toggle-btn.active-militar {
+      background: #0e7490; color: #fff; border-color: #0e7490;
+    }
+    .mode-toggle-btn.active-aluno {
+      background: #ea580c; color: #fff; border-color: #ea580c;
+    }
+    .mode-toggle-btn:not(.active-militar):not(.active-aluno) {
+      background: #1e293b; color: #94a3b8; border-color: #334155;
+    }
+    #modeAluno { display: none; }
   </style>
 </head>
 <body class="min-h-screen text-slate-100">
@@ -92,6 +111,13 @@
   </header>
 
   <main class="max-w-6xl mx-auto p-4 grid gap-6">
+
+    <!-- Toggle Modo -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
+      <span class="text-sm font-semibold text-slate-400">Modo:</span>
+      <button id="btnModeMilitar" class="mode-toggle-btn active-militar" onclick="setAppMode('militar')">⚔️ Militar</button>
+      <button id="btnModeAluno"   class="mode-toggle-btn"                onclick="setAppMode('aluno')">🎓 Aluno</button>
+    </section>
 
     <!-- OM e Avaliador -->
     <section id="omAvSection" class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
@@ -159,6 +185,10 @@
           <button class="tab-btn" data-tab="naval" onclick="switchTab('naval')">
             Naval
             <span class="tab-badge" id="navalBadge">14 voltas + 190m</span>
+          </button>
+          <button class="tab-btn" id="tabBtnAluno" data-tab="aluno" onclick="switchTab('aluno')" style="display:none">
+            Aluno
+            <span class="tab-badge" id="alunoBadge">11 voltas + 35m</span>
           </button>
         </div>
       </div>
@@ -230,6 +260,38 @@
           </div>
         </div>
       </div>
+
+      <!-- ABA ALUNO -->
+      <div class="tab-panel p-4 sm:p-6" id="panel-aluno">
+        <div class="grid gap-4 sm:grid-cols-2 sm:items-end">
+          <div>
+            <label class="block text-sm mb-1">Número de voltas</label>
+            <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
+              <span id="alunoLapsDisplay">11 voltas + 35m</span>
+            </div>
+          </div>
+          <div class="w-full sm:w-auto">
+            <label class="block text-sm mb-1">Identificação do participante</label>
+            <div class="flex gap-2 items-stretch">
+              <div class="flex flex-col gap-2 flex-1">
+                <input class="nipInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500 text-sm" type="text" inputmode="numeric" maxlength="10" data-tab="aluno" placeholder="NIP (00.0000.00)" style="letter-spacing:0.1em;font-family:monospace" />
+                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500" type="text" data-tab="aluno" placeholder="Posto/Grad + Nome de guerra" />
+                <div class="flex gap-2">
+                  <select class="sexInput flex-1 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500 text-sm" data-tab="aluno">
+                    <option value="">Sexo</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                  </select>
+                  <input class="ageInput w-24 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 text-center outline-none focus:ring-2 focus:ring-orange-500 text-sm" type="number" min="18" max="99" data-tab="aluno" placeholder="Idade" />
+                </div>
+              </div>
+              <button class="btnAddRunner rounded-xl px-4 font-semibold self-stretch" style="background:#ea580c;color:#fff" data-tab="aluno">Adicionar</button>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
+            <p id="runnerError-aluno" class="text-xs font-semibold mt-1" style="color:#fca5a5;min-height:1rem"></p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Lista de Participantes -->
@@ -282,6 +344,7 @@
           <div class="flex gap-2">
             <button id="modalTabGola" onclick="switchModalTab('gola')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#0f766e;color:#fff">Gola (2400m)</button>
             <button id="modalTabNaval" onclick="switchModalTab('naval')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">Naval (3200m)</button>
+            <button id="modalTabAluno" onclick="switchModalTab('aluno')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">Aluno (2400m)</button>
           </div>
         </div>
         <button id="btnCloseModal" class="text-slate-400 hover:text-white text-xl font-bold px-2">✕</button>
@@ -345,9 +408,109 @@
     // TAB_CONFIG is mutable — recalculated when lap size is confirmed
     const TAB_CONFIG = {
       gola:  { lapsGoal: 11, extraMeters: 35,  lapMeters: 215, totalMeters: 2400, label: 'Corpo Gola',  shortLabel: 'Gola',  extraAtStart: true },
-      naval: { lapsGoal: 14, extraMeters: 190, lapMeters: 215, totalMeters: 3200, label: 'Corpo Naval', shortLabel: 'Naval', extraAtStart: true }
+      naval: { lapsGoal: 14, extraMeters: 190, lapMeters: 215, totalMeters: 3200, label: 'Corpo Naval', shortLabel: 'Naval', extraAtStart: true },
+      aluno: { lapsGoal: 11, extraMeters: 35,  lapMeters: 215, totalMeters: 2400, label: 'Aluno',       shortLabel: 'Aluno', extraAtStart: true }
     };
-    const lapsGoalByTab = { gola: TAB_CONFIG.gola.lapsGoal, naval: TAB_CONFIG.naval.lapsGoal };
+    const lapsGoalByTab = { gola: TAB_CONFIG.gola.lapsGoal, naval: TAB_CONFIG.naval.lapsGoal, aluno: TAB_CONFIG.aluno.lapsGoal };
+
+    // ======= Modo da aplicação (militar | aluno) =======
+    let appMode = 'militar'; // 'militar' | 'aluno'
+
+    function setAppMode(mode){
+      appMode = mode;
+      const isMilitar = mode === 'militar';
+      // Toggle buttons
+      document.getElementById('btnModeMilitar').className = 'mode-toggle-btn ' + (isMilitar ? 'active-militar' : 'inactive');
+      document.getElementById('btnModeAluno').className   = 'mode-toggle-btn ' + (!isMilitar ? 'active-aluno'   : 'inactive');
+      // Show/hide tabs
+      document.querySelectorAll('.tab-btn[data-tab="gola"], .tab-btn[data-tab="naval"]').forEach(b => b.style.display = isMilitar ? '' : 'none');
+      document.getElementById('tabBtnAluno').style.display = isMilitar ? 'none' : '';
+      // Switch to correct default tab
+      if(isMilitar){ switchTab('gola'); }
+      else          { switchTab('aluno'); }
+    }
+
+    // SCORING ALUNO — notas 0 a 10 (passo 0.5), tempo total em segundos
+    // Estrutura: array de {min, max, scores: [{score, maxSecs}]} — nota se tempo <= maxSecs
+    // Feminino: 6 faixas; Masculino: 6 faixas
+    const SCORING_ALUNO = {
+      M: [
+        { min:18, max:25, entries:[
+          {s:10, ms:576},{s:9.5,ms:594},{s:9,ms:612},{s:8.5,ms:645},{s:8,ms:678},{s:7.5,ms:708},
+          {s:7,ms:738},{s:6.5,ms:774},{s:6,ms:810},{s:5.5,ms:840},{s:5,ms:870},{s:4.5,ms:900},
+          {s:4,ms:930},{s:3.5,ms:960},{s:3,ms:990},{s:2.5,ms:1020},{s:2,ms:1050},{s:1.5,ms:1080},
+          {s:1,ms:1110},{s:0.5,ms:1140},{s:0,ms:99999}
+        ]},
+        { min:26, max:33, entries:[
+          {s:10,ms:600},{s:9.5,ms:618},{s:9,ms:648},{s:8.5,ms:669},{s:8,ms:702},{s:7.5,ms:732},
+          {s:7,ms:762},{s:6.5,ms:801},{s:6,ms:840},{s:5.5,ms:870},{s:5,ms:900},{s:4.5,ms:930},
+          {s:4,ms:960},{s:3.5,ms:990},{s:3,ms:1020},{s:2.5,ms:1050},{s:2,ms:1080},{s:1.5,ms:1110},
+          {s:1,ms:1140},{s:0.5,ms:1170},{s:0,ms:99999}
+        ]},
+        { min:34, max:39, entries:[
+          {s:10,ms:648},{s:9.5,ms:672},{s:9,ms:696},{s:8.5,ms:720},{s:8,ms:756},{s:7.5,ms:786},
+          {s:7,ms:816},{s:6.5,ms:852},{s:6,ms:882},{s:5.5,ms:900},{s:5,ms:930},{s:4.5,ms:960},
+          {s:4,ms:990},{s:3.5,ms:1020},{s:3,ms:1050},{s:2.5,ms:1080},{s:2,ms:1110},{s:1.5,ms:1140},
+          {s:1,ms:1170},{s:0.5,ms:1200},{s:0,ms:99999}
+        ]},
+        { min:40, max:45, entries:[
+          {s:10,ms:696},{s:9.5,ms:720},{s:9,ms:744},{s:8.5,ms:762},{s:8,ms:780},{s:7.5,ms:831},
+          {s:7,ms:858},{s:6.5,ms:897},{s:6,ms:936},{s:5.5,ms:960},{s:5,ms:984},{s:4.5,ms:1002},
+          {s:4,ms:1044},{s:3.5,ms:1074},{s:3,ms:1119},{s:2.5,ms:1149},{s:2,ms:1179},{s:1.5,ms:1209},
+          {s:1,ms:1239},{s:0.5,ms:1269},{s:0,ms:99999}
+        ]},
+        { min:46, max:49, entries:[
+          {s:10,ms:792},{s:9.5,ms:816},{s:9,ms:840},{s:8.5,ms:858},{s:8,ms:876},{s:7.5,ms:900},
+          {s:7,ms:924},{s:6.5,ms:948},{s:6,ms:972},{s:5.5,ms:998},{s:5,ms:1030},{s:4.5,ms:1068},
+          {s:4,ms:1098},{s:3.5,ms:1128},{s:3,ms:1158},{s:2.5,ms:1188},{s:2,ms:1218},{s:1.5,ms:1245},
+          {s:1,ms:1260},{s:0.5,ms:1275},{s:0,ms:99999}
+        ]},
+        { min:50, max:999, entries:[
+          {s:10,ms:888},{s:9.5,ms:912},{s:9,ms:936},{s:8.5,ms:948},{s:8,ms:960},{s:7.5,ms:981},
+          {s:7,ms:1002},{s:6.5,ms:1017},{s:6,ms:1032},{s:5.5,ms:1055},{s:5,ms:1068},{s:4.5,ms:1098},
+          {s:4,ms:1128},{s:3.5,ms:1158},{s:3,ms:1204},{s:2.5,ms:1234},{s:2,ms:1264},{s:1.5,ms:1294},
+          {s:1,ms:1324},{s:0.5,ms:1354},{s:0,ms:99999}
+        ]}
+      ],
+      F: [
+        { min:18, max:25, entries:[
+          {s:10,ms:672},{s:9.5,ms:690},{s:9,ms:708},{s:8.5,ms:750},{s:8,ms:792},{s:7.5,ms:819},
+          {s:7,ms:846},{s:6.5,ms:873},{s:6,ms:900},{s:5.5,ms:920},{s:5,ms:940},{s:4.5,ms:970},
+          {s:4,ms:1000},{s:3.5,ms:1030},{s:3,ms:1060},{s:2.5,ms:1090},{s:2,ms:1120},{s:1.5,ms:1150},
+          {s:1,ms:1180},{s:0.5,ms:1210},{s:0,ms:99999}
+        ]},
+        { min:26, max:33, entries:[
+          {s:10,ms:720},{s:9.5,ms:744},{s:9,ms:768},{s:8.5,ms:795},{s:8,ms:822},{s:7.5,ms:852},
+          {s:7,ms:876},{s:6.5,ms:921},{s:6,ms:960},{s:5.5,ms:978},{s:5,ms:1008},{s:4.5,ms:1038},
+          {s:4,ms:1068},{s:3.5,ms:1098},{s:3,ms:1128},{s:2.5,ms:1158},{s:2,ms:1188},{s:1.5,ms:1218},
+          {s:1,ms:1248},{s:0.5,ms:1278},{s:0,ms:99999}
+        ]},
+        { min:34, max:39, entries:[
+          {s:10,ms:768},{s:9.5,ms:792},{s:9,ms:816},{s:8.5,ms:843},{s:8,ms:870},{s:7.5,ms:903},
+          {s:7,ms:936},{s:6.5,ms:957},{s:6,ms:978},{s:5.5,ms:999},{s:5,ms:1008},{s:4.5,ms:1038},
+          {s:4,ms:1068},{s:3.5,ms:1098},{s:3,ms:1128},{s:2.5,ms:1158},{s:2,ms:1188},{s:1.5,ms:1218},
+          {s:1,ms:1248},{s:0.5,ms:1278},{s:0,ms:99999}
+        ]},
+        { min:40, max:45, entries:[
+          {s:10,ms:816},{s:9.5,ms:846},{s:9,ms:876},{s:8.5,ms:900},{s:8,ms:924},{s:7.5,ms:951},
+          {s:7,ms:978},{s:6.5,ms:1008},{s:6,ms:1038},{s:5.5,ms:1055},{s:5,ms:1092},{s:4.5,ms:1122},
+          {s:4,ms:1152},{s:3.5,ms:1182},{s:3,ms:1212},{s:2.5,ms:1242},{s:2,ms:1272},{s:1.5,ms:1302},
+          {s:1,ms:1332},{s:0.5,ms:1362},{s:0,ms:99999}
+        ]},
+        { min:46, max:49, entries:[
+          {s:10,ms:864},{s:9.5,ms:894},{s:9,ms:924},{s:8.5,ms:954},{s:8,ms:984},{s:7.5,ms:1011},
+          {s:7,ms:1038},{s:6.5,ms:1068},{s:6,ms:1098},{s:5.5,ms:1118},{s:5,ms:1138},{s:4.5,ms:1168},
+          {s:4,ms:1198},{s:3.5,ms:1228},{s:3,ms:1258},{s:2.5,ms:1288},{s:2,ms:1318},{s:1.5,ms:1348},
+          {s:1,ms:1378},{s:0.5,ms:1408},{s:0,ms:99999}
+        ]},
+        { min:50, max:999, entries:[
+          {s:10,ms:960},{s:9.5,ms:984},{s:9,ms:1008},{s:8.5,ms:1035},{s:8,ms:1062},{s:7.5,ms:1089},
+          {s:7,ms:1116},{s:6.5,ms:1143},{s:6,ms:1170},{s:5.5,ms:1195},{s:5,ms:1210},{s:4.5,ms:1240},
+          {s:4,ms:1270},{s:3.5,ms:1300},{s:3,ms:1330},{s:2.5,ms:1360},{s:2,ms:1390},{s:1.5,ms:1420},
+          {s:1,ms:1450},{s:0.5,ms:1480},{s:0,ms:99999}
+        ]}
+      ]
+    };
 
     // ======= OM e Avaliador =======
     let avaliadorConfirmado = '';
@@ -384,12 +547,12 @@
       if(lapM < 50 || lapM > 1000){ showOmAvError('⚠️ Tamanho da volta deve ser entre 50 e 1000 metros.'); return; }
 
       // Check if there is a remainder for any tab
-      const hasRemainder = ['gola','naval'].some(tab => TAB_CONFIG[tab].totalMeters % lapM !== 0);
+      const hasRemainder = ['gola','naval','aluno'].some(tab => TAB_CONFIG[tab].totalMeters % lapM !== 0);
       const doConfirm = (extraPos) => {
         omConfirmado = om.toUpperCase();
         avaliadorConfirmado = av;
         // Recalc with chosen extra position
-        ['gola','naval'].forEach(tab => {
+        ['gola','naval','aluno'].forEach(tab => {
           const total = TAB_CONFIG[tab].totalMeters;
           const lapsGoal = Math.floor(total / lapM);
           const extraMeters = total - lapsGoal * lapM;
@@ -401,7 +564,7 @@
         });
         omAvSetCompact(lapM, extraPos);
         // Update all lap display elements in tab panels and badges
-        ['gola','naval'].forEach(tab => {
+        ['gola','naval','aluno'].forEach(tab => {
           const cfg = TAB_CONFIG[tab];
           const pos = cfg.extraAtStart ? 'início' : 'final';
           const text = cfg.extraMeters > 0
@@ -416,19 +579,19 @@
         });
       };
 
+      const lines = ['gola','naval','aluno'].map(tab => {
+        const total = TAB_CONFIG[tab].totalMeters;
+        const laps  = Math.floor(total / lapM);
+        const extra = total - laps * lapM;
+        return extra > 0 ? `${TAB_CONFIG[tab].label}: ${laps} voltas + ${extra}m` : `${TAB_CONFIG[tab].label}: ${laps} voltas`;
+      }).join('\n');
       if(hasRemainder){
-        // Build summary of remainders
-        const lines = ['gola','naval'].map(tab => {
-          const total = TAB_CONFIG[tab].totalMeters;
-          const laps  = Math.floor(total / lapM);
-          const extra = total - laps * lapM;
-          return extra > 0 ? `${TAB_CONFIG[tab].label}: ${laps} voltas + ${extra}m` : `${TAB_CONFIG[tab].label}: ${laps} voltas`;
-        }).join('\n');
         const choice = confirm(
           'Com volta de '+lapM+'m:\n'+lines+'\n\nOs metros restantes ficam no INÍCIO da prova?\n\n(OK = Início | Cancelar = Final)'
         );
         doConfirm(choice ? 'inicio' : 'final');
       } else {
+        alert('Com volta de '+lapM+'m:\n'+lines);
         doConfirm('final');
       }
     });
@@ -529,6 +692,15 @@
 
     function calcScore(tab, sex, age, totalMs){
       if(!sex || !age || totalMs<=0) return null;
+      if(tab === 'aluno'){
+        const tbl = SCORING_ALUNO[sex];
+        if(!tbl) return null;
+        const row = tbl.find(r => age >= r.min && age <= r.max);
+        if(!row) return null;
+        const secs = Math.floor(totalMs / 1000);
+        for(const e of row.entries){ if(secs <= e.ms) return e.s; }
+        return 0;
+      }
       const table = SCORING[tab]?.[sex];
       if(!table) return null;
       const row = table.find(r => age >= r.min && age <= r.max);
@@ -784,7 +956,7 @@
       const badge=frag.querySelector('.runner-tab-badge');
       if(badge){
         badge.textContent=TAB_CONFIG[tab].shortLabel||TAB_CONFIG[tab].label;
-        badge.style.background = tab==='gola' ? '#0e7490' : '#7c3aed';
+        badge.style.background = tab==='gola' ? '#0e7490' : tab==='naval' ? '#7c3aed' : '#ea580c';
         badge.style.color = '#fff';
       }
 
@@ -801,7 +973,7 @@
 
       const seqEl=cardEl.querySelector('.runner-seq-num');
       const seqCopy=cardEl.querySelector('.runner-seq-num-copy');
-      const seqBg = tab==='gola' ? '#0e7490' : '#7c3aed';
+      const seqBg = tab==='gola' ? '#0e7490' : tab==='naval' ? '#7c3aed' : '#ea580c';
       if(seqEl){ seqEl.textContent='#'+seqNum; seqEl.style.background=seqBg; }
       if(seqCopy){ seqCopy.textContent='#'+seqNum; seqCopy.style.background=seqBg; }
       const strip=cardEl.querySelector('.runner-top-strip'); if(strip) strip.style.background=seqBg;
@@ -1001,7 +1173,8 @@
       const _om=(omConfirmado||'OM').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
       const _av=(avaliadorConfirmado||'Avaliador').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
       const _now=new Date(); const _dd=String(_now.getDate()).padStart(2,'0'); const _mm=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][_now.getMonth()]; const _yyyy=_now.getFullYear(); const _hh=String(_now.getHours()).padStart(2,'0'); const _min=String(_now.getMinutes()).padStart(2,'0');
-      const _prefix=`${_om}_${_av}_${_dd}${_mm}${_yyyy}_${_hh}${_min}`;
+      const _modo=appMode==='aluno'?'ALUNO':'MILITAR';
+      const _prefix=`${_om}_${_av}_${_dd}${_mm}${_yyyy}_${_hh}${_min}_${_modo}`;
       const a=document.createElement('a'); a.href=url; a.download=_prefix+'-voltas.csv'; a.click(); URL.revokeObjectURL(url);
     }
     function exportCSVTotais(){
@@ -1025,7 +1198,8 @@
       const _om2=(omConfirmado||'OM').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
       const _av2=(avaliadorConfirmado||'Avaliador').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
       const _now2=new Date(); const _dd2=String(_now2.getDate()).padStart(2,'0'); const _mm2=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][_now2.getMonth()]; const _yyyy2=_now2.getFullYear(); const _hh2=String(_now2.getHours()).padStart(2,'0'); const _min2=String(_now2.getMinutes()).padStart(2,'0');
-      const _prefix2=`${_om2}_${_av2}_${_dd2}${_mm2}${_yyyy2}_${_hh2}${_min2}`;
+      const _modo2=appMode==='aluno'?'ALUNO':'MILITAR';
+      const _prefix2=`${_om2}_${_av2}_${_dd2}${_mm2}${_yyyy2}_${_hh2}${_min2}_${_modo2}`;
       const a=document.createElement('a'); a.href=url; a.download=_prefix2+'-tempos_totais.csv'; a.click(); URL.revokeObjectURL(url);
     }
 
@@ -1044,7 +1218,8 @@
       const _om3=(omConfirmado||'OM').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
       const _av3=(avaliadorConfirmado||'Avaliador').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
       const _now3=new Date(); const _dd3=String(_now3.getDate()).padStart(2,'0'); const _mm3=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][_now3.getMonth()]; const _yyyy3=_now3.getFullYear(); const _hh3=String(_now3.getHours()).padStart(2,'0'); const _min3=String(_now3.getMinutes()).padStart(2,'0');
-      const _prefix3=`${_om3}_${_av3}_${_dd3}${_mm3}${_yyyy3}_${_hh3}${_min3}`;
+      const _modo3=appMode==='aluno'?'ALUNO':'MILITAR';
+      const _prefix3=`${_om3}_${_av3}_${_dd3}${_mm3}${_yyyy3}_${_hh3}${_min3}_${_modo3}`;
       const a=document.createElement('a'); a.href=url; a.download=_prefix3+'-parciais_finais.csv'; a.click(); URL.revokeObjectURL(url);
     }
     function exportPDFTables(){
@@ -1103,7 +1278,10 @@
         const tabLabel = TAB_CONFIG[r.tab]?.label||r.tab;
         const sexLabel = r.sex==='M' ? '♂ Masc' : '♀ Fem';
         const scoreVal = r.score!==null && r.score!==undefined ? r.score : null;
-        const scoreColor = scoreVal===100||scoreVal===90 ? '#16a34a' : scoreVal===80||scoreVal===70 ? '#3b82f6' : scoreVal===60||scoreVal===50 ? '#f59e0b' : scoreVal!==null ? '#dc2626' : '#94a3b8';
+        const isAluno = r.tab==='aluno';
+        const scoreColor = isAluno
+          ? (scoreVal>=8 ? '#16a34a' : scoreVal>=6 ? '#3b82f6' : scoreVal>=4 ? '#f59e0b' : '#dc2626')
+          : (scoreVal===100||scoreVal===90 ? '#16a34a' : scoreVal===80||scoreVal===70 ? '#3b82f6' : scoreVal===60||scoreVal===50 ? '#f59e0b' : scoreVal!==null ? '#dc2626' : '#94a3b8');
         const scoreDisp = r.dnf
           ? '<span style="color:#b91c1c;font-weight:700;font-size:1em">NC</span>'
           : scoreVal!==null ? '<strong style="color:'+scoreColor+';font-size:1.1em">'+scoreVal+'</strong>' : '—';
@@ -1122,9 +1300,34 @@
     function fmtSecs(s){ const m=Math.floor(s/60); const ss=s%60; return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0'); }
 
     function renderScoreModal(){
-      const table = SCORING[modalTab][modalSex];
       const thead = document.getElementById('scoreModalThead');
       const tbody = document.getElementById('scoreModalTbody');
+      if(modalTab === 'aluno'){
+        const tbl = SCORING_ALUNO[modalSex];
+        thead.innerHTML = `<tr class="bg-slate-800">
+          <th class="px-3 py-2 text-left rounded-tl-lg">Idade</th>
+          <th class="px-3 py-2 rounded-tr-lg" colspan="21">Nota → Tempo máximo</th>
+        </tr><tr class="bg-slate-800/60">
+          <th class="px-2 py-1 text-left text-xs">Faixa</th>
+          ${[10,9.5,9,8.5,8,7.5,7,6.5,6,5.5,5,4.5,4,3.5,3,2.5,2,1.5,1,0.5,0].map(s=>{
+            const col = s>=8 ? '#16a34a' : s>=6 ? '#3b82f6' : s>=4 ? '#f59e0b' : '#dc2626';
+            return '<th class="px-1 py-1 text-center text-xs font-bold" style="color:'+col+'">'+s+'</th>';
+          }).join('')}
+        </tr>`;
+        tbody.innerHTML = tbl.map((row,i) => {
+          const ageLabel = row.max>=999 ? '>'+row.min+' anos' : row.min+' a '+row.max+' anos';
+          const bg = i%2===0 ? 'bg-slate-800/30' : '';
+          return '<tr class="'+bg+'"><td class="px-2 py-1 text-xs font-semibold text-slate-300 whitespace-nowrap">'+ageLabel+'</td>'
+            + row.entries.map(e => {
+                const col = e.s>=8 ? '#16a34a' : e.s>=6 ? '#3b82f6' : e.s>=4 ? '#f59e0b' : '#dc2626';
+                const disp = e.s===0 ? '—' : fmtSecs(e.ms);
+                return '<td class="px-1 py-1 text-center text-xs font-semibold" style="color:'+col+'">'+disp+'</td>';
+              }).join('')
+            + '</tr>';
+        }).join('');
+        return;
+      }
+      const table = SCORING[modalTab][modalSex];
       thead.innerHTML = `<tr class="bg-slate-800">
         <th class="px-3 py-2 text-left rounded-tl-lg">Idade</th>
         <th class="px-3 py-2">50</th>
@@ -1151,9 +1354,10 @@
 
     function switchModalTab(tab){
       modalTab=tab;
+      const colors = {gola:'#0f766e', naval:'#7c3aed', aluno:'#ea580c'};
       document.querySelectorAll('.modal-tab-btn').forEach(b=>{
         const isActive = b.id==='modalTab'+tab.charAt(0).toUpperCase()+tab.slice(1);
-        b.style.background = isActive ? '#0f766e' : '#334155';
+        b.style.background = isActive ? (colors[tab]||'#0f766e') : '#334155';
         b.style.color = isActive ? '#fff' : '#94a3b8';
       });
       renderScoreModal();
