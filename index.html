@@ -958,20 +958,39 @@
       chevron.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
     }
 
+    // ======= Wake Lock (mantém tela acesa durante prova) =======
+    let _wakeLock = null;
+    async function acquireWakeLock(){
+      if(!('wakeLock' in navigator)) return;
+      try{
+        _wakeLock = await navigator.wakeLock.request('screen');
+        _wakeLock.addEventListener('release', () => { _wakeLock = null; });
+      }catch(e){ console.warn('Wake Lock não obtido:', e); }
+    }
+    function releaseWakeLock(){
+      if(_wakeLock){ _wakeLock.release(); _wakeLock = null; }
+    }
+    // Re-adquire se a página voltar ao foco (ex: saiu e voltou)
+    document.addEventListener('visibilitychange', () => {
+      if(document.visibilityState === 'visible' && running) acquireWakeLock();
+    });
+
     function start(){
       if(running) return;
       if(!omConfirmado){ showStartError('⚠️ Informe a Organização Militar antes de iniciar.'); return; }
       if(!avaliadorConfirmado){ showStartError('⚠️ Confirme o Avaliador antes de iniciar.'); return; }
       if(runners.size===0){ showStartError('⚠️ Adicione ao menos 1 participante antes de iniciar.'); return; }
       running=true; startEpoch=performance.now(); statusEl.textContent='Rodando';
+      acquireWakeLock();
       setRaceMode(true);
       updateLapButtonsState(); setStartLabel(); rafId=requestAnimationFrame(tick);
     }
-    function pause(){if(!running) return; pausedAccum=nowGlobalMs(); running=false; statusEl.textContent='Pausado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(pausedAccum); updateLapButtonsState(); setStartLabel()}
+    function pause(){if(!running) return; pausedAccum=nowGlobalMs(); running=false; statusEl.textContent='Pausado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(pausedAccum); releaseWakeLock(); updateLapButtonsState(); setStartLabel()}
     function resetAll(){
       if(runners.size>0||pausedAccum>0){
         if(!confirm('Zerar apagará todos os participantes e reiniciará o cronômetro.\nOs dados salvos serão mantidos e poderão ser restaurados.\nConfirma?')) return;
       }
+      releaseWakeLock();
       _sessionRestoring = true; // bloqueia saves parciais durante remoção
       running=false; pausedAccum=0; startEpoch=0; statusEl.textContent='Parado';
       if(rafId) cancelAnimationFrame(rafId);
