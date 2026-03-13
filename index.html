@@ -97,23 +97,66 @@
       background: #1e293b; color: #94a3b8; border-color: #334155;
     }
     #modeAluno { display: none; }
+
+    /* Indicador de auto-save */
+    #saveIndicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #4ade80;
+      opacity: 0;
+      white-space: nowrap;
+    }
+    #saveIndicator.visible { opacity: 1; }
+    #saveIndicator .save-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: savePulse 1s ease forwards;
+    }
+    @keyframes savePulse {
+      0%   { transform: scale(0.6); opacity: 0.4; }
+      40%  { transform: scale(1.4); opacity: 1; }
+      100% { transform: scale(1);   opacity: 1; }
+    }
   </style>
 </head>
 <body class="min-h-screen text-slate-100">
   <!-- Header -->
   <header class="sticky top-0 z-20 backdrop-blur bg-slate-900/70 border-b border-slate-800">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
-      <div class="flex-1 text-center">
-        <h1 class="text-xl sm:text-2xl font-bold">TAF-TECH</h1>
-        <p class="text-xs text-slate-400">00878449378005207-004</p>
+    <div class="max-w-6xl mx-auto px-3 py-2 flex items-center gap-2">
+      <!-- Título -->
+      <div class="flex flex-col leading-tight min-w-0">
+        <h1 class="text-base sm:text-2xl font-bold whitespace-nowrap">TAF-TECH</h1>
+        <p class="text-[10px] text-slate-400 leading-none hidden sm:block">00878449378005207-004</p>
       </div>
+      <!-- Indicador de auto-save (cresce para preencher espaço) -->
+      <div id="saveIndicator" title="Dados salvos automaticamente"
+           style="flex:1; flex-direction:column; align-items:center; gap:1px;">
+        <div style="display:flex; align-items:center; gap:4px; font-size:0.72rem;">
+          <span class="save-dot"></span>
+          <span>💾 Salvo</span>
+        </div>
+        <span id="saveIndicatorDetail" style="font-size:0.6rem; color:#86efac; font-weight:600; line-height:1.2; text-align:center;"></span>
+      </div>
+      <!-- Botão restaurar -->
+      <button id="btnRestoreSession"
+        onclick="manualRestoreSession()"
+        title="Restaurar última sessão salva"
+        class="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap flex-shrink-0"
+        style="background:#1e293b; border-color:#334155; color:#94a3b8; cursor:not-allowed; opacity:0.5;"
+        disabled>
+        🔄 <span class="hidden sm:inline">Restaurar</span>
+      </button>
     </div>
   </header>
 
   <main class="max-w-6xl mx-auto p-4 grid gap-6">
 
     <!-- Toggle Modo -->
-    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
+    <section id="modeSection" class="bg-slate-900/60 border border-slate-800 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
       <span class="text-sm font-semibold text-slate-400">Modo:</span>
       <button id="btnModeMilitar" class="mode-toggle-btn active-militar" onclick="setAppMode('militar')">⚔️ Militar</button>
       <button id="btnModeAluno"   class="mode-toggle-btn"                onclick="setAppMode('aluno')">🎓 Aluno</button>
@@ -308,8 +351,18 @@
       Arraste aqui para remover 🚮
     </section>
 
-    <!-- Tabelas de Voltas -->
-    <section class="lapsTables grid gap-4" id="lapsTables"></section>
+    <!-- Tabelas de Voltas (recolhido) -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-xl overflow-hidden" id="lapsTablesCard">
+      <button id="btnToggleLapsTables"
+        onclick="toggleLapsTables()"
+        class="w-full flex items-center justify-between px-4 py-3 text-left font-bold text-slate-200 hover:bg-slate-800/40 transition-colors">
+        <span>📋 Voltas por participante</span>
+        <span id="lapsTablesChevron" style="font-size:1.1rem; transition: transform .25s; display:inline-block; transform: rotate(0deg);">▼</span>
+      </button>
+      <div id="lapsTablesBody" style="display:none;">
+        <div class="lapsTables grid gap-4 p-4" id="lapsTables"></div>
+      </div>
+    </section>
 
     <!-- Resumo -->
     <section class="summarySection bg-slate-900/60 border border-slate-800 rounded-2xl p-4 shadow-xl" id="summarySection">
@@ -569,13 +622,24 @@
     let avaliadorConfirmado = '';
     let omConfirmado = '';
 
-    function omAvSetCompact(lapMeters, extraPos){
+    function omAvSetCompact(lapMeters, extraPosByTab){
       document.getElementById('omAvEdit').classList.add('hidden');
       document.getElementById('omAvCompact').classList.remove('hidden');
       document.getElementById('omDisplay').textContent = omConfirmado;
       document.getElementById('avDisplay').textContent = avaliadorConfirmado;
-      const lapInfo = lapMeters + 'm/volta';
-      document.getElementById('lapDisplay').textContent = lapInfo;
+      // Build per-tab position summary
+      const tabLabels = { gola:'Gola', naval:'Naval', aluno:'Aluno', 'gola-caminhada':'Caminhada' };
+      let posInfo = lapMeters + 'm/volta';
+      if(extraPosByTab && typeof extraPosByTab === 'object'){
+        const parts = ['gola','naval','aluno','gola-caminhada']
+          .filter(tab => TAB_CONFIG[tab].extraMeters > 0)
+          .map(tab => tabLabels[tab] + ': ' + (TAB_CONFIG[tab].extraAtStart ? 'início' : 'final'));
+        if(parts.length) posInfo += ' · ' + parts.join(' | ');
+      } else if(typeof extraPosByTab === 'string'){
+        // legacy: single string
+        posInfo += ' · ' + (extraPosByTab === 'inicio' ? 'extra no início' : 'extra no final');
+      }
+      document.getElementById('lapDisplay').textContent = posInfo;
     }
     function omAvSetEdit(){
       document.getElementById('omAvEdit').classList.remove('hidden');
@@ -599,24 +663,21 @@
       if(!av){ showOmAvError('⚠️ Preencha o campo Avaliador.'); return; }
       if(lapM < 50 || lapM > 1000){ showOmAvError('⚠️ Tamanho da volta deve ser entre 50 e 1000 metros.'); return; }
 
-      // Check if there is a remainder for any tab
-      const hasRemainder = ['gola','naval','aluno','gola-caminhada'].some(tab => TAB_CONFIG[tab].totalMeters % lapM !== 0);
-      const doConfirm = (extraPos) => {
+      const doConfirmPerTab = (extraPosByTab) => {
         omConfirmado = om.toUpperCase();
         avaliadorConfirmado = av;
-        // Recalc with chosen extra position
         ['gola','naval','aluno','gola-caminhada'].forEach(tab => {
           const total = TAB_CONFIG[tab].totalMeters;
           const lapsGoal = Math.floor(total / lapM);
           const extraMeters = total - lapsGoal * lapM;
+          const extraPos = extraPosByTab[tab] || 'final';
           TAB_CONFIG[tab].lapMeters    = lapM;
           TAB_CONFIG[tab].lapsGoal     = lapsGoal;
           TAB_CONFIG[tab].extraMeters  = extraMeters;
           TAB_CONFIG[tab].extraAtStart = (extraPos === 'inicio');
           lapsGoalByTab[tab]           = lapsGoal;
         });
-        omAvSetCompact(lapM, extraPos);
-        // Update all lap display elements in tab panels and badges
+        omAvSetCompact(lapM, extraPosByTab);
         ['gola','naval','aluno','gola-caminhada'].forEach(tab => {
           const cfg = TAB_CONFIG[tab];
           const pos = cfg.extraAtStart ? 'início' : 'final';
@@ -632,23 +693,26 @@
         });
       };
 
-      const lines = ['gola','naval','aluno','gola-caminhada'].map(tab => {
+      // Pergunta individualmente para cada aba que tem metros restantes
+      const extraPosByTab = {};
+      ['gola','naval','aluno','gola-caminhada'].forEach(tab => {
         const total = TAB_CONFIG[tab].totalMeters;
         const laps  = Math.floor(total / lapM);
         const extra = total - laps * lapM;
-        return extra > 0 ? `${TAB_CONFIG[tab].label}: ${laps} voltas + ${extra}m` : `${TAB_CONFIG[tab].label}: ${laps} voltas`;
-      }).join('\n');
-      if(hasRemainder){
-        const choice = confirm(
-          'Com volta de '+lapM+'m:\n'+lines+'\n\nOs metros restantes ficam no INÍCIO da prova?\n\n(OK = Início | Cancelar = Final)'
-        );
-        doConfirm(choice ? 'inicio' : 'final');
-      } else {
-        alert('Com volta de '+lapM+'m:\n'+lines);
-        doConfirm('final');
-      }
+        if(extra > 0){
+          const choice = confirm(
+            '📐 ' + TAB_CONFIG[tab].label + '\n' +
+            'Com volta de '+lapM+'m: '+laps+' voltas + '+extra+'m\n\n' +
+            'Os '+extra+'m restantes ficam no INÍCIO?\n\n' +
+            '(OK = Início  |  Cancelar = Final)'
+          );
+          extraPosByTab[tab] = choice ? 'inicio' : 'final';
+        } else {
+          extraPosByTab[tab] = 'final';
+        }
+      });
+      doConfirmPerTab(extraPosByTab);
     });
-
     document.getElementById('btnClearAvaliador')?.addEventListener('click', () => {
       // Keeps runners intact — only unlocks OM/Avaliador fields
       omAvSetEdit();
@@ -882,8 +946,16 @@
     }
 
     function setRaceMode(on){
-      const ids=['omAvSection','tabsSection','trashContainer'];
+      const ids=['omAvSection','tabsSection','trashContainer','modeSection'];
       ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=on?'none':''; });
+    }
+
+    function toggleLapsTables(){
+      const body = document.getElementById('lapsTablesBody');
+      const chevron = document.getElementById('lapsTablesChevron');
+      const open = body.style.display === 'none';
+      body.style.display = open ? 'block' : 'none';
+      chevron.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
     }
 
     function start(){
@@ -898,8 +970,9 @@
     function pause(){if(!running) return; pausedAccum=nowGlobalMs(); running=false; statusEl.textContent='Pausado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(pausedAccum); updateLapButtonsState(); setStartLabel()}
     function resetAll(){
       if(runners.size>0||pausedAccum>0){
-        if(!confirm('Zerar apagar\u00e1 todos os participantes e reiniciar\u00e1 o cron\u00f4metro.\nConfirma?')) return;
+        if(!confirm('Zerar apagará todos os participantes e reiniciará o cronômetro.\nOs dados salvos serão mantidos e poderão ser restaurados.\nConfirma?')) return;
       }
+      _sessionRestoring = true; // bloqueia saves parciais durante remoção
       running=false; pausedAccum=0; startEpoch=0; statusEl.textContent='Parado';
       if(rafId) cancelAnimationFrame(rafId);
       displayGlobal.textContent=fmt(0);
@@ -907,7 +980,7 @@
       runnerSeqGlobal=0;
       omConfirmado=''; avaliadorConfirmado=''; omAvSetEdit();
       setRaceMode(false);
-      clearLocalSession();
+      _sessionRestoring = false; // libera — mas NÃO salva (sessão foi zerada intencionalmente)
       updateLapButtonsState(); setStartLabel(); renderSummary();
     }
 
@@ -1074,12 +1147,12 @@
           return String(lapsLen)+'/'+goal;
         }
         if(extraAtStart){
-          // Extra primeiro, depois voltas
+          // Extra primeiro, depois voltas — total de cliques = 1 + goal
+          if(lapsLen >= goal+1) return goal+'✓';
           if(lapsLen===1) return extraMeters+'m';
-          if(lapsLen > goal+1) return goal+'✓';
           return String(lapsLen-1)+'/'+goal;
         } else {
-          // Voltas primeiro, extra no final
+          // Voltas primeiro, extra no final — total de cliques = goal + 1
           if(lapsLen > goal) return goal+'✓';
           return String(lapsLen)+'/'+goal;
         }
@@ -1195,10 +1268,12 @@
     document.querySelectorAll('.btnAddRunner').forEach(btn => {
       btn.addEventListener('click', () => {
         const tab=btn.dataset.tab;
-        const input=document.querySelector(`.participantInput[data-tab="${tab}"]`);
-        const sexSel=document.querySelector(`.sexInput[data-tab="${tab}"]`);
-        const ageInp=document.querySelector(`.ageInput[data-tab="${tab}"]`);
-        const nipInp=document.querySelector(`.nipInput[data-tab="${tab}"]`);
+        // gola-caminhada shares the same input fields as gola
+        const inputTab = tab === 'gola-caminhada' ? 'gola' : tab;
+        const input=document.querySelector(`.participantInput[data-tab="${inputTab}"]`);
+        const sexSel=document.querySelector(`.sexInput[data-tab="${inputTab}"]`);
+        const ageInp=document.querySelector(`.ageInput[data-tab="${inputTab}"]`);
+        const nipInp=document.querySelector(`.nipInput[data-tab="${inputTab}"]`);
         const rawNip=(nipInp?.value||'').replace(/\D/g,'');
         const nip = rawNip.length===8 ? rawNip.slice(0,2)+'.'+rawNip.slice(2,6)+'.'+rawNip.slice(6) : rawNip;
         const v=input.value, s=sexSel?.value, a=ageInp?.value;
@@ -1463,36 +1538,96 @@
     });
 
     // Auto-salvar: encapsula renderSummary para chamar saveLocalSession depois
+    // ======= Sessao local (localStorage) =======
+    const LS_KEY = 'taf_tech_run_session';
+
+    let _sessionRestoring = false; // guard: não salvar durante restore ou init
     const _renderSummaryOrig = renderSummary;
     renderSummary = function(){
       _renderSummaryOrig();
-      if(runners.size > 0 || pausedAccum > 0) saveLocalSession();
+      if(!_sessionRestoring && (runners.size > 0 || pausedAccum > 0)) saveLocalSession();
     };
 
     // countDisplay precisa ser acessivel no restore — reexportar do closure
     function countDisplay(lapsLen, goal, extraMeters, extraAtStart){
       if(lapsLen===0) return '0';
-      if(extraAtStart){ if(lapsLen===1) return extraMeters+'m'; return String(lapsLen-1)+'/'+goal; }
-      else { if(lapsLen<=goal) return String(lapsLen)+'/'+goal; return extraMeters+'m'; }
+      const hasExtra = extraMeters > 0;
+      if(!hasExtra){
+        if(lapsLen >= goal) return goal+'✓';
+        return String(lapsLen)+'/'+goal;
+      }
+      if(extraAtStart){
+        if(lapsLen >= goal+1) return goal+'✓';
+        if(lapsLen===1) return extraMeters+'m';
+        return String(lapsLen-1)+'/'+goal;
+      } else {
+        if(lapsLen > goal) return goal+'✓';
+        return String(lapsLen)+'/'+goal;
+      }
     }
 
-    // Estado inicial
+    // Estado inicial — sem salvar (ainda não há dados)
+    _sessionRestoring = true;
     updateLapButtonsState(); setStartLabel(); renderSummary();
     tryRestoreSession();
+    _sessionRestoring = false;
 
     // ======= Aviso ao fechar/recarregar =======
     window.addEventListener('beforeunload', e => {
-      if(running || pausedAccum > 0 || runners.size > 0){
-        e.preventDefault();
-        e.returnValue = '';
-      }
+      e.preventDefault();
+      e.returnValue = '';
     });
 
-    // ======= Sessao local (localStorage) =======
-    const LS_KEY = 'taf_tech_run_session';
+    // ======= Atualiza estado do botão de restaurar =======
+    function updateRestoreBtn(){
+      const btn = document.getElementById('btnRestoreSession');
+      if(!btn) return;
+      let hasSaved = false;
+      try{ hasSaved = !!localStorage.getItem(LS_KEY); }catch(_){}
+      if(hasSaved){
+        btn.disabled = false;
+        btn.style.cursor = 'pointer';
+        btn.style.opacity = '1';
+        btn.style.background = '#0c4a6e';
+        btn.style.borderColor = '#0ea5e9';
+        btn.style.color = '#38bdf8';
+        btn.title = 'Restaurar última sessão salva';
+      } else {
+        btn.disabled = true;
+        btn.style.cursor = 'not-allowed';
+        btn.style.opacity = '0.5';
+        btn.style.background = '#1e293b';
+        btn.style.borderColor = '#334155';
+        btn.style.color = '#94a3b8';
+        btn.title = 'Nenhuma sessão salva encontrada';
+      }
+    }
+
+    // ======= Restaurar sessão manualmente pelo botão =======
+    function manualRestoreSession(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if(!raw){ alert('Nenhuma sessão salva encontrada.'); return; }
+        if(runners.size > 0 || pausedAccum > 0){
+          if(!confirm('⚠️ Há dados na sessão atual.\nRestaurar irá substituir os dados atuais.\n\nDeseja continuar?')) return;
+        }
+        // Limpar sessão atual sem disparar save
+        _sessionRestoring = true;
+        if(running){ clearInterval(timerInterval); running=false; }
+        runners.forEach(r => r.cardEl && r.cardEl.remove());
+        runners.clear();
+        pausedAccum=0; runnerSeqGlobal=0;
+        displayGlobal.textContent='00:00';
+        statusEl.textContent='Parado';
+        setRaceMode(false);
+        tryRestoreSession(); // libera o guard internamente
+        updateRestoreBtn();
+      }catch(e){ _sessionRestoring = false; console.warn('Erro ao restaurar manualmente:', e); }
+    }
 
     function clearLocalSession(){
       try{ localStorage.removeItem(LS_KEY); }catch(_){}
+      updateRestoreBtn();
     }
 
     function saveLocalSession(){
@@ -1501,7 +1636,12 @@
           om: omConfirmado,
           avaliador: avaliadorConfirmado,
           lapMeters: TAB_CONFIG.gola.lapMeters,
-          extraAtStart: TAB_CONFIG.gola.extraAtStart,
+          extraAtStartByTab: {
+            gola: TAB_CONFIG.gola.extraAtStart,
+            naval: TAB_CONFIG.naval.extraAtStart,
+            aluno: TAB_CONFIG.aluno.extraAtStart,
+            'gola-caminhada': TAB_CONFIG['gola-caminhada'].extraAtStart
+          },
           pausedAccum,
           runnerSeqGlobal,
           savedAt: Date.now(),
@@ -1513,7 +1653,32 @@
           }))
         };
         localStorage.setItem(LS_KEY, JSON.stringify(payload));
+        flashSaveIndicator();
       }catch(e){ console.warn('Erro ao salvar sessao:', e); }
+      updateRestoreBtn();
+    }
+
+    function flashSaveIndicator(){
+      const el = document.getElementById('saveIndicator');
+      if(!el) return;
+      // Preenche data/hora e participantes
+      const detail = document.getElementById('saveIndicatorDetail');
+      if(detail){
+        const now = new Date();
+        const dd   = String(now.getDate()).padStart(2,'0');
+        const mm   = String(now.getMonth()+1).padStart(2,'0');
+        const yyyy = now.getFullYear();
+        const hh   = String(now.getHours()).padStart(2,'0');
+        const min  = String(now.getMinutes()).padStart(2,'0');
+        const sec  = String(now.getSeconds()).padStart(2,'0');
+        const count = runners.size;
+        const pStr = count === 1 ? '1 participante' : count + ' participantes';
+        detail.textContent = dd+'/'+mm+'/'+yyyy+' '+hh+':'+min+':'+sec+' · '+pStr;
+      }
+      // Reinicia animação do ponto
+      const dot = el.querySelector('.save-dot');
+      if(dot){ dot.replaceWith(dot.cloneNode(true)); }
+      el.classList.add('visible'); // fica visível permanentemente
     }
 
     function tryRestoreSession(){
@@ -1529,27 +1694,31 @@
           +d.runners.length+' participante(s)\n\nDeseja restaurar?';
         if(!confirm(msg)){ clearLocalSession(); return; }
 
-        // Restaurar OM/Avaliador
+        _sessionRestoring = true; // evita saves parciais durante a restauração
+
         omConfirmado = d.om || '';
         if(d.golaProva) setGolaProva(d.golaProva);
         avaliadorConfirmado = d.avaliador || '';
         const lapM = d.lapMeters || 215;
-        const extraAtStart = d.extraAtStart !== false;
-        ['gola','naval'].forEach(tab=>{
+        // Support both old (single extraAtStart) and new (per-tab) format
+        const extraByTab = d.extraAtStartByTab || {};
+        const fallback = d.extraAtStart !== false;
+        ['gola','naval','aluno','gola-caminhada'].forEach(tab=>{
           const total = TAB_CONFIG[tab].totalMeters;
           const lapsGoal = Math.floor(total/lapM);
           const extraMeters = total - lapsGoal*lapM;
+          const extraAtStart = (tab in extraByTab) ? extraByTab[tab] : fallback;
           TAB_CONFIG[tab].lapMeters   = lapM;
           TAB_CONFIG[tab].lapsGoal    = lapsGoal;
           TAB_CONFIG[tab].extraMeters = extraMeters;
           TAB_CONFIG[tab].extraAtStart = extraAtStart;
           lapsGoalByTab[tab]          = lapsGoal;
         });
-        omAvSetCompact(lapM, extraAtStart ? 'inicio' : 'final');
-        ['gola','naval'].forEach(tab=>{
+        omAvSetCompact(lapM, extraByTab);
+        ['gola','naval','aluno','gola-caminhada'].forEach(tab=>{
           const el=document.getElementById(tab+'LapsDisplay'); if(!el) return;
           const cfg=TAB_CONFIG[tab];
-          const pos=cfg.extraAtStart?'in\u00edcio':'final';
+          const pos=cfg.extraAtStart?'início':'final';
           el.textContent=cfg.extraMeters>0?cfg.lapsGoal+' voltas + '+cfg.extraMeters+'m ('+pos+')':cfg.lapsGoal+' voltas';
         });
 
@@ -1592,8 +1761,9 @@
           r.lapsCountEl.textContent=countDisplay(r.laps.length,r.lapsGoalSnap,r.extraMetersSnap,r.extraAtStartSnap);
         });
         runnerSeqGlobal = d.runnerSeqGlobal || runnerSeqGlobal;
+        _sessionRestoring = false; // libera saves normais
         updateLapButtonsState(); setStartLabel(); renderSummary();
-      }catch(e){ console.warn('Erro ao restaurar sessao:', e); clearLocalSession(); }
+      }catch(e){ _sessionRestoring = false; console.warn('Erro ao restaurar sessao:', e); clearLocalSession(); }
     }
 
     // ======= Bloquear pull-to-refresh =======
@@ -1603,6 +1773,7 @@
       const currentY = e.touches[0].clientY;
       if(window.scrollY === 0 && currentY > startY){ e.preventDefault(); }
     }, {passive: false});
+    updateRestoreBtn();
   </script>
 </body>
 </html>
