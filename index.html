@@ -177,6 +177,8 @@
       width: 92%;
       text-align: center;
       box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+    }
+    #pwaModal.show #pwaModalBox {
       animation: pwaSlideUp .3s cubic-bezier(.34,1.56,.64,1);
     }
     @keyframes pwaSlideUp {
@@ -1831,7 +1833,6 @@
       const numEl     = document.getElementById('exitTimerNum');
       const msgEl     = document.getElementById('exitTimerMsg');
       const confirmBtn= document.getElementById('exitConfirmBtn');
-      const cancelBtn = document.getElementById('exitCancelBtn');
 
       // Reset visual
       const circumference = 188.5;
@@ -1891,17 +1892,16 @@
 
     // ======= Aviso ao fechar/recarregar — garante disparo em QUALQUER situação =======
     // Browsers modernos só disparam beforeunload se houve "user gesture" na página.
-    // Registramos o gesture nos primeiros eventos possíveis (click, keydown, touchstart, scroll, pointerdown).
     let _userGestureRegistered = false;
     function _registerGesture() {
       if (_userGestureRegistered) return;
       _userGestureRegistered = true;
-      // Remove os listeners de registro após o primeiro disparo
-      ['click','keydown','pointerdown','touchstart','scroll'].forEach(evt =>
+      ['click','keydown','pointerdown','scroll'].forEach(evt =>
         document.removeEventListener(evt, _registerGesture, {capture:true})
       );
     }
-    ['click','keydown','pointerdown','touchstart','scroll'].forEach(evt =>
+    // Registra gesture em eventos que não conflitem com o touchstart já existente
+    ['click','keydown','pointerdown','scroll'].forEach(evt =>
       document.addEventListener(evt, _registerGesture, {capture:true, passive:true})
     );
 
@@ -2123,6 +2123,7 @@
     let _touchStartX = 0;
     let _touchStartY = 0;
     document.addEventListener('touchstart', function(e){
+      _registerGesture();
       _touchStartX = e.touches[0].clientX;
       _touchStartY = e.touches[0].clientY;
     }, {passive: false});
