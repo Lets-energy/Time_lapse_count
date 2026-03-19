@@ -3,7 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TAF-TECH v2 (extra primeiro)</title>
+  <title>TAF-TECH</title>
+  <meta name="description" content="Cronômetro e marcador de voltas para o TAF" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="TAF-TECH" />
+  <link rel="manifest" href="manifest.json" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -121,9 +128,119 @@
       40%  { transform: scale(1.4); opacity: 1; }
       100% { transform: scale(1);   opacity: 1; }
     }
+
+    /* Modal de saída */
+    #exitModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+    }
+    #exitModal.show { display: flex; }
+    #exitModalBox {
+      background: #0f172a;
+      border: 2px solid #334155;
+      border-radius: 20px;
+      padding: 32px 28px 24px;
+      max-width: 380px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      animation: exitModalIn .22s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes exitModalIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+    #exitTimerRing {
+      width: 72px; height: 72px;
+      margin: 0 auto 16px;
+      position: relative;
+    }
+    #exitTimerRing svg { transform: rotate(-90deg); }
+    #exitTimerRing circle {
+      fill: none;
+      stroke-width: 6;
+    }
+    #exitTimerRing .bg-circle { stroke: #1e293b; }
+    #exitTimerRing .fg-circle {
+      stroke: #f87171;
+      stroke-linecap: round;
+      transition: stroke-dashoffset .9s linear;
+    }
+    #exitTimerNum {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #f87171;
+    }
+    #exitConfirmBtn {
+      width: 100%;
+      padding: 11px 0;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: not-allowed;
+      border: none;
+      background: #1e293b;
+      color: #64748b;
+      transition: background .3s, color .3s;
+      margin-top: 20px;
+    }
+    #exitConfirmBtn.ready {
+      background: #ef4444;
+      color: #fff;
+      cursor: pointer;
+    }
+    #exitConfirmBtn.ready:hover { background: #dc2626; }
+    #exitCancelBtn {
+      width: 100%;
+      padding: 10px 0;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: 2px solid #334155;
+      background: transparent;
+      color: #94a3b8;
+      margin-top: 10px;
+      transition: background .2s, color .2s;
+    }
+    #exitCancelBtn:hover { background: #1e293b; color: #e2e8f0; }
   </style>
 </head>
 <body class="min-h-screen text-slate-100">
+
+  <!-- Modal de aviso de saída -->
+  <div id="exitModal" role="dialog" aria-modal="true" aria-labelledby="exitModalTitle">
+    <div id="exitModalBox">
+      <div style="font-size:2rem; margin-bottom:8px;">⚠️</div>
+      <h2 id="exitModalTitle" style="font-size:1.2rem; font-weight:800; color:#f1f5f9; margin-bottom:6px;">Sair da página?</h2>
+      <p style="font-size:0.88rem; color:#94a3b8; line-height:1.5; margin-bottom:4px;">
+        Você está tentando sair. Os dados podem ser perdidos se não foram salvos corretamente.
+      </p>
+      <div id="exitTimerRing">
+        <svg width="72" height="72" viewBox="0 0 72 72">
+          <circle class="bg-circle" cx="36" cy="36" r="30"/>
+          <circle class="fg-circle" id="exitTimerArc" cx="36" cy="36" r="30"
+            stroke-dasharray="188.5" stroke-dashoffset="0"/>
+        </svg>
+        <div id="exitTimerNum">5</div>
+      </div>
+      <p id="exitTimerMsg" style="font-size:0.8rem; color:#64748b;">Aguarde para confirmar…</p>
+      <button id="exitConfirmBtn" disabled>Sair mesmo assim</button>
+      <button id="exitCancelBtn">✕ Cancelar e ficar</button>
+    </div>
+  </div>
+
   <!-- Header -->
   <header class="sticky top-0 z-20 backdrop-blur bg-slate-900/70 border-b border-slate-800">
     <div class="max-w-6xl mx-auto px-3 py-2 flex items-center gap-2">
@@ -141,6 +258,13 @@
         </div>
         <span id="saveIndicatorDetail" style="font-size:0.6rem; color:#86efac; font-weight:600; line-height:1.2; text-align:center;"></span>
       </div>
+      <!-- Botão instalar PWA (oculto até o browser disparar beforeinstallprompt) -->
+      <button id="btnInstallPwa"
+        title="Instalar como app no celular"
+        class="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap flex-shrink-0"
+        style="display:none; background:#0c4a6e; border-color:#0ea5e9; color:#38bdf8;">
+        📲 <span class="hidden sm:inline">Instalar</span>
+      </button>
       <!-- Botão restaurar -->
       <button id="btnRestoreSession"
         onclick="manualRestoreSession()"
@@ -150,6 +274,10 @@
         disabled>
         🔄 <span class="hidden sm:inline">Restaurar</span>
       </button>
+    </div>
+    <!-- Banner offline -->
+    <div id="offlineBanner" style="display:none; background:#7f1d1d; color:#fecaca; font-size:0.78rem; font-weight:700; text-align:center; padding:5px 12px; gap:6px; align-items:center; justify-content:center;">
+      📵 Você está offline — os dados salvos continuam disponíveis
     </div>
   </header>
 
@@ -1591,10 +1719,114 @@
     tryRestoreSession();
     _sessionRestoring = false;
 
-    // ======= Aviso ao fechar/recarregar =======
+    // ======= Modal de saída com timer de 5 segundos =======
+    let _exitTimerInterval = null;
+    let _exitPendingAction = null; // função a executar após confirmar
+
+    function showExitModal(onConfirm) {
+      const modal     = document.getElementById('exitModal');
+      const arc       = document.getElementById('exitTimerArc');
+      const numEl     = document.getElementById('exitTimerNum');
+      const msgEl     = document.getElementById('exitTimerMsg');
+      const confirmBtn= document.getElementById('exitConfirmBtn');
+      const cancelBtn = document.getElementById('exitCancelBtn');
+
+      // Reset visual
+      const circumference = 188.5;
+      arc.style.transition = 'none';
+      arc.style.stroke = '#f87171';
+      arc.style.strokeDashoffset = '0';
+      numEl.style.color = '#f87171';
+      numEl.textContent = '5';
+      msgEl.textContent = 'Aguarde para confirmar…';
+      confirmBtn.disabled = true;
+      confirmBtn.classList.remove('ready');
+      modal.classList.add('show');
+
+      _exitPendingAction = onConfirm;
+      let remaining = 5;
+
+      // Força reflow para reiniciar a transição
+      arc.getBoundingClientRect();
+      arc.style.transition = 'stroke-dashoffset 1s linear';
+
+      _exitTimerInterval = setInterval(() => {
+        remaining--;
+        numEl.textContent = remaining;
+        arc.style.strokeDashoffset = String(circumference * (1 - remaining / 5));
+
+        if (remaining <= 2) { arc.style.stroke = '#fb923c'; numEl.style.color = '#fb923c'; }
+        if (remaining <= 0) {
+          clearInterval(_exitTimerInterval);
+          arc.style.strokeDashoffset = String(circumference);
+          numEl.textContent = '✓';
+          numEl.style.color = '#4ade80';
+          arc.style.stroke = '#4ade80';
+          msgEl.textContent = 'Agora você pode confirmar a saída.';
+          confirmBtn.disabled = false;
+          confirmBtn.classList.add('ready');
+        }
+      }, 1000);
+    }
+
+    function closeExitModal() {
+      clearInterval(_exitTimerInterval);
+      document.getElementById('exitModal').classList.remove('show');
+      _exitPendingAction = null;
+    }
+
+    document.getElementById('exitCancelBtn').addEventListener('click', closeExitModal);
+    document.getElementById('exitConfirmBtn').addEventListener('click', () => {
+      if (_exitPendingAction) {
+        closeExitModal();
+        _exitPendingAction();
+      }
+    });
+    // Clicar fora do box cancela
+    document.getElementById('exitModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('exitModal')) closeExitModal();
+    });
+
+    // ======= Aviso ao fechar/recarregar — garante disparo em QUALQUER situação =======
+    // Browsers modernos só disparam beforeunload se houve "user gesture" na página.
+    // Registramos o gesture nos primeiros eventos possíveis (click, keydown, touchstart, scroll, pointerdown).
+    let _userGestureRegistered = false;
+    function _registerGesture() {
+      if (_userGestureRegistered) return;
+      _userGestureRegistered = true;
+      // Remove os listeners de registro após o primeiro disparo
+      ['click','keydown','pointerdown','touchstart','scroll'].forEach(evt =>
+        document.removeEventListener(evt, _registerGesture, {capture:true})
+      );
+    }
+    ['click','keydown','pointerdown','touchstart','scroll'].forEach(evt =>
+      document.addEventListener(evt, _registerGesture, {capture:true, passive:true})
+    );
+
+    // beforeunload: sempre ativo, independente de haver dados
     window.addEventListener('beforeunload', e => {
       e.preventDefault();
-      e.returnValue = '';
+      e.returnValue = ''; // Chrome exige isso
+      return '';           // Fallback para browsers mais antigos
+    });
+
+    // Interceptar swipe de volta (History API — Android Chrome "back gesture")
+    window.addEventListener('popstate', e => {
+      // Empurra o estado de volta para impedir a navegação
+      history.pushState(null, '', location.href);
+      showExitModal(() => { history.go(-2); });
+    });
+    // Garante que há um estado para "voltar" no histórico
+    history.pushState(null, '', location.href);
+
+    // Interceptar navegação por links (caso existam)
+    document.addEventListener('click', e => {
+      const anchor = e.target.closest('a[href]');
+      if (!anchor) return;
+      const href = anchor.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('javascript')) return;
+      e.preventDefault();
+      showExitModal(() => { window.location.href = href; });
     });
 
     // ======= Atualiza estado do botão de restaurar =======
@@ -1785,14 +2017,70 @@
       }catch(e){ _sessionRestoring = false; console.warn('Erro ao restaurar sessao:', e); clearLocalSession(); }
     }
 
-    // ======= Bloquear pull-to-refresh =======
-    document.addEventListener('touchstart', function(e){ this._startY = e.touches[0].clientY; }, {passive: false});
+    // ======= Bloquear pull-to-refresh E swipe lateral de navegação =======
+    let _touchStartX = 0;
+    let _touchStartY = 0;
+    document.addEventListener('touchstart', function(e){
+      _touchStartX = e.touches[0].clientX;
+      _touchStartY = e.touches[0].clientY;
+    }, {passive: false});
     document.addEventListener('touchmove', function(e){
-      const startY = this._startY || 0;
-      const currentY = e.touches[0].clientY;
-      if(window.scrollY === 0 && currentY > startY){ e.preventDefault(); }
+      const dx = e.touches[0].clientX - _touchStartX;
+      const dy = e.touches[0].clientY - _touchStartY;
+      // Bloquear pull-to-refresh (arrasto para baixo no topo)
+      if(window.scrollY === 0 && dy > 0 && Math.abs(dy) > Math.abs(dx)){ e.preventDefault(); return; }
+      // Bloquear swipe horizontal de volta (iOS Safari — arrasto da borda esquerda)
+      if(Math.abs(dx) > Math.abs(dy) && dx > 30 && _touchStartX < 30){ e.preventDefault(); }
     }, {passive: false});
     updateRestoreBtn();
+
+    // ======= Registrar Service Worker (PWA / Offline) =======
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/Time_lapse_count/sw.js', { scope: '/Time_lapse_count/' })
+          .then(reg => {
+            console.log('[PWA] Service Worker registrado:', reg.scope);
+            // Verifica atualização a cada 30 min
+            setInterval(() => reg.update(), 30 * 60 * 1000);
+          })
+          .catch(err => console.warn('[PWA] Falha ao registrar SW:', err));
+      });
+    }
+
+    // ======= Banner de instalação PWA =======
+    let _deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      _deferredInstallPrompt = e;
+      // Mostra botão de instalar no header
+      const btn = document.getElementById('btnInstallPwa');
+      if (btn) { btn.style.display = 'flex'; }
+    });
+    window.addEventListener('appinstalled', () => {
+      _deferredInstallPrompt = null;
+      const btn = document.getElementById('btnInstallPwa');
+      if (btn) { btn.style.display = 'none'; }
+      console.log('[PWA] App instalado com sucesso!');
+    });
+    document.getElementById('btnInstallPwa')?.addEventListener('click', async () => {
+      if (!_deferredInstallPrompt) return;
+      _deferredInstallPrompt.prompt();
+      const { outcome } = await _deferredInstallPrompt.userChoice;
+      console.log('[PWA] Escolha do usuário:', outcome);
+      _deferredInstallPrompt = null;
+      document.getElementById('btnInstallPwa').style.display = 'none';
+    });
+
+    // ======= Indicador de status offline/online =======
+    const _offlineBanner = document.getElementById('offlineBanner');
+    function _updateOnlineStatus() {
+      if (_offlineBanner) {
+        _offlineBanner.style.display = navigator.onLine ? 'none' : 'flex';
+      }
+    }
+    window.addEventListener('online',  _updateOnlineStatus);
+    window.addEventListener('offline', _updateOnlineStatus);
+    _updateOnlineStatus(); // estado inicial
   </script>
 </body>
 </html>
