@@ -113,6 +113,38 @@
     }
     #modeAluno { display: none; }
 
+    /* Botão de alternância de posição dos metros extras */
+    .btn-extra-pos {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 13px;
+      border-radius: 9px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1.5px solid #334155;
+      background: #1e293b;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: background .18s, color .18s, border-color .18s, opacity .18s;
+      white-space: nowrap;
+    }
+    .btn-extra-pos.pos-inicio {
+      background: #0c4a6e;
+      border-color: #0ea5e9;
+      color: #38bdf8;
+    }
+    .btn-extra-pos.pos-final {
+      background: #431407;
+      border-color: #ea580c;
+      color: #fb923c;
+    }
+    .btn-extra-pos:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: grayscale(40%);
+    }
+
     /* Indicador de auto-save */
     #saveIndicator {
       display: flex;
@@ -301,6 +333,104 @@
       transition: background .2s, color .2s;
     }
     #exitCancelBtn:hover { background: #1e293b; color: #e2e8f0; }
+  
+    /* ── Modal genérico de importação / pelotões ── */
+    .taf-modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 9990;
+      background: rgba(0,0,0,0.78); backdrop-filter: blur(5px);
+      align-items: center; justify-content: center; padding: 16px;
+    }
+    .taf-modal-overlay.show { display: flex; }
+    .taf-modal-box {
+      background: #0f172a; border: 2px solid #1e3a5f;
+      border-radius: 20px; padding: 24px 22px 20px;
+      max-width: 560px; width: 100%; max-height: 88vh;
+      display: flex; flex-direction: column; gap: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      animation: tafModalIn .22s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes tafModalIn {
+      from { transform: scale(0.88); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+    .taf-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .taf-modal-title { font-size: 1.1rem; font-weight: 800; color: #f1f5f9; }
+    .taf-modal-close {
+      background: none; border: none; color: #64748b;
+      font-size: 1.3rem; cursor: pointer; padding: 2px 8px;
+      border-radius: 8px; transition: color .15s, background .15s;
+    }
+    .taf-modal-close:hover { color: #f1f5f9; background: #1e293b; }
+    .taf-modal-scroll { overflow-y: auto; flex: 1; }
+
+    /* ── Checklist de importação ── */
+    .import-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: 10px; cursor: pointer;
+      transition: background .15s;
+    }
+    .import-row:hover { background: #1e293b; }
+    .import-row input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; accent-color: #0ea5e9; flex-shrink: 0; }
+    .import-row-info { flex: 1; min-width: 0; }
+    .import-row-name { font-size: .9rem; font-weight: 700; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .import-row-meta { font-size: .75rem; color: #64748b; }
+    .import-mode-sel {
+      font-size: .75rem; padding: 3px 8px; border-radius: 7px;
+      background: #1e293b; border: 1px solid #334155; color: #94a3b8;
+      cursor: pointer; outline: none;
+    }
+
+    /* ── Cards de pelotão ── */
+    .pelotao-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px; border-radius: 14px 14px 0 0;
+      background: #1e293b; border: 1px solid #334155; border-bottom: none;
+    }
+    .pelotao-label { font-weight: 800; font-size: 1rem; color: #38bdf8; flex: 1; }
+    .pelotao-count { font-size: .8rem; color: #64748b; }
+    .pelotao-body {
+      border: 1px solid #334155; border-radius: 0 0 14px 14px;
+      padding: 8px; background: #0f172a; min-height: 60px;
+    }
+    .pelotao-member {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 8px; border-radius: 8px;
+      background: #1e293b; margin-bottom: 4px; font-size: .82rem;
+    }
+    .pelotao-member-name { flex: 1; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pelotao-remove-btn {
+      background: none; border: none; color: #ef4444;
+      cursor: pointer; font-size: 1rem; padding: 0 4px;
+      border-radius: 5px; transition: background .15s;
+    }
+    .pelotao-remove-btn:hover { background: rgba(239,68,68,0.15); }
+
+    /* ── Separador visual de pelotão na grid principal ── */
+    .pelotao-divider {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 4px;
+    }
+    .pelotao-divider-label {
+      font-size: .85rem; font-weight: 800; color: #38bdf8;
+      white-space: nowrap;
+    }
+    .pelotao-divider-line {
+      flex: 1; height: 1px; background: #1e3a5f;
+    }
+    .pelotao-divider-timer {
+      font-size: .8rem; font-weight: 700; color: #94a3b8; font-family: monospace;
+    }
+    .btn-iniciar-pelotao {
+      font-size: .78rem; font-weight: 700; padding: 4px 12px;
+      border-radius: 8px; border: none; cursor: pointer;
+      background: #059669; color: #fff; transition: background .15s;
+    }
+    .btn-iniciar-pelotao:hover { background: #047857; }
+    .btn-iniciar-pelotao:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+
   </style>
 </head>
 <body class="min-h-screen text-slate-100">
@@ -390,7 +520,7 @@
     <!-- Toggle Modo -->
     <section id="modeSection" class="bg-slate-900/60 border border-slate-800 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
       <span class="text-sm font-semibold text-slate-400">Modo:</span>
-      <button id="btnModeMilitar" class="mode-toggle-btn active-militar" onclick="setAppMode('militar')">⚔️ Militar</button>
+      <button id="btnModeMilitar" class="mode-toggle-btn active-militar" onclick="setAppMode('militar')">⚔️ Tripulação</button>
       <button id="btnModeAluno"   class="mode-toggle-btn"                onclick="setAppMode('aluno')">🎓 Aluno</button>
     </section>
 
@@ -422,13 +552,16 @@
         <div id="omAvError" class="hidden text-xs font-semibold rounded-xl px-3 py-2 mt-2" style="background:#7f1d1d;color:#fca5a5"></div>
       </div>
       <!-- COMPACT MODE (after confirmed) -->
-      <div id="omAvCompact" class="hidden flex items-center justify-between gap-3">
-        <div class="text-xs text-slate-400 flex flex-wrap gap-4">
-          <span>⚓ <span id="omDisplay" class="text-slate-200 font-semibold"></span></span>
-          <span>🫡 <span id="avDisplay" class="text-slate-200 font-semibold"></span></span>
-          <span>📐 <span id="lapDisplay" class="text-slate-200 font-semibold"></span></span>
+      <div id="omAvCompact" class="hidden flex flex-col gap-2">
+        <div class="flex items-center justify-between gap-3">
+          <div class="text-xs text-slate-400 flex flex-wrap gap-4">
+            <span>⚓ <span id="omDisplay" class="text-slate-200 font-semibold"></span></span>
+            <span>🫡 <span id="avDisplay" class="text-slate-200 font-semibold"></span></span>
+            <span>📐 <span id="lapDisplay" class="text-slate-200 font-semibold"></span></span>
+          </div>
+          <button id="btnClearAvaliador" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-rose-800 text-xs font-semibold text-slate-300 flex items-center gap-1">🗑️ Editar</button>
         </div>
-        <button id="btnClearAvaliador" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-rose-800 text-xs font-semibold text-slate-300 flex items-center gap-1">🗑️ Editar</button>
+
       </div>
     </section>
 
@@ -481,12 +614,12 @@
                 <button id="btnModeCorreida" onclick="setGolaMode('corrida')" style="padding:6px 16px;background:#0e7490;color:#fff;font-weight:700;font-size:.85rem;border:none;cursor:pointer;border-radius:9px 0 0 9px;">🏃 Corrida</button>
                 <button id="btnModeCaminhada" onclick="setGolaMode('caminhada')" style="padding:6px 16px;background:#1e293b;color:#64748b;font-weight:600;font-size:.85rem;border:none;cursor:pointer;border-radius:0 9px 9px 0;">🚶 Caminhada</button>
               </div>
+              <button id="btnExtraPos-gola" class="btn-extra-pos pos-inicio" onclick="toggleExtraPos('gola')" title="Alterar posição dos metros extras">Metros extras no início</button>
             </div>
           </div>
           <div class="w-full sm:w-auto">
             <label class="block text-sm mb-1">Identificação do participante</label>
             <div class="flex gap-2 items-stretch">
-              <!-- Campos empilhados: nome em cima, sexo+idade embaixo -->
               <div class="flex flex-col gap-2 flex-1">
                 <input class="nipInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" type="text" inputmode="numeric" maxlength="10" data-tab="gola" placeholder="NIP (00.0000.00)" style="letter-spacing:0.1em;font-family:monospace" />
                 <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="gola" placeholder="Posto/Grad + Nome de guerra" />
@@ -499,7 +632,6 @@
                   <input class="ageInput w-24 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 text-center outline-none focus:ring-2 focus:ring-sky-500 text-sm" type="number" min="18" max="99" data-tab="gola" placeholder="Idade" />
                 </div>
               </div>
-              <!-- Botão ocupando a altura das duas linhas -->
               <button id="btnAddRunnerGola" class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 font-semibold self-stretch" data-tab="gola">Adicionar</button>
             </div>
             <p class="text-xs text-slate-500 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
@@ -515,6 +647,9 @@
             <label class="block text-sm mb-1">Número de voltas</label>
             <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
               <span id="navalLapsDisplay">14 voltas + 190m</span>
+            </div>
+            <div class="flex items-center gap-2 mt-2">
+              <button id="btnExtraPos-naval" class="btn-extra-pos pos-final" onclick="toggleExtraPos('naval')" title="Alterar posição dos metros extras">Metros extras no final</button>
             </div>
           </div>
           <div class="w-full sm:w-auto">
@@ -550,6 +685,9 @@
             <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
               <span id="alunoLapsDisplay">11 voltas + 35m</span>
             </div>
+            <div class="flex items-center gap-2 mt-2">
+              <button id="btnExtraPos-aluno" class="btn-extra-pos pos-inicio" onclick="toggleExtraPos('aluno')" title="Alterar posição dos metros extras">Metros extras no início</button>
+            </div>
           </div>
           <div class="w-full sm:w-auto">
             <label class="block text-sm mb-1">Identificação do participante</label>
@@ -574,6 +712,12 @@
         </div>
       </div>
     </section>
+
+    <!-- Botões de ação acima da lista -->
+    <div class="flex flex-wrap items-center gap-2" id="runnersActionBar">
+      <button onclick="openImportModal()" class="px-3 py-2 text-sm rounded-xl font-semibold flex items-center gap-1" style="background:#0c4a6e;border:1px solid #0ea5e9;color:#38bdf8">📥 Importar lista</button>
+      <button onclick="openPelotaoModal()" id="btnOrganizarPelotoes" class="px-3 py-2 text-sm rounded-xl font-semibold flex items-center gap-1" style="background:#1e293b;border:1px solid #334155;color:#94a3b8">🪖 Organizar pelotões</button>
+    </div>
 
     <!-- Lista de Participantes -->
     <section class="grid md:grid-cols-2 xl:grid-cols-3 gap-4" id="runnersGrid"></section>
@@ -621,6 +765,34 @@
         <button id="btnExportCSVTotais" class="px-3 py-2 text-sm rounded-lg bg-violet-600 hover:bg-violet-500">📄 CSV (somente tempos totais)</button>
         <button id="btnExportPDF" class="px-3 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600">🖨️ PDF (tabelas)</button>
         <button id="btnScoreTable" class="px-3 py-2 text-sm rounded-lg bg-teal-700 hover:bg-teal-600">📋 Tabela de Notas</button>
+      </div>
+    </section>
+
+    <!-- Download do modelo de planilha -->
+    <section class="bg-slate-900/60 border border-slate-700 rounded-2xl p-4 sm:p-6 shadow-xl">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div class="flex-1">
+          <h3 class="text-sm font-bold text-slate-200 mb-1">📥 Modelo de planilha para importação</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Baixe a planilha já formatada com validações de dados: NIP no formato <span class="font-mono text-sky-400">00.0000.00</span>, 
+            nascimento em <span class="font-mono text-sky-400">DD/MM/AAAA</span> e sexo restrito a <span class="font-mono text-sky-400">M&nbsp;/&nbsp;F</span>. 
+            Preencha, salve como <strong class="text-slate-300">CSV</strong> e importe diretamente no sistema.
+          </p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2 flex-shrink-0">
+          <button onclick="downloadXlsxModelo()"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap"
+            style="background:#15803d;border:1.5px solid #4ade80;color:#fff;transition:background .2s"
+            onmouseover="this.style.background='#166534'" onmouseout="this.style.background='#15803d'">
+            📊 Baixar modelo (.xlsx)
+          </button>
+          <button onclick="downloadCsvModelo()"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap"
+            style="background:#1e293b;border:1.5px solid #334155;color:#94a3b8;transition:background .2s"
+            onmouseover="this.style.background='#273549'" onmouseout="this.style.background='#1e293b'">
+            📄 Baixar modelo (.csv)
+          </button>
+        </div>
       </div>
     </section>
   </main>
@@ -697,6 +869,413 @@
   </template>
 
   <script>
+
+    // ══════════════════════════════════════════════════════
+    // ESTADO DE PELOTÕES
+    // ══════════════════════════════════════════════════════
+    // pelotoes: Array de { id, name, memberKeys:[], started:bool, finished:bool,
+    //                      startEpoch, pausedAccum, running, rafId, displayEl, statusEl }
+    let pelotoes = [];
+    let pelotaoSeq = 0;
+    // Mapa nipKey → pelotaoId
+    const runnerPelotaoMap = new Map();
+    // Pelotão ativo (o que está rodando ou foi o último)
+    let activePelotaoId = null;
+
+    function getPelotaoById(id){ return pelotoes.find(p => p.id === id) || null; }
+
+    function nowPelotaoMs(p){
+      if(!p) return 0;
+      return p.running ? p.pausedAccum + (performance.now() - p.startEpoch) : p.pausedAccum;
+    }
+
+    // ══════════════════════════════════════════════════════
+    // ESTADO DE IMPORTAÇÃO CSV
+    // ══════════════════════════════════════════════════════
+    let importedRows   = []; // { nip, nome, corpo, nascimento (Date), age }
+    let importSelected = new Set(); // nips selecionados
+
+    // ══════════════════════════════════════════════════════
+    // IMPORTAÇÃO CSV — funções
+    // ══════════════════════════════════════════════════════
+    function openImportModal(){
+      document.getElementById('importModal').classList.add('show');
+    }
+    function closeImportModal(){
+      document.getElementById('importModal').classList.remove('show');
+    }
+
+    function handleCsvDrop(e){
+      e.preventDefault();
+      document.getElementById('importUploadArea').style.borderColor = '#334155';
+      const file = e.dataTransfer.files[0];
+      if(file) handleCsvFile(file);
+    }
+
+    function calcAgeFromDate(nascimento){
+      const hoje = new Date();
+      let age = hoje.getFullYear() - nascimento.getFullYear();
+      const m = hoje.getMonth() - nascimento.getMonth();
+      if(m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) age--;
+      return age;
+    }
+
+    function handleCsvFile(file){
+      if(!file) return;
+      const errEl = document.getElementById('importError');
+      errEl.textContent = '';
+      const reader = new FileReader();
+      reader.onload = e => {
+        try{
+          const lines = e.target.resultsplit(/\r\n|\r|\n/).filter(l => l.trim());
+          // Detectar header
+          const first = lines[0].toLowerCase();
+          const hasHeader = first.includes('nip') || first.includes('nome') || first.includes('corpo');
+          const dataLines = hasHeader ? lines.slice(1) : lines;
+          if(!dataLines.length){ errEl.textContent = '⚠️ Arquivo sem dados.'; return; }
+          importedRows = [];
+          const erros = [];
+          dataLines.forEach((line, i) => {
+            const parts = line.split(/[,;]/).map(s => s.trim().replace(/^"|"$/g,''));
+            if(parts.length < 4){ erros.push('Linha '+(i+2)+': colunas insuficientes'); return; }
+            const [nipRaw, nome, corpo, nascRaw] = parts;
+            const nip = nipRaw.replace(/\D/g,'');
+            if(nip.length !== 8){ erros.push('Linha '+(i+2)+': NIP inválido ('+nipRaw+')'); return; }
+            // Nascimento: DD/MM/AAAA ou YYYY-MM-DD
+            let nasc;
+            if(/^\d{2}\/\d{2}\/\d{4}$/.test(nascRaw)){
+              const [d,m,y] = nascRaw.split('/');
+              nasc = new Date(+y, +m-1, +d);
+            } else if(/^\d{4}-\d{2}-\d{2}$/.test(nascRaw)){
+              const [y,m,d] = nascRaw.split('-');
+              nasc = new Date(+y, +m-1, +d);
+            } else { erros.push('Linha '+(i+2)+': data inválida ('+nascRaw+')'); return; }
+            const age = calcAgeFromDate(nasc);
+            if(age < 18){ erros.push('Linha '+(i+2)+': idade < 18 ('+nome+')'); return; }
+            const corpoNorm = corpo.toLowerCase().includes('naval') ? 'naval' : 'gola';
+            const nipFmt = nip.slice(0,2)+'.'+nip.slice(2,6)+'.'+nip.slice(6);
+            importedRows.push({ nip: nipFmt, nipKey: nip, nome: nome.trim().toUpperCase(), corpo: corpoNorm, nasc, age });
+          });
+          if(erros.length && !importedRows.length){ errEl.textContent = erros[0]; return; }
+          if(erros.length) errEl.textContent = '⚠️ '+erros.length+' linha(s) ignorada(s): '+erros[0];
+          // Ordenar por nome
+          importedRows.sort((a,b) => a.nome.localeCompare(b.nome));
+          importSelected = new Set(importedRows.map(r => r.nipKey));
+          renderImportList();
+          document.getElementById('importControls').style.display = 'flex';
+        }catch(ex){ errEl.textContent = '⚠️ Erro ao ler arquivo: '+ex.message; }
+      };
+      reader.readAsText(file);
+    }
+
+    function renderImportList(){
+      const q = (document.getElementById('importSearch')?.value||'').toLowerCase();
+      const list = document.getElementById('importList');
+      const filtered = importedRows.filter(r =>
+        r.nome.toLowerCase().includes(q) || r.nipKey.includes(q.replace(/\D/g,''))
+      );
+      if(!filtered.length){ list.innerHTML = '<p style="color:#475569;font-size:.8rem;padding:8px">Nenhum resultado.</p>'; updateImportCount(); return; }
+      list.innerHTML = filtered.map(r => {
+        const alreadyAdded = runners.has(r.nipKey);
+        const checked = importSelected.has(r.nipKey) && !alreadyAdded;
+        const disabledAttr = alreadyAdded ? 'disabled' : '';
+        const defaultMode = r.corpo === 'gola' ? 'gola' : 'naval';
+        return `<label class="import-row" style="${alreadyAdded?'opacity:0.45;cursor:not-allowed':''}">
+          <input type="checkbox" ${checked?'checked':''} ${disabledAttr} data-nipkey="${r.nipKey}" onchange="toggleImportRow(this)">
+          <div class="import-row-info">
+            <div class="import-row-name">${r.nome}</div>
+            <div class="import-row-meta">${r.nip} · ${r.corpo==='naval'?'Naval':'Gola'} · ${r.age} anos${alreadyAdded?' · <span style=\"color:#4ade80\">já adicionado</span>':''}</div>
+          </div>
+          ${!alreadyAdded && r.corpo==='gola' ? `<select class="import-mode-sel" data-nipkey="${r.nipKey}"><option value="gola">🏃 Corrida</option><option value="gola-caminhada">🚶 Caminhada</option></select>` : ''}
+        </label>`;
+      }).join('');
+      updateImportCount();
+    }
+
+    function filterImportList(){ renderImportList(); }
+
+    function toggleImportRow(cb){
+      const key = cb.dataset.nipkey;
+      if(cb.checked) importSelected.add(key); else importSelected.delete(key);
+      updateImportCount();
+    }
+
+    function toggleSelectAll(checked){
+      importedRows.forEach(r => {
+        if(!runners.has(r.nipKey)){
+          if(checked) importSelected.add(r.nipKey); else importSelected.delete(r.nipKey);
+        }
+      });
+      renderImportList();
+    }
+
+    function updateImportCount(){
+      const n = [...importSelected].filter(k => !runners.has(k)).length;
+      const el = document.getElementById('importSelCount');
+      if(el) el.textContent = n + ' selecionado' + (n!==1?'s':'');
+    }
+
+    function confirmImport(){
+      let added = 0, erros = [];
+      importedRows.forEach(r => {
+        if(!importSelected.has(r.nipKey)) return;
+        if(runners.has(r.nipKey)) return;
+        // corpo: gola ou gola-caminhada depende do select
+        let tab = r.corpo;
+        if(r.corpo === 'gola'){
+          const sel = document.querySelector(`.import-mode-sel[data-nipkey="${r.nipKey}"]`);
+          tab = sel ? sel.value : 'gola';
+        }
+        // Precisamos de sexo — pedir via prompt se não disponível no CSV
+        // Por simplicidade, sexo será M por padrão (pode ser ajustado manualmente depois)
+        const ok = addRunner(r.nome, tab, 'M', r.age, r.nip);
+        if(ok !== false) added++;
+        else erros.push(r.nome);
+      });
+      const errEl = document.getElementById('importError');
+      if(erros.length) errEl.textContent = '⚠️ Não adicionados: '+erros.join(', ');
+      if(added > 0){
+        closeImportModal();
+        // Reset
+        importedRows = []; importSelected = new Set();
+        document.getElementById('importControls').style.display = 'none';
+        document.getElementById('importUploadArea').style.borderColor = '#334155';
+        document.getElementById('csvFileInput').value = '';
+      }
+    }
+
+    function downloadCsvModelo(){
+      const csv = 'nip,nome,corpo,nascimento\n12.3456.78,TEN SILVA,gola,15/03/1995\n87.6543.21,SGT COSTA,naval,22/07/1988\n';
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='modelo_importacao_taf.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+    function downloadXlsxModelo(){
+      const b64 = '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';
+      const bin = atob(b64);
+      const arr = new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+      const blob = new Blob([arr], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='modelo_taf_participantes.xlsx'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ══════════════════════════════════════════════════════
+    // PELOTÕES — funções
+    // ══════════════════════════════════════════════════════
+    function openPelotaoModal(){
+      renderPelotaoModal();
+      document.getElementById('pelotaoModal').classList.add('show');
+    }
+    function closePelotaoModal(){
+      document.getElementById('pelotaoModal').classList.remove('show');
+      renderRunnersGrid(); // re-renderiza a grid com separadores
+    }
+
+    function addPelotao(){
+      pelotaoSeq++;
+      pelotoes.push({
+        id: 'p'+pelotaoSeq, name: 'Pelotão '+pelotaoSeq,
+        memberKeys: [], started: false, finished: false,
+        startEpoch: 0, pausedAccum: 0, running: false, rafId: null
+      });
+      renderPelotaoModal();
+    }
+
+    function assignToPelotao(nipKey, pelotaoId){
+      // Remove de qualquer pelotão anterior
+      pelotoes.forEach(p => { p.memberKeys = p.memberKeys.filter(k => k !== nipKey); });
+      if(pelotaoId) {
+        const p = getPelotaoById(pelotaoId);
+        if(p && !p.started) p.memberKeys.push(nipKey);
+      }
+      runnerPelotaoMap.set(nipKey, pelotaoId || null);
+      renderPelotaoModal();
+      saveLocalSession();
+    }
+
+    function removeFromPelotao(nipKey){
+      assignToPelotao(nipKey, null);
+    }
+
+    function renderPelotaoModal(){
+      // Unassigned
+      const unassignedEl = document.getElementById('pelotaoUnassigned');
+      const allKeys = exportOrder();
+      const assignedKeys = new Set([...runnerPelotaoMap.values()].flatMap(v => v ? [v] : []).map(id => pelotoes.find(p=>p.id===id)?.memberKeys||[]).flat());
+      // Reconstruir mapa a partir dos pelotoes
+      const inAnyPelotao = new Set(pelotoes.flatMap(p => p.memberKeys));
+      const unassigned = allKeys.filter(k => !inAnyPelotao.has(k));
+      unassignedEl.innerHTML = unassigned.length === 0
+        ? '<span style="color:#475569;font-size:.78rem">Todos alocados</span>'
+        : unassigned.map(k => {
+            const r = runners.get(k);
+            if(!r) return '';
+            return `<div style="display:inline-flex;align-items:center;gap:5px;background:#1e293b;border-radius:8px;padding:4px 10px;font-size:.78rem;cursor:pointer;border:1px solid #334155" onclick="showAssignMenu(event,'${k}')">
+              <span style="color:#e2e8f0">${r.label}</span>
+              <span style="color:#475569;font-size:.7rem">▾</span>
+            </div>`;
+          }).join('');
+
+      // Pelotões
+      const grid = document.getElementById('pelotaoGrid');
+      if(!pelotoes.length){
+        grid.innerHTML = '<p style="color:#475569;font-size:.82rem;padding:8px 0">Nenhum pelotão criado ainda.</p>';
+        return;
+      }
+      grid.innerHTML = pelotoes.map(p => {
+        const locked = p.started;
+        const members = p.memberKeys.map(k => {
+          const r = runners.get(k);
+          if(!r) return '';
+          return `<div class="pelotao-member">
+            <span class="pelotao-member-name">#${r.seqNum} ${r.label}</span>
+            <span style="font-size:.7rem;color:#64748b">${r.tab}</span>
+            ${!locked ? `<button class="pelotao-remove-btn" onclick="removeFromPelotao('${k}')">✕</button>` : ''}
+          </div>`;
+        }).join('');
+        return `<div>
+          <div class="pelotao-header">
+            <span class="pelotao-label">${p.name}</span>
+            <span class="pelotao-count">${p.memberKeys.length} participante${p.memberKeys.length!==1?'s':''}${locked?' · 🔒 Iniciado':''}</span>
+            ${!locked && !p.memberKeys.length ? `<button onclick="deletePelotao('${p.id}')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:.8rem;padding:2px 6px">🗑</button>` : ''}
+          </div>
+          <div class="pelotao-body">
+            ${members || '<span style="color:#334155;font-size:.78rem">Arraste ou clique nos participantes acima</span>'}
+            ${!locked ? `<div style="padding:4px 0">
+              <select onchange="if(this.value){assignToPelotao(this.value,'${p.id}');this.value=''}" style="width:100%;background:#0b1220;border:1px dashed #334155;border-radius:8px;padding:5px 8px;color:#475569;font-size:.78rem;outline:none">
+                <option value="">+ Adicionar participante…</option>
+                ${allKeys.filter(k=>!inAnyPelotao.has(k)).map(k=>{ const r=runners.get(k); return r?`<option value="${k}">#${r.seqNum} ${r.label}</option>`:''; }).join('')}
+              </select>
+            </div>` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function deletePelotao(id){
+      const p = getPelotaoById(id);
+      if(!p || p.started) return;
+      p.memberKeys.forEach(k => runnerPelotaoMap.delete(k));
+      pelotoes = pelotoes.filter(pl => pl.id !== id);
+      renderPelotaoModal();
+    }
+
+    function showAssignMenu(e, nipKey){
+      e.stopPropagation();
+      // Cria dropdown temporário
+      const existing = document.getElementById('_assignDropdown');
+      if(existing) existing.remove();
+      if(!pelotoes.length){ alert('Crie ao menos um pelotão primeiro.'); return; }
+      const dd = document.createElement('div');
+      dd.id = '_assignDropdown';
+      dd.style.cssText = 'position:fixed;z-index:9999;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:6px;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,0.5)';
+      dd.style.left = Math.min(e.clientX, window.innerWidth-180)+'px';
+      dd.style.top  = Math.min(e.clientY+8, window.innerHeight-200)+'px';
+      dd.innerHTML = pelotoes.filter(p=>!p.started).map(p =>
+        `<div onclick="assignToPelotao('${nipKey}','${p.id}');document.getElementById('_assignDropdown')?.remove()" style="padding:6px 10px;border-radius:7px;cursor:pointer;font-size:.82rem;color:#e2e8f0;transition:background .1s" onmouseover="this.style.background='#334155'" onmouseout="this.style.background=''">${p.name}</div>`
+      ).join('') || '<div style="padding:6px 10px;color:#475569;font-size:.8rem">Nenhum pelotão disponível</div>';
+      document.body.appendChild(dd);
+      setTimeout(() => document.addEventListener('click', () => dd.remove(), {once:true}), 10);
+    }
+
+    // Re-renderiza a grid com separadores de pelotão
+    function renderRunnersGrid(){
+      // Remove separadores antigos
+      document.querySelectorAll('.pelotao-divider').forEach(el => el.remove());
+      if(!pelotoes.length || !runners.size) return;
+      // Agrupar por pelotão na ordem da grid
+      const order = exportOrder();
+      const processed = new Set();
+      // Inserir separador antes do primeiro membro de cada pelotão
+      pelotoes.forEach(p => {
+        if(!p.memberKeys.length) return;
+        const firstKey = p.memberKeys.find(k => order.includes(k));
+        if(!firstKey) return;
+        const r = runners.get(firstKey);
+        if(!r) return;
+        const cardEl = r.cardEl;
+        if(!cardEl) return;
+        const divider = document.createElement('div');
+        divider.className = 'pelotao-divider';
+        const timerStr = p.started ? fmt(nowPelotaoMs(p)) : '--:--';
+        const btnHtml = p.finished
+          ? `<span style="font-size:.75rem;color:#4ade80;font-weight:700">✓ Concluído</span>`
+          : p.started
+            ? `<span style="font-size:.75rem;color:#f59e0b;font-weight:700">Em andamento</span>`
+            : `<button class="btn-iniciar-pelotao" onclick="iniciarPelotao('${p.id}')" ${pelotoes.some(pl=>pl.started&&!pl.finished)?' disabled':''}>▶ Iniciar</button>`;
+        divider.innerHTML = `<span class="pelotao-divider-label">${p.name}</span><div class="pelotao-divider-line"></div>${btnHtml}<span class="pelotao-divider-timer" id="disp-${p.id}">${timerStr}</span>`;
+        grid.insertBefore(divider, cardEl);
+        processed.add(p.id);
+      });
+    }
+
+    // Iniciar um pelotão
+    function iniciarPelotao(pid){
+      const p = getPelotaoById(pid);
+      if(!p || p.started) return;
+      // Verificar se há pelotão anterior não finalizado
+      const prev = pelotoes.find(pl => !pl.finished && pl.id !== pid && pl.started);
+      if(prev){ alert('⚠️ '+prev.name+' ainda não foi finalizado. Aguarde.'); return; }
+      if(!omConfirmado){ alert('⚠️ Confirme o Avaliador antes de iniciar.'); return; }
+      if(!p.memberKeys.length){ alert('⚠️ Pelotão sem participantes.'); return; }
+      p.started = true;
+      p.running = true;
+      p.startEpoch = performance.now();
+      p.pausedAccum = 0;
+      activePelotaoId = pid;
+      // Habilitar botões de volta dos membros
+      p.memberKeys.forEach(k => {
+        const r = runners.get(k);
+        if(!r || r.dnf) return;
+        r.btnLap.disabled = false; r.btnLap.classList.remove('btn-disabled');
+        r.btnUndo.disabled = false; r.btnUndo.classList.remove('btn-disabled');
+        r.btnDnf.disabled = false; r.btnDnf.classList.remove('btn-disabled');
+      });
+      // Tick do pelotão
+      function tickP(){
+        const dispEl = document.getElementById('disp-'+pid);
+        if(dispEl) dispEl.textContent = fmt(nowPelotaoMs(p));
+        if(p.running) p.rafId = requestAnimationFrame(tickP);
+      }
+      p.rafId = requestAnimationFrame(tickP);
+      renderRunnersGrid();
+      saveLocalSession();
+      checkPelotaoFinished(pid);
+    }
+
+    function checkPelotaoFinished(pid){
+      const p = getPelotaoById(pid);
+      if(!p || !p.started || p.finished) return;
+      const allDone = p.memberKeys.every(k => {
+        const r = runners.get(k);
+        if(!r || r.dnf) return true;
+        const maxC = r.extraMetersSnap>0 ? r.lapsGoalSnap+1 : r.lapsGoalSnap;
+        return r.laps.length >= maxC;
+      });
+      if(allDone){
+        p.finished = true;
+        p.running = false;
+        if(p.rafId) cancelAnimationFrame(p.rafId);
+        renderRunnersGrid();
+        saveLocalSession();
+      }
+    }
+
+    // Sobrescrever nowGlobalMs para participantes: usa tempo do pelotão se tiver
+    const _origNowGlobalMs = nowGlobalMs;
+    function nowRunnerMs(nipKey){
+      const pid = runnerPelotaoMap.get(nipKey);
+      if(pid){
+        const p = getPelotaoById(pid);
+        if(p && p.started) return nowPelotaoMs(p);
+      }
+      return _origNowGlobalMs();
+    }
+
+
     // ======= Utilidades =======
     const fmt=(ms)=>{const t=Math.max(0,ms|0);const m=Math.floor(t/60000);const s=Math.floor((t%60000)/1000);const pad=(n)=>String(n).padStart(2,'0');return `${pad(m)}:${pad(s)}`};
 
@@ -704,7 +1283,7 @@
     // TAB_CONFIG is mutable — recalculated when lap size is confirmed
     const TAB_CONFIG = {
       gola:  { lapsGoal: 11, extraMeters: 35,  lapMeters: 215, totalMeters: 2400, label: 'Corpo Gola',  shortLabel: 'Gola',  extraAtStart: true },
-      naval: { lapsGoal: 14, extraMeters: 190, lapMeters: 215, totalMeters: 3200, label: 'Corpo Naval', shortLabel: 'Naval', extraAtStart: true },
+      naval: { lapsGoal: 14, extraMeters: 190, lapMeters: 215, totalMeters: 3200, label: 'Corpo Naval', shortLabel: 'Naval', extraAtStart: false },
       aluno: { lapsGoal: 11, extraMeters: 35,  lapMeters: 215, totalMeters: 2400, label: 'Aluno',       shortLabel: 'Aluno', extraAtStart: true },
       'gola-caminhada': { lapsGoal: 22, extraMeters: 90, lapMeters: 215, totalMeters: 4800, label: 'Gola Caminhada', shortLabel: 'Caminhada', extraAtStart: true }
     };
@@ -728,6 +1307,11 @@
         btnW.style.background='#1e293b'; btnW.style.color='#64748b'; btnW.style.fontWeight='600';
         if(lapsDisp) lapsDisp.textContent=TAB_CONFIG.gola.lapsGoal+' voltas + '+TAB_CONFIG.gola.extraMeters+'m';
         if(addBtn){ addBtn.dataset.tab='gola'; addBtn.style.background=''; }
+      }
+      // Atualiza o botão de posição para refletir a aba que ficou ativa
+      if(omConfirmado){
+        const activeGolaTab = golaIsCaminhada ? 'gola-caminhada' : 'gola';
+        updateExtraPosBtn(activeGolaTab);
       }
     }
 
@@ -925,26 +1509,120 @@
         });
       };
 
-      // Pergunta individualmente para cada aba que tem metros restantes
+      // Aplica padrões diretamente: gola=início, naval=final, aluno=início, caminhada=início
       const extraPosByTab = {};
       ['gola','naval','aluno','gola-caminhada'].forEach(tab => {
-        const total = TAB_CONFIG[tab].totalMeters;
-        const laps  = Math.floor(total / lapM);
-        const extra = total - laps * lapM;
-        if(extra > 0){
-          const choice = confirm(
-            '📐 ' + TAB_CONFIG[tab].label + '\n' +
-            'Com volta de '+lapM+'m: '+laps+' voltas + '+extra+'m\n\n' +
-            'Os '+extra+'m restantes ficam no INÍCIO?\n\n' +
-            '(OK = Início  |  Cancelar = Final)'
-          );
-          extraPosByTab[tab] = choice ? 'inicio' : 'final';
-        } else {
-          extraPosByTab[tab] = 'final';
-        }
+        extraPosByTab[tab] = TAB_CONFIG[tab].extraAtStart !== false ? 'inicio' : 'final';
       });
       doConfirmPerTab(extraPosByTab);
+      showExtraPosBtns();
     });
+    // ======= Toggle de posição dos metros extras (início / final) =======
+
+    // Atualiza visual do botão e texto do display para uma aba
+    function updateExtraPosBtn(tab){
+      const cfg = TAB_CONFIG[tab];
+      // O botão de gola-caminhada é o mesmo da gola
+      const btnTab = (tab === 'gola-caminhada') ? 'gola' : tab;
+      const btn = document.getElementById('btnExtraPos-' + btnTab);
+      if(!btn) return;
+      if(cfg.extraMeters === 0) return;
+
+      const atStart = cfg.extraAtStart !== false;
+      btn.classList.toggle('pos-inicio', atStart);
+      btn.classList.toggle('pos-final', !atStart);
+      btn.textContent = atStart ? 'Metros extras no início' : 'Metros extras no final';
+
+      // O display a atualizar:
+      // - gola-caminhada → golaLapsDisplay (compartilhado, só atualiza se modo caminhada ativo)
+      // - demais → tab + 'LapsDisplay'
+      let displayId;
+      if(tab === 'gola-caminhada'){
+        if(!golaIsCaminhada) return; // display está mostrando gola; não sobrescreve
+        displayId = 'golaLapsDisplay';
+      } else {
+        displayId = tab + 'LapsDisplay';
+      }
+
+      const display = document.getElementById(displayId);
+      if(display){
+        const pos = atStart ? 'início' : 'final';
+        display.textContent = cfg.extraMeters > 0
+          ? `${cfg.lapsGoal} voltas + ${cfg.extraMeters}m (${pos})`
+          : `${cfg.lapsGoal} voltas`;
+      }
+
+      // Badge da aba
+      const badge = document.getElementById(tab + 'Badge');
+      if(badge) badge.textContent = cfg.extraMeters > 0
+        ? `${cfg.lapsGoal} voltas + ${cfg.extraMeters}m`
+        : `${cfg.lapsGoal} voltas`;
+    }
+
+    // Torna os botões visíveis após confirmar o avaliador
+    function showExtraPosBtns(){
+      ['gola','naval','aluno','gola-caminhada'].forEach(tab => {
+        updateExtraPosBtn(tab);
+      });
+    }
+
+    // Bloqueia ou desbloqueia todos os botões de posição
+    function lockExtraPosBtns(locked){
+      ['gola','naval','aluno'].forEach(tab => {
+        const btn = document.getElementById('btnExtraPos-' + tab);
+        if(btn) btn.disabled = locked;
+      });
+    }
+
+    // Chamado pelo onclick dos botões
+    function toggleExtraPos(tab){
+      if(running) return; // segurança extra — botão já estará disabled
+
+      // O botão da aba Gola controla:
+      //   - TAB_CONFIG['gola']           quando modo corrida está ativo
+      //   - TAB_CONFIG['gola-caminhada'] quando modo caminhada está ativo
+      const effectiveTab = (tab === 'gola' && golaIsCaminhada) ? 'gola-caminhada' : tab;
+      const cfg = TAB_CONFIG[effectiveTab];
+      if(cfg.extraMeters === 0) return;
+
+      const currentAtStart = cfg.extraAtStart !== false;
+      const novaPosicao = currentAtStart ? 'FINAL' : 'INÍCIO';
+      const tabNome = TAB_CONFIG[effectiveTab].label;
+      const confirmMsg =
+        '⚠️ Alterar posição dos metros extras — ' + tabNome + '\n\n' +
+        'Atualmente: ' + (currentAtStart ? 'INÍCIO' : 'FINAL') + '\n' +
+        'Será alterado para: ' + novaPosicao + '\n\n' +
+        'Participantes sem voltas registradas nesta aba serão atualizados.\n' +
+        'Participantes com voltas já registradas NÃO serão afetados.\n\n' +
+        'Confirma a alteração?';
+      if(!confirm(confirmMsg)) return;
+
+      // Inverte
+      cfg.extraAtStart = !currentAtStart;
+      const newAtStart = cfg.extraAtStart;
+
+      // Atualiza visual do botão e do display da aba efetiva
+      updateExtraPosBtn(effectiveTab);
+
+      // Re-atualiza o lapDisplay no cabeçalho compact
+      const extraPosByTab = {};
+      ['gola','naval','aluno','gola-caminhada'].forEach(t => {
+        extraPosByTab[t] = TAB_CONFIG[t].extraAtStart !== false ? 'inicio' : 'final';
+      });
+      omAvSetCompact(TAB_CONFIG['gola'].lapMeters, extraPosByTab);
+
+      // Reaplicar extraAtStartSnap nos participantes da aba efetiva que ainda não têm voltas
+      let updated = 0;
+      for(const [, r] of runners){
+        if(r.tab !== effectiveTab) continue;
+        if(r.laps.length > 0) continue; // já tem voltas registradas — preserva
+        r.extraAtStartSnap = newAtStart;
+        updated++;
+      }
+
+      if(updated > 0) saveLocalSession();
+    }
+
     document.getElementById('btnClearAvaliador')?.addEventListener('click', () => {
       // Keeps runners intact — only unlocks OM/Avaliador fields
       omAvSetEdit();
@@ -1077,6 +1755,30 @@
       if(secs <= row.t50)  return 50;
       return '<50'; // below minimum
     }
+    // Retorna o tempo limite (ms) para a nota mínima aprovável por aba
+    // gola/naval/caminhada → nota 50 (t50); aluno → nota 5 (entry s===5)
+    function getMinScoreMs(tab, sex, age){
+      if(!sex || !age) return null;
+      if(tab === 'gola-caminhada'){
+        const table = SCORING_CAMINHADA[sex];
+        if(!table) return null;
+        const row = table.find(r => age >= r.min && age <= r.max);
+        return row ? row.t50 * 1000 : null;
+      }
+      if(tab === 'aluno'){
+        const tbl = SCORING_ALUNO[sex];
+        if(!tbl) return null;
+        const row = tbl.find(r => age >= r.min && age <= r.max);
+        if(!row) return null;
+        const entry = row.entries.find(e => e.s === 5);
+        return entry ? entry.ms * 1000 : null;
+      }
+      const table = SCORING[tab]?.[sex];
+      if(!table) return null;
+      const row = table.find(r => age >= r.min && age <= r.max);
+      return row ? row.t50 * 1000 : null;
+    }
+
     let activeTab = 'gola';
     let runnerSeqGlobal = 0; // single global sequential counter
 
@@ -1144,6 +1846,8 @@
       }
     }
     function checkAllFinished(){
+      // Se pelotões existem, delegar para checkPelotaoFinished
+      if(pelotoes.length > 0) { if(activePelotaoId) checkPelotaoFinished(activePelotaoId); return; }
       if(!running||runners.size===0) return;
       const all=[...runners.values()];
       const everyDone=all.every(r=>{
@@ -1161,10 +1865,13 @@
         const goal=r.lapsGoalSnap!==undefined?r.lapsGoalSnap:lapsGoalByTab[r.tab];
         const hasExtra_d=(r.extraMetersSnap!==undefined?r.extraMetersSnap:TAB_CONFIG[r.tab].extraMeters)>0;
         const maxClicks=hasExtra_d?goal+1:goal;
-        const disableLap=!running||r.laps.length>=maxClicks;
+        const _pid = runnerPelotaoMap.get(r.nipKey);
+        const _p = _pid ? getPelotaoById(_pid) : null;
+        const _isRunning = _p ? _p.running : running;
+        const disableLap=!_isRunning||r.laps.length>=maxClicks;
         r.btnLap.disabled=disableLap; r.btnLap.classList.toggle('btn-disabled',disableLap);
-        const disableUndo=!running; r.btnUndo.disabled=disableUndo; r.btnUndo.classList.toggle('btn-disabled',disableUndo);
-        const disableDnf=!running; r.btnDnf.disabled=disableDnf; r.btnDnf.classList.toggle('btn-disabled',disableDnf);
+        const disableUndo=!_isRunning; r.btnUndo.disabled=disableUndo; r.btnUndo.classList.toggle('btn-disabled',disableUndo);
+        const disableDnf=!_isRunning; r.btnDnf.disabled=disableDnf; r.btnDnf.classList.toggle('btn-disabled',disableDnf);
         updateCardStatus(r);
       }
     }
@@ -1212,8 +1919,11 @@
       if(!omConfirmado){ showStartError('⚠️ Informe a Organização Militar antes de iniciar.'); return; }
       if(!avaliadorConfirmado){ showStartError('⚠️ Confirme o Avaliador antes de iniciar.'); return; }
       if(runners.size===0){ showStartError('⚠️ Adicione ao menos 1 participante antes de iniciar.'); return; }
+      // Se há pelotões configurados, bloquear início global e usar iniciarPelotao()
+      if(pelotoes.length > 0){ showStartError('⚠️ Pelotões configurados — use o botão "▶ Iniciar" de cada pelotão.'); return; }
       running=true; startEpoch=performance.now(); statusEl.textContent='Rodando';
       acquireWakeLock();
+      lockExtraPosBtns(true);
       setRaceMode(true);
       updateLapButtonsState(); setStartLabel(); rafId=requestAnimationFrame(tick);
     }
@@ -1427,6 +2137,10 @@
         const projEl=runner.cardEl.querySelector('.runner-projection');
         const scoreColor = s => s===100||s===90 ? '#16a34a' : s===80||s===70 ? '#3b82f6' : s===60||s===50 ? '#f59e0b' : '#dc2626';
         const maxC_s = runner.extraMetersSnap>0 ? goal_r+1 : goal_r;
+        const minMs = getMinScoreMs(runner.tab, runner.sex, runner.age);
+        const minTag = minMs !== null
+          ? `<span style="font-size:11px;background:rgba(220,38,38,0.13);color:#b91c1c;border-radius:6px;padding:2px 7px;font-weight:700;white-space:nowrap">Até: ${fmt(minMs)}</span>`
+          : '';
         if(runner.laps.length >= maxC_s){
           // Finished — show final score
           const totalMs=runner.laps[runner.laps.length-1].tsGlobal;
@@ -1438,35 +2152,52 @@
           }
           if(projEl){ projEl.textContent=''; projEl.classList.add('hidden'); }
         } else if(runner.laps.length >= 2){
-          // In progress — show projection based on average of all laps so far
+          // In progress — show projection + minTag
           runner.score=null;
           if(scoreEl){ scoreEl.textContent=''; }
           const proj=calcProjection(runner.tab, runner.sex, runner.age, runner.laps);
           if(proj && projEl){
             const s=proj.projScore;
+            const belowMin = s==='<50' || (typeof s==='number' && s<50);
             const col=scoreColor(s);
             const pace=fmt(proj.avgLapMs);
+            const divider = minTag ? '<span style="color:#94a3b8;margin:0 4px">|</span>' : '';
             projEl.classList.remove('hidden');
-            projEl.innerHTML=`<span style="color:#000;font-weight:700">Projeção: </span><strong style="color:${col}">${s!==null?s:'—'}</strong><span style="color:#000;font-weight:700"> · pace ${pace}/volta</span>`;
+            projEl.style.background = belowMin ? 'rgba(220,38,38,0.13)' : 'rgba(0,0,0,0.08)';
+            projEl.innerHTML=`<span style="color:#000;font-weight:700">Projeção: </span><strong style="color:${col}">${s!==null?s:'—'}</strong><span style="color:#000;font-weight:700"> · pace ${pace}/volta</span>${divider}${minTag}`;
           }
         } else {
+          // Not started yet — show only minTag
           runner.score=null;
           if(scoreEl){ scoreEl.textContent=''; }
-          if(projEl){ projEl.textContent=''; projEl.classList.add('hidden'); }
+          if(projEl){
+            if(minTag){
+              projEl.classList.remove('hidden');
+              projEl.style.background='rgba(0,0,0,0.08)';
+              projEl.innerHTML=minTag;
+            } else {
+              projEl.textContent=''; projEl.classList.add('hidden');
+            }
+          }
         }
         updateLapButtonsState();
         renderSummary();
       }
 
       runner.btnLap.addEventListener('click',()=>{
-        if(!running) return;
+        // Permite marcar se correndo global OU se pelotão do runner está rodando
+        const pid = runnerPelotaoMap.get(runner.nipKey);
+        const p = pid ? getPelotaoById(pid) : null;
+        const isRunning = p ? p.running : running;
+        if(!isRunning) return;
         const totalClicksGuard=runner.extraMetersSnap>0?runner.lapsGoalSnap+1:runner.lapsGoalSnap;
         if(runner.laps.length>=totalClicksGuard) return;
-        const t=nowGlobalMs();
+        const t = p ? nowPelotaoMs(p) : nowGlobalMs();
         const lapMs=t-runner.lastMarkMs;
         runner.laps.push({ tsGlobal:t, lapMs });
         runner.lastMarkMs=t;
         renderRunner();
+        if(p) checkPelotaoFinished(pid);
       });
 
       runner.btnUndo.addEventListener('click',()=>{
@@ -1504,6 +2235,7 @@
       renderRunner();
       updateLapButtonsState();
       syncTablesOrder();
+      if(pelotoes.length) renderRunnersGrid();
     }
 
     function removeRunner(key){
@@ -1558,9 +2290,10 @@
       const titleRow1=['"Avaliação de TAF"'].concat(Array(numCols1-1).fill('')).join(',');
       const avRow1=['"Avaliador: '+avaliador1+'"'].concat(Array(numCols1-1).fill('')).join(',');
       const omRow1=['"OM: '+om1+'"'].concat(Array(numCols1-1).fill('')).join(',');
-      const header=['seq','nip','participante','corpo','sexo','idade','volta','#parcial_ms','#marcacao_global_ms','parcial','marcacao_global','nota'];
+      const header=['seq','nip','participante','corpo','sexo','idade','pelotao','volta','#parcial_ms','#marcacao_global_ms','parcial','marcacao_global','nota'];
       const rows=[]; const order=exportOrder();
-      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; r.laps.forEach((lap,i)=>{ const isLast=i===r.laps.length-1&&(r.laps.length>=(TAB_CONFIG[r.tab].extraMeters>0?lapsGoalByTab[r.tab]+1:lapsGoalByTab[r.tab])); rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', i+1, lap.lapMs, lap.tsGlobal, fmt(lap.lapMs), fmt(lap.tsGlobal), isLast?(r.score||''):''].join(',')) }) });
+      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; r.laps.forEach((lap,i)=>{ const isLast=i===r.laps.length-1&&(r.laps.length>=(TAB_CONFIG[r.tab].extraMeters>0?lapsGoalByTab[r.tab]+1:lapsGoalByTab[r.tab])); const _pelNome=runnerPelotaoMap.get(r.nipKey)?getPelotaoById(runnerPelotaoMap.get(r.nipKey))?.name||'':'';
+rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''), r.tab, r.sex||'', r.age||'', JSON.stringify(_pelNome), i+1, lap.lapMs, lap.tsGlobal, fmt(lap.lapMs), fmt(lap.tsGlobal), isLast?(r.score||''):''].join(',')) }) });
       const csv=[titleRow1,avRow1,omRow1,header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
       const _om=(omConfirmado||'OM').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
@@ -1578,13 +2311,14 @@
       const titleRow = ['"Avaliação de TAF"'].concat(Array(numCols-1).fill('')).join(',');
       const avRow = ['"Avaliador: '+avaliador+'"'].concat(Array(numCols-1).fill('')).join(',');
       const omRow = ['"OM: '+om+'"'].concat(Array(numCols-1).fill('')).join(',');
-      const header=['seq','nip','participante','corpo','sexo','idade','tempo_total','nota','status'];
+      const header=['seq','nip','participante','corpo','sexo','idade','pelotao','tempo_total','nota','status'];
       const rows=[];
       order.forEach((label)=>{ const r=runners.get(label); if(!r) return;
         const v=r.laps.length;
         const totalMs = v? r.laps[v-1].tsGlobal : 0;
         const status = r.dnf ? 'NC' : '';
-        rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', fmt(totalMs), r.score!==null&&r.score!==undefined?r.score:'', status].join(','));
+        const _pelNomeTot=runnerPelotaoMap.get(r.nipKey)?getPelotaoById(runnerPelotaoMap.get(r.nipKey))?.name||'':'';
+        rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''), r.tab, r.sex||'', r.age||'', JSON.stringify(_pelNomeTot), fmt(totalMs), r.score!==null&&r.score!==undefined?r.score:'', status].join(','));
       });
       const csv=[titleRow, avRow, omRow, header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
@@ -1603,9 +2337,9 @@
       const titleRow2=['"Avaliação de TAF"'].concat(Array(numCols2-1).fill('')).join(',');
       const avRow2=['"Avaliador: '+avaliador2+'"'].concat(Array(numCols2-1).fill('')).join(',');
       const omRow2=['"OM: '+om2+'"'].concat(Array(numCols2-1).fill('')).join(',');
-      const header=['seq','nip','participante','corpo','sexo','idade','distancia','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt','nota','status'];
+      const header=['seq','nip','participante','corpo','sexo','idade','pelotao','distancia','ultimo_parcial_ms','tempo_total_ms','ultimo_parcial_fmt','tempo_total_fmt','nota','status'];
       const rows=[]; const order=exportOrder(); const total=nowGlobalMs();
-      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; const status=r.dnf?'NC':''; rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(label), r.tab, r.sex||'', r.age||'', calcDistance(r.tab,v), u, total, fmt(u), fmt(total), r.score!==null&&r.score!==undefined?r.score:'', status].join(',')) });
+      order.forEach((label)=>{ const r=runners.get(label); if(!r) return; const v=r.laps.length; const u=v? r.laps[v-1].lapMs : 0; const status=r.dnf?'NC':''; const _pelNomeParc=runnerPelotaoMap.get(r.nipKey)?getPelotaoById(runnerPelotaoMap.get(r.nipKey))?.name||'':''; rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''), r.tab, r.sex||'', r.age||'', JSON.stringify(_pelNomeParc), calcDistance(r.tab,v), u, total, fmt(u), fmt(total), r.score!==null&&r.score!==undefined?r.score:'', status].join(',')) });
       const csv=[titleRow2,avRow2,omRow2,header.join(','), ...rows].join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
       const _om3=(omConfirmado||'OM').replace(/[^\w\s\-]/g,'').trim().replace(/\s+/g,'_');
@@ -1644,7 +2378,74 @@
         <section>
           ${summarySection.innerHTML}
         </section>
-      </body></html>`;
+      
+  <!-- ══ Modal de Importação CSV ══ -->
+  <div id="importModal" class="taf-modal-overlay" role="dialog" aria-modal="true">
+    <div class="taf-modal-box" style="max-width:580px">
+      <div class="taf-modal-header">
+        <span class="taf-modal-title">📥 Importar participantes</span>
+        <button class="taf-modal-close" onclick="closeImportModal()">✕</button>
+      </div>
+      <!-- Área de upload -->
+      <div id="importUploadArea" style="border:2px dashed #334155;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s" onclick="document.getElementById('csvFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='#38bdf8'" ondragleave="this.style.borderColor='#334155'" ondrop="handleCsvDrop(event)">
+        <div style="font-size:2rem;margin-bottom:6px">📂</div>
+        <p style="color:#94a3b8;font-size:.9rem;margin:0">Clique ou arraste um arquivo <strong style="color:#38bdf8">.csv</strong></p>
+        <p style="color:#475569;font-size:.75rem;margin:4px 0 0">Colunas: nip, nome, corpo, nascimento (DD/MM/AAAA)</p>
+      </div>
+      <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleCsvFile(this.files[0])">
+      <!-- Dica modelo de planilha -->
+      <div style="display:flex;align-items:center;gap:10px;background:#0c2a1a;border:1px solid #166534;border-radius:10px;padding:10px 14px;margin-top:2px">
+        <span style="font-size:1.3rem;flex-shrink:0">📊</span>
+        <p style="margin:0;font-size:.78rem;color:#86efac;line-height:1.5">
+          Ainda não tem o arquivo? Há um <strong style="color:#4ade80">modelo de planilha</strong> disponível no final da página —
+          já formatado com os campos corretos. Baixe, preencha e salve como <span style="font-family:monospace;background:#14532d;padding:1px 5px;border-radius:4px">.csv</span> antes de importar.
+        </p>
+      </div>
+      <!-- Filtro + selectAll -->
+      <div id="importControls" style="display:none;gap:8px;flex-direction:column">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="importSearch" type="text" placeholder="Filtrar por nome ou NIP…" oninput="filterImportList()" style="flex:1;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:7px 12px;color:#e2e8f0;font-size:.85rem;outline:none">
+          <label style="font-size:.8rem;color:#94a3b8;display:flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap">
+            <input type="checkbox" id="importSelectAll" onchange="toggleSelectAll(this.checked)" style="accent-color:#0ea5e9">Todos
+          </label>
+        </div>
+        <div id="importList" class="taf-modal-scroll" style="max-height:280px;border:1px solid #1e293b;border-radius:10px;padding:4px"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <span id="importSelCount" style="font-size:.8rem;color:#64748b">0 selecionados</span>
+          <div style="display:flex;gap:8px">
+            <button onclick="downloadCsvModelo()" style="padding:7px 14px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#94a3b8;font-size:.8rem;font-weight:700;cursor:pointer">⬇ Modelo CSV</button>
+            <button id="btnConfirmImport" onclick="confirmImport()" style="padding:7px 18px;border-radius:10px;background:#0369a1;border:none;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer">✓ Adicionar selecionados</button>
+          </div>
+        </div>
+      </div>
+      <p id="importError" style="color:#fca5a5;font-size:.8rem;font-weight:700;min-height:1rem;margin:0"></p>
+    </div>
+  </div>
+
+  <!-- ══ Modal de Organização de Pelotões ══ -->
+  <div id="pelotaoModal" class="taf-modal-overlay" role="dialog" aria-modal="true">
+    <div class="taf-modal-box" style="max-width:640px">
+      <div class="taf-modal-header">
+        <span class="taf-modal-title">🪖 Organizar Pelotões</span>
+        <button class="taf-modal-close" onclick="closePelotaoModal()">✕</button>
+      </div>
+      <p style="color:#64748b;font-size:.8rem;margin:0">Selecione participantes e adicione ao pelotão desejado. Pelotões iniciados ficam bloqueados.</p>
+      <!-- Não alocados -->
+      <div>
+        <p style="font-size:.8rem;font-weight:700;color:#94a3b8;margin:0 0 6px">Sem pelotão</p>
+        <div id="pelotaoUnassigned" style="display:flex;flex-wrap:wrap;gap:6px;min-height:36px;background:#0b1220;border-radius:10px;padding:8px;border:1px solid #1e293b"></div>
+      </div>
+      <!-- Grid de pelotões -->
+      <div id="pelotaoGrid" class="taf-modal-scroll" style="display:flex;flex-direction:column;gap:12px;max-height:340px"></div>
+      <!-- Rodapé -->
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <button onclick="addPelotao()" style="padding:7px 14px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#38bdf8;font-size:.85rem;font-weight:700;cursor:pointer">+ Novo pelotão</button>
+        <button onclick="closePelotaoModal()" style="padding:7px 18px;border-radius:10px;background:#0369a1;border:none;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer;margin-left:auto">✓ Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+</body></html>`;
       win.document.open();
       win.document.write(html);
       win.document.close();
@@ -1998,6 +2799,8 @@
           pausedAccum,
           runnerSeqGlobal,
           savedAt: Date.now(),
+          pelotoes: pelotoes.map(p=>({id:p.id,name:p.name,memberKeys:p.memberKeys,started:p.started,finished:p.finished,pausedAccum:p.pausedAccum})),
+          pelotaoSeq,
           runners: [...runners.values()].map(r=>({
             label:r.label, tab:r.tab, sex:r.sex, age:r.age, nip:r.nip||'',
             seqNum:r.seqNum, dnf:r.dnf||false,
@@ -2068,6 +2871,7 @@
           lapsGoalByTab[tab]          = lapsGoal;
         });
         omAvSetCompact(lapM, extraByTab);
+        showExtraPosBtns();
         ['gola','naval','aluno','gola-caminhada'].forEach(tab=>{
           const el=document.getElementById(tab+'LapsDisplay'); if(!el) return;
           const cfg=TAB_CONFIG[tab];
@@ -2113,9 +2917,20 @@
           r.table.tbody.innerHTML=rows;
           r.lapsCountEl.textContent=countDisplay(r.laps.length,r.lapsGoalSnap,r.extraMetersSnap,r.extraAtStartSnap);
         });
+        // Restaurar pelotões
+        if(Array.isArray(d.pelotoes) && d.pelotoes.length){
+          pelotaoSeq = d.pelotaoSeq || d.pelotoes.length;
+          pelotoes = d.pelotoes.map(pd => ({
+            id:pd.id, name:pd.name, memberKeys:pd.memberKeys||[],
+            started:pd.started||false, finished:pd.finished||false,
+            pausedAccum:pd.pausedAccum||0, running:false, rafId:null, startEpoch:0
+          }));
+          pelotoes.forEach(p => p.memberKeys.forEach(k => runnerPelotaoMap.set(k, p.id)));
+        }
         runnerSeqGlobal = d.runnerSeqGlobal || runnerSeqGlobal;
         _sessionRestoring = false; // libera saves normais
         updateLapButtonsState(); setStartLabel(); renderSummary();
+        if(pelotoes.length) setTimeout(renderRunnersGrid, 50);
       }catch(e){ _sessionRestoring = false; console.warn('Erro ao restaurar sessao:', e); clearLocalSession(); }
     }
 
@@ -2250,6 +3065,75 @@
     window.addEventListener('online',  _updateOnlineStatus);
     window.addEventListener('offline', _updateOnlineStatus);
     _updateOnlineStatus(); // estado inicial
+  
   </script>
+
+  <!-- ══ Modal de Importação CSV ══ -->
+  <div id="importModal" class="taf-modal-overlay" role="dialog" aria-modal="true">
+    <div class="taf-modal-box" style="max-width:580px">
+      <div class="taf-modal-header">
+        <span class="taf-modal-title">📥 Importar participantes</span>
+        <button class="taf-modal-close" onclick="closeImportModal()">✕</button>
+      </div>
+      <!-- Área de upload -->
+      <div id="importUploadArea" style="border:2px dashed #334155;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s" onclick="document.getElementById('csvFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='#38bdf8'" ondragleave="this.style.borderColor='#334155'" ondrop="handleCsvDrop(event)">
+        <div style="font-size:2rem;margin-bottom:6px">📂</div>
+        <p style="color:#94a3b8;font-size:.9rem;margin:0">Clique ou arraste um arquivo <strong style="color:#38bdf8">.csv</strong></p>
+        <p style="color:#475569;font-size:.75rem;margin:4px 0 0">Colunas: nip, nome, corpo, nascimento (DD/MM/AAAA)</p>
+      </div>
+      <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleCsvFile(this.files[0])">
+      <!-- Dica modelo de planilha -->
+      <div style="display:flex;align-items:center;gap:10px;background:#0c2a1a;border:1px solid #166534;border-radius:10px;padding:10px 14px;margin-top:2px">
+        <span style="font-size:1.3rem;flex-shrink:0">📊</span>
+        <p style="margin:0;font-size:.78rem;color:#86efac;line-height:1.5">
+          Ainda não tem o arquivo? Há um <strong style="color:#4ade80">modelo de planilha</strong> disponível no final da página —
+          já formatado com os campos corretos. Baixe, preencha e salve como <span style="font-family:monospace;background:#14532d;padding:1px 5px;border-radius:4px">.csv</span> antes de importar.
+        </p>
+      </div>
+      <!-- Filtro + selectAll -->
+      <div id="importControls" style="display:none;gap:8px;flex-direction:column">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="importSearch" type="text" placeholder="Filtrar por nome ou NIP…" oninput="filterImportList()" style="flex:1;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:7px 12px;color:#e2e8f0;font-size:.85rem;outline:none">
+          <label style="font-size:.8rem;color:#94a3b8;display:flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap">
+            <input type="checkbox" id="importSelectAll" onchange="toggleSelectAll(this.checked)" style="accent-color:#0ea5e9">Todos
+          </label>
+        </div>
+        <div id="importList" class="taf-modal-scroll" style="max-height:280px;border:1px solid #1e293b;border-radius:10px;padding:4px"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <span id="importSelCount" style="font-size:.8rem;color:#64748b">0 selecionados</span>
+          <div style="display:flex;gap:8px">
+            <button onclick="downloadCsvModelo()" style="padding:7px 14px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#94a3b8;font-size:.8rem;font-weight:700;cursor:pointer">⬇ Modelo CSV</button>
+            <button id="btnConfirmImport" onclick="confirmImport()" style="padding:7px 18px;border-radius:10px;background:#0369a1;border:none;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer">✓ Adicionar selecionados</button>
+          </div>
+        </div>
+      </div>
+      <p id="importError" style="color:#fca5a5;font-size:.8rem;font-weight:700;min-height:1rem;margin:0"></p>
+    </div>
+  </div>
+
+  <!-- ══ Modal de Organização de Pelotões ══ -->
+  <div id="pelotaoModal" class="taf-modal-overlay" role="dialog" aria-modal="true">
+    <div class="taf-modal-box" style="max-width:640px">
+      <div class="taf-modal-header">
+        <span class="taf-modal-title">🪖 Organizar Pelotões</span>
+        <button class="taf-modal-close" onclick="closePelotaoModal()">✕</button>
+      </div>
+      <p style="color:#64748b;font-size:.8rem;margin:0">Selecione participantes e adicione ao pelotão desejado. Pelotões iniciados ficam bloqueados.</p>
+      <!-- Não alocados -->
+      <div>
+        <p style="font-size:.8rem;font-weight:700;color:#94a3b8;margin:0 0 6px">Sem pelotão</p>
+        <div id="pelotaoUnassigned" style="display:flex;flex-wrap:wrap;gap:6px;min-height:36px;background:#0b1220;border-radius:10px;padding:8px;border:1px solid #1e293b"></div>
+      </div>
+      <!-- Grid de pelotões -->
+      <div id="pelotaoGrid" class="taf-modal-scroll" style="display:flex;flex-direction:column;gap:12px;max-height:340px"></div>
+      <!-- Rodapé -->
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <button onclick="addPelotao()" style="padding:7px 14px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#38bdf8;font-size:.85rem;font-weight:700;cursor:pointer">+ Novo pelotão</button>
+        <button onclick="closePelotaoModal()" style="padding:7px 18px;border-radius:10px;background:#0369a1;border:none;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer;margin-left:auto">✓ Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+
 </body>
 </html>
