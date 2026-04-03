@@ -927,11 +927,22 @@
       const reader = new FileReader();
       reader.onload = e => {
         try{
-          const lines = e.target.resultsplit(/\r\n|\r|\n/).filter(l => l.trim());
-          // Detectar header
-          const first = lines[0].toLowerCase();
-          const hasHeader = first.includes('nip') || first.includes('nome') || first.includes('corpo');
-          const dataLines = hasHeader ? lines.slice(1) : lines;
+          const lines = e.target.result.split(/\r\n|\r|\n/).filter(l => l.trim());
+          // Encontrar a linha de cabeçalho real (contém "nip" e "nome")
+          // Ignora linhas de título/subtítulo do modelo de planilha
+          let headerIdx = -1;
+          for(let i = 0; i < Math.min(lines.length, 6); i++){
+            const low = lines[i].toLowerCase();
+            if(low.includes('nip') && low.includes('nome')){ headerIdx = i; break; }
+          }
+          const dataStart = headerIdx >= 0 ? headerIdx + 1 : 0;
+          // Filtrar linhas de exemplo (NIP não numérico ou com "ex:" ou "oo.")
+          const dataLines = lines.slice(dataStart).filter(l => {
+            const first = l.split(/[,;]/)[0].trim().replace(/^"|"$/g,'').toLowerCase();
+            if(!first) return false;
+            if(first.startsWith('ex:') || first.startsWith('oo.') || first === 'nip') return false;
+            return true;
+          });
           if(!dataLines.length){ errEl.textContent = '⚠️ Arquivo sem dados.'; return; }
           importedRows = [];
           const erros = [];
