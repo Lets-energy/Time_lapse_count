@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TAF-TECH</title>
+  <title>TROPA PACE</title>
   <meta name="description" content="Cronômetro e marcador de voltas para o TAF" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#1b3a52" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="TAF-TECH" />
+  <meta name="apple-mobile-web-app-title" content="TROPA PACE" />
   <link rel="manifest" href="manifest.json" />
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-YC1D5HW2H3"></script>
@@ -22,16 +22,17 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0b1220}
-    body{background:var(--bg); font-family:'League Spartan', system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif; overscroll-behavior-y: none;}
+    :root{--bg:#f0f4f8}
+    body{background:var(--bg); color:#1b3a52; font-family:'League Spartan', system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", sans-serif; overscroll-behavior-y: none;}
     .mono{font-family:'League Spartan', monospace}
-    .runner-card{background-color:#ECECEC; color:#000; transition: background-color .35s ease, color .35s ease, box-shadow .35s ease, transform .2s ease}
-    .runner-card.dragging{opacity:.65; outline:2px dashed #38bdf8; outline-offset:4px}
+    .runner-card{background-color:#ffffff; color:#1b3a52;
+    border-top: 3px solid #17a876 !important; transition: background-color .35s ease, color .35s ease, box-shadow .35s ease, transform .2s ease}
+    .runner-card.dragging{opacity:.65; outline:2px dashed #17a876; outline-offset:4px}
     .runner-card.flash{animation: flashPulse .6s ease}
-    .runner-card.dnf{background-color:#e5e7eb !important; opacity:0.72; filter:grayscale(40%)}
-    @keyframes flashPulse{0%{box-shadow:0 0 0 0 rgba(56,189,248,0)}30%{box-shadow:0 0 0 8px rgba(56,189,248,.25)}100%{box-shadow:0 0 0 0 rgba(56,189,248,0)}}
+    .runner-card.dnf{background-color:#f0f4f8 !important; opacity:0.72; filter:grayscale(40%)}
+    @keyframes flashPulse{0%{box-shadow:0 0 0 0 rgba(23,168,118,0)}30%{box-shadow:0 0 0 8px rgba(23,168,118,.3)}100%{box-shadow:0 0 0 0 rgba(23,168,118,0)}}
     .btn-disabled{opacity:.5; cursor:not-allowed; filter:grayscale(30%)}
-    .trash-zone.dragover{background:#1e293b; border-color:#38bdf8; color:#38bdf8}
+    .trash-zone.dragover{background:#e8f8f2; border-color:#17a876; color:#17a876}
     .almost-finish{background-color:#FFFCAF !important; color:#000 !important;}
     .finished{background-color:#B3FFB9 !important; color:#000 !important;}
     .withdrew{background-color:#fecaca !important; color:#7f1d1d !important;}
@@ -54,35 +55,35 @@
       bottom: -2px;
     }
     .tab-btn.active {
-      background: #0f172a;
-      color: #38bdf8;
-      border-color: #334155;
-      border-bottom: 2px solid #0f172a;
+      background: #ffffff;
+      color: #17a876;
+      border-color: #c0ddd5;
+      border-bottom: 2px solid #ffffff;
       z-index: 2;
     }
     .tab-btn:not(.active) {
-      background: #1e293b;
-      color: #94a3b8;
-      border-color: #1e293b;
+      background: #e8edf3;
+      color: #5a7a90;
+      border-color: #e8edf3;
     }
     .tab-btn:not(.active):hover {
-      background: #273549;
-      color: #cbd5e1;
+      background: #dde5ef;
+      color: #1b3a52;
     }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
     .tab-header {
       display: flex;
       gap: 6px;
-      border-bottom: 2px solid #334155;
+      border-bottom: 2px solid #c0ddd5;
       margin-bottom: 0;
       padding: 0 4px;
     }
     .tab-badge {
       display: inline-block;
       font-size: 0.7em;
-      background: #334155;
-      color: #94a3b8;
+      background: #d0dce8;
+      color: #4a7a9b;
       border-radius: 6px;
       padding: 1px 7px;
       margin-left: 6px;
@@ -90,7 +91,7 @@
       font-weight: 600;
     }
     .tab-btn.active .tab-badge {
-      background: #0ea5e9;
+      background: #17a876;
       color: #fff;
     }
     .mode-toggle-btn {
@@ -103,13 +104,13 @@
       transition: background .2s, color .2s, border-color .2s;
     }
     .mode-toggle-btn.active-militar {
-      background: #0e7490; color: #fff; border-color: #0e7490;
+      background: #17a876; color: #fff; border-color: #17a876;
     }
     .mode-toggle-btn.active-aluno {
       background: #ea580c; color: #fff; border-color: #ea580c;
     }
     .mode-toggle-btn:not(.active-militar):not(.active-aluno) {
-      background: #1e293b; color: #94a3b8; border-color: #334155;
+      background: #e8edf3; color: #5a7a90; border-color: #c0d0df;
     }
     #modeAluno { display: none; }
 
@@ -122,22 +123,22 @@
       border-radius: 9px;
       font-size: 0.78rem;
       font-weight: 700;
-      border: 1.5px solid #334155;
-      background: #1e293b;
-      color: #94a3b8;
+      border: 1.5px solid #c0d0df;
+      background: #e8edf3;
+      color: #4a7a9b;
       cursor: pointer;
       transition: background .18s, color .18s, border-color .18s, opacity .18s;
       white-space: nowrap;
     }
     .btn-extra-pos.pos-inicio {
-      background: #0c4a6e;
-      border-color: #0ea5e9;
-      color: #38bdf8;
+      background: #e8f8f2;
+      border-color: #17a876;
+      color: #17a876;
     }
     .btn-extra-pos.pos-final {
-      background: #431407;
-      border-color: #ea580c;
-      color: #fb923c;
+      background: #fff3e0;
+      border-color: #e8a020;
+      color: #b07010;
     }
     .btn-extra-pos:disabled {
       opacity: 0.45;
@@ -152,7 +153,7 @@
       gap: 5px;
       font-size: 0.72rem;
       font-weight: 700;
-      color: #4ade80;
+      color: #17a876;
       opacity: 0;
       white-space: nowrap;
     }
@@ -160,7 +161,7 @@
     #saveIndicator .save-dot {
       width: 7px; height: 7px;
       border-radius: 50%;
-      background: #4ade80;
+      background: #17a876;
       animation: savePulse 1s ease forwards;
     }
     @keyframes savePulse {
@@ -175,10 +176,10 @@
       overflow: visible;
     }
     #btnInstallPwa.pwa-pulse {
-      background: #16a34a !important;
+      background: #17a876 !important;
       border-color: #4ade80 !important;
       color: #fff !important;
-      box-shadow: 0 0 0 0 rgba(74,222,128,0.7);
+      box-shadow: 0 0 0 0 rgba(23,168,118,0.5);
       animation: pwaPulse 2s infinite;
     }
     @keyframes pwaPulse {
@@ -201,8 +202,8 @@
     }
     #pwaModal.show { display: flex; }
     #pwaModalBox {
-      background: #0f172a;
-      border: 2px solid #1e3a5f;
+      background: #ffffff;
+      border: 2px solid #c0ddd5;
       border-radius: 24px;
       padding: 28px 24px 20px;
       max-width: 400px;
@@ -224,12 +225,12 @@
       font-weight: 800;
       font-size: 1rem;
       border: none;
-      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      background: #17a876;
       color: #fff;
       cursor: pointer;
       margin-top: 20px;
       letter-spacing: 0.03em;
-      box-shadow: 0 4px 15px rgba(14,165,233,0.4);
+      
       transition: opacity .2s, transform .15s;
     }
     #pwaInstallBtn:active { transform: scale(0.97); opacity: 0.9; }
@@ -241,11 +242,11 @@
       font-size: 0.88rem;
       border: none;
       background: transparent;
-      color: #475569;
+      color: #8aaac0;
       cursor: pointer;
       margin-top: 8px;
     }
-    #pwaDismissBtn:hover { color: #94a3b8; }
+    #pwaDismissBtn:hover { color: #4a7a9b; }
 
     /* Modal de saída */
     #exitModal {
@@ -260,8 +261,8 @@
     }
     #exitModal.show { display: flex; }
     #exitModalBox {
-      background: #0f172a;
-      border: 2px solid #334155;
+      background: #ffffff;
+      border: 1px solid #d0dce8;
       border-radius: 20px;
       padding: 32px 28px 24px;
       max-width: 380px;
@@ -284,7 +285,7 @@
       fill: none;
       stroke-width: 6;
     }
-    #exitTimerRing .bg-circle { stroke: #1e293b; }
+    #exitTimerRing .bg-circle { stroke: #e0e8f0; }
     #exitTimerRing .fg-circle {
       stroke: #f87171;
       stroke-linecap: round;
@@ -308,8 +309,8 @@
       font-size: 1rem;
       cursor: not-allowed;
       border: none;
-      background: #1e293b;
-      color: #64748b;
+      background: #e0e8f0;
+      color: #8aaac0;
       transition: background .3s, color .3s;
       margin-top: 20px;
     }
@@ -326,13 +327,13 @@
       font-weight: 700;
       font-size: 0.95rem;
       cursor: pointer;
-      border: 2px solid #334155;
+      border: 1px solid #c0d0df;
       background: transparent;
-      color: #94a3b8;
+      color: #5a7a90;
       margin-top: 10px;
       transition: background .2s, color .2s;
     }
-    #exitCancelBtn:hover { background: #1e293b; color: #e2e8f0; }
+    #exitCancelBtn:hover { background: #f0f4f8; color: #1b3a52; }
   
     /* ── Modal genérico de importação / pelotões ── */
     .taf-modal-overlay {
@@ -342,7 +343,7 @@
     }
     .taf-modal-overlay.show { display: flex; }
     .taf-modal-box {
-      background: #0f172a; border: 2px solid #1e3a5f;
+      background: #ffffff; border: 1px solid #c0d0df;
       border-radius: 20px; padding: 24px 22px 20px;
       max-width: 560px; width: 100%; max-height: 88vh;
       display: flex; flex-direction: column; gap: 14px;
@@ -356,13 +357,13 @@
     .taf-modal-header {
       display: flex; align-items: center; justify-content: space-between;
     }
-    .taf-modal-title { font-size: 1.1rem; font-weight: 800; color: #f1f5f9; }
+    .taf-modal-title { font-size: 1.1rem; font-weight: 800; color: #1b3a52; }
     .taf-modal-close {
-      background: none; border: none; color: #64748b;
+      background: none; border: none; color: #8aaac0;
       font-size: 1.3rem; cursor: pointer; padding: 2px 8px;
       border-radius: 8px; transition: color .15s, background .15s;
     }
-    .taf-modal-close:hover { color: #f1f5f9; background: #1e293b; }
+    .taf-modal-close:hover { color: #1b3a52; background: #f0f4f8; }
     .taf-modal-scroll { overflow-y: auto; flex: 1; }
 
     /* ── Checklist de importação ── */
@@ -371,14 +372,14 @@
       padding: 8px 10px; border-radius: 10px; cursor: pointer;
       transition: background .15s;
     }
-    .import-row:hover { background: #1e293b; }
+    .import-row:hover { background: #f0f4f8; }
     .import-row input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; accent-color: #0ea5e9; flex-shrink: 0; }
     .import-row-info { flex: 1; min-width: 0; }
-    .import-row-name { font-size: .9rem; font-weight: 700; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .import-row-meta { font-size: .75rem; color: #64748b; }
+    .import-row-name { font-size: .9rem; font-weight: 700; color: #1b3a52; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .import-row-meta { font-size: .75rem; color: #6b8fa8; }
     .import-mode-sel {
       font-size: .75rem; padding: 3px 8px; border-radius: 7px;
-      background: #1e293b; border: 1px solid #334155; color: #94a3b8;
+      background: #f0f4f8; border: 1px solid #c0d0df; color: #4a7a9b;
       cursor: pointer; outline: none;
     }
 
@@ -386,20 +387,20 @@
     .pelotao-header {
       display: flex; align-items: center; gap: 10px;
       padding: 10px 16px; border-radius: 14px 14px 0 0;
-      background: #1e293b; border: 1px solid #334155; border-bottom: none;
+      background: #e8edf3; border: 1px solid #c0d0df; border-bottom: none;
     }
-    .pelotao-label { font-weight: 800; font-size: 1rem; color: #38bdf8; flex: 1; }
-    .pelotao-count { font-size: .8rem; color: #64748b; }
+    .pelotao-label { font-weight: 800; font-size: 1rem; color: #5060d0; flex: 1; }
+    .pelotao-count { font-size: .8rem; color: #6b8fa8; }
     .pelotao-body {
-      border: 1px solid #334155; border-radius: 0 0 14px 14px;
-      padding: 8px; background: #0f172a; min-height: 60px;
+      border: 1px solid #c0d0df; border-radius: 0 0 14px 14px;
+      padding: 8px; background: #f8fafc; min-height: 60px;
     }
     .pelotao-member {
       display: flex; align-items: center; gap: 8px;
       padding: 5px 8px; border-radius: 8px;
-      background: #1e293b; margin-bottom: 4px; font-size: .82rem;
+      background: #e8edf3; margin-bottom: 4px; font-size: .82rem;
     }
-    .pelotao-member-name { flex: 1; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pelotao-member-name { flex: 1; color: #1b3a52; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .pelotao-remove-btn {
       background: none; border: none; color: #ef4444;
       cursor: pointer; font-size: 1rem; padding: 0 4px;
@@ -414,33 +415,33 @@
       padding: 6px 4px;
     }
     .pelotao-divider-label {
-      font-size: .85rem; font-weight: 800; color: #38bdf8;
+      font-size: .85rem; font-weight: 800; color: #5060d0;
       white-space: nowrap;
     }
     .pelotao-divider-line {
-      flex: 1; height: 1px; background: #1e3a5f;
+      flex: 1; height: 1px; background: #c0c8e8;
     }
     .pelotao-divider-timer {
-      font-size: .8rem; font-weight: 700; color: #94a3b8; font-family: monospace;
+      font-size: .8rem; font-weight: 700; color: #6b8fa8; font-family: monospace;
     }
     .btn-iniciar-pelotao {
       font-size: .78rem; font-weight: 700; padding: 4px 12px;
-      border-radius: 8px; border: none; cursor: pointer;
-      background: #059669; color: #fff; transition: background .15s;
+      border-radius: 8px; border: 1px solid #17a876; cursor: pointer;
+      background: #17a876; color: #fff; transition: background .15s;
     }
-    .btn-iniciar-pelotao:hover { background: #047857; }
-    .btn-iniciar-pelotao:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+    .btn-iniciar-pelotao:hover { background: #13906a; }
+    .btn-iniciar-pelotao:disabled { background: #d0dce8; color: #8aaac0; cursor: not-allowed; border-color: #d0dce8; }
 
   </style>
 </head>
-<body class="min-h-screen text-slate-100">
+<body class="min-h-screen" style="color:#1b3a52">
 
   <!-- Modal de aviso de saída -->
   <div id="exitModal" role="dialog" aria-modal="true" aria-labelledby="exitModalTitle">
     <div id="exitModalBox">
       <div style="font-size:2rem; margin-bottom:8px;">⚠️</div>
-      <h2 id="exitModalTitle" style="font-size:1.2rem; font-weight:800; color:#f1f5f9; margin-bottom:6px;">Sair da página?</h2>
-      <p style="font-size:0.88rem; color:#94a3b8; line-height:1.5; margin-bottom:4px;">
+      <h2 id="exitModalTitle" style="font-size:1.2rem; font-weight:800; color:#1b3a52; margin-bottom:6px;">Sair da página?</h2>
+      <p style="font-size:0.88rem; color:#5a7a90; line-height:1.5; margin-bottom:4px;">
         Você está tentando sair. Os dados podem ser perdidos se não foram salvos corretamente.
       </p>
       <div id="exitTimerRing">
@@ -451,7 +452,7 @@
         </svg>
         <div id="exitTimerNum">5</div>
       </div>
-      <p id="exitTimerMsg" style="font-size:0.8rem; color:#64748b;">Aguarde para confirmar…</p>
+      <p id="exitTimerMsg" style="font-size:0.8rem; color:#8aaac0;">Aguarde para confirmar…</p>
       <button id="exitConfirmBtn" disabled>Sair mesmo assim</button>
       <button id="exitCancelBtn">✕ Cancelar e ficar</button>
     </div>
@@ -461,14 +462,14 @@
   <div id="pwaModal" role="dialog" aria-modal="true">
     <div id="pwaModalBox">
       <div style="font-size:2.8rem; margin-bottom:10px;">📲</div>
-      <h2 style="font-size:1.15rem; font-weight:800; color:#f1f5f9; margin-bottom:8px;">Instalar o TAF-TECH</h2>
-      <p style="font-size:0.85rem; color:#94a3b8; line-height:1.6;">
+      <h2 style="font-size:1.15rem; font-weight:800; color:#1b3a52; margin-bottom:8px;">Instalar o TROPA PACE</h2>
+      <p style="font-size:0.85rem; color:#5a7a90; line-height:1.6;">
         Adicione o app à tela inicial do seu celular para acessar <strong style="color:#38bdf8;">offline</strong>, sem precisar de internet e sem abrir o navegador.
       </p>
       <div style="display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap;">
-        <span style="background:#1e293b; border-radius:10px; padding:6px 12px; font-size:0.78rem; color:#64748b;">⚡ Rápido</span>
-        <span style="background:#1e293b; border-radius:10px; padding:6px 12px; font-size:0.78rem; color:#64748b;">📵 Funciona offline</span>
-        <span style="background:#1e293b; border-radius:10px; padding:6px 12px; font-size:0.78rem; color:#64748b;">💾 Salva seus dados</span>
+        <span style="background:#f0f4f8; border-radius:10px; padding:6px 12px; font-size:0.78rem; color:#4a7a9b;">⚡ Rápido</span>
+        <span style="background:#f0f4f8; border-radius:10px; padding:6px 12px; font-size:0.78rem; color:#4a7a9b;">📵 Funciona offline</span>
+        <span style="background:#f0f4f8; border-radius:10px; padding:6px 12px; font-size:0.78rem; color:#4a7a9b;">💾 Salva seus dados</span>
       </div>
       <button id="pwaInstallBtn">📲 Adicionar à tela inicial</button>
       <button id="pwaDismissBtn">Agora não</button>
@@ -476,12 +477,20 @@
   </div>
 
   <!-- Header -->
-  <header class="sticky top-0 z-20 backdrop-blur bg-slate-900/70 border-b border-slate-800">
+  <header class="sticky top-0 z-20 backdrop-blur border-b border-gray-200" style="background:#1b3a52">
     <div class="max-w-6xl mx-auto px-3 py-2 flex items-center gap-2">
       <!-- Título -->
-      <div class="flex flex-col leading-tight min-w-0">
-        <h1 class="text-base sm:text-2xl font-bold whitespace-nowrap">TAF-TECH</h1>
-        <p class="text-[10px] text-slate-400 leading-none hidden sm:block">00878449378005207-004</p>
+      <div style="display:flex;align-items:center;gap:9px;min-width:0">
+        <div style="width:30px;height:30px;background:#17a876;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+            <path d="M5 19 L10 8 L14 14 L17 10 L20 14" stroke="#e8f4f0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="5" cy="19" r="1.8" fill="#e8f4f0"/>
+          </svg>
+        </div>
+        <div class="flex flex-col leading-tight min-w-0">
+          <h1 class="text-base sm:text-lg font-bold whitespace-nowrap" style="color:#e8f4f0;letter-spacing:.04em">TROPA PACE</h1>
+          <p style="font-size:9px;color:#6ab8a0;letter-spacing:.1em;text-transform:uppercase;line-height:1.2" class="hidden sm:block">avaliação física militar</p>
+        </div>
       </div>
       <!-- Indicador de auto-save (cresce para preencher espaço) -->
       <div id="saveIndicator" title="Dados salvos automaticamente"
@@ -490,7 +499,7 @@
           <span class="save-dot"></span>
           <span>💾 Salvo</span>
         </div>
-        <span id="saveIndicatorDetail" style="font-size:0.6rem; color:#86efac; font-weight:600; line-height:1.2; text-align:center;"></span>
+        <span id="saveIndicatorDetail" style="font-size:0.6rem; color:#17a876; font-weight:600; line-height:1.2; text-align:center;"></span>
       </div>
       <!-- Botão instalar PWA (oculto até o browser disparar beforeinstallprompt) -->
       <button id="btnInstallPwa"
@@ -504,13 +513,13 @@
         onclick="manualRestoreSession()"
         title="Restaurar última sessão salva"
         class="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap flex-shrink-0"
-        style="background:#1e293b; border-color:#334155; color:#94a3b8; cursor:not-allowed; opacity:0.5;"
+        style="background:#f0f4f8; border-color:#c0d0df; color:#8aaac0; cursor:not-allowed; opacity:0.5;"
         disabled>
         🔄 <span class="hidden sm:inline">Restaurar</span>
       </button>
     </div>
     <!-- Banner offline -->
-    <div id="offlineBanner" style="display:none; background:#7f1d1d; color:#fecaca; font-size:0.78rem; font-weight:700; text-align:center; padding:5px 12px; gap:6px; align-items:center; justify-content:center;">
+    <div id="offlineBanner" style="display:none; background:#fff0f0; color:#d04040; font-size:0.78rem; font-weight:700; text-align:center; padding:5px 12px; gap:6px; align-items:center; justify-content:center;">
       📵 Você está offline — os dados salvos continuam disponíveis
     </div>
   </header>
@@ -518,72 +527,79 @@
   <main class="max-w-6xl mx-auto p-4 grid gap-6">
 
     <!-- Toggle Modo -->
-    <section id="modeSection" class="bg-slate-900/60 border border-slate-800 rounded-2xl px-4 py-3 shadow-xl flex items-center gap-3">
-      <span class="text-sm font-semibold text-slate-400">Modo:</span>
+    <section id="modeSection" class="bg-white border border-gray-200 rounded-2xl px-4 py-3 flex items-center gap-3">
+      <span class="text-sm font-semibold text-gray-500">Modo:</span>
       <button id="btnModeMilitar" class="mode-toggle-btn active-militar" onclick="setAppMode('militar')">⚔️ Tripulação</button>
       <button id="btnModeAluno"   class="mode-toggle-btn"                onclick="setAppMode('aluno')">🎓 Aluno</button>
     </section>
 
     <!-- OM e Avaliador -->
-    <section id="omAvSection" class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+    <section id="omAvSection" class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6">
       <!-- EDIT MODE -->
       <div id="omAvEdit">
         <div class="grid gap-3 sm:grid-cols-2">
           <div>
-            <label class="block text-sm font-semibold mb-1 text-slate-300">Organização Militar</label>
+            <label class="block text-sm font-semibold mb-1" style="color:#1b3a52">Organização Militar</label>
             <input id="omInput" type="text" maxlength="60" placeholder="Ex.: 1º BEC, COLOG, IME..." style="text-transform:uppercase"
-              class="w-full rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" />
+              class="w-full rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-green-500 text-sm" />
           </div>
           <div>
-            <label class="block text-sm font-semibold mb-1 text-slate-300">Avaliador</label>
+            <label class="block text-sm font-semibold mb-1" style="color:#1b3a52">Avaliador</label>
             <input id="avaliadorInput" type="text" maxlength="60" placeholder="Posto/Grad + Nome de guerra"
-              class="w-full rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" />
+              class="w-full rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-green-500 text-sm" />
           </div>
           <div>
-            <label class="block text-sm font-semibold mb-1 text-slate-300">Tamanho da volta (m)</label>
+            <label class="block text-sm font-semibold mb-1" style="color:#1b3a52">Tamanho da volta (m)</label>
             <input id="lapMetersInput" type="number" min="50" max="1000" value="215" placeholder="Ex.: 215"
-              class="w-full rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" />
-            <p class="text-xs text-slate-500 mt-1">Padrão: 215m. O sistema calcula as voltas automaticamente.</p>
+              class="w-full rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-green-500 text-sm" />
+            <p class="text-xs text-gray-400 mt-1">Padrão: 215m. O sistema calcula as voltas automaticamente.</p>
           </div>
           <div class="flex items-end">
-            <button id="btnConfirmAvaliador" class="w-full px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-sm font-semibold">✓ Confirmar</button>
+            <button id="btnConfirmAvaliador" class="w-full px-4 py-2 rounded-xl hover:opacity-90" style="background:#17a876;color:#fff;border:none text-sm font-semibold">✓ Confirmar</button>
           </div>
         </div>
-        <div id="omAvError" class="hidden text-xs font-semibold rounded-xl px-3 py-2 mt-2" style="background:#7f1d1d;color:#fca5a5"></div>
+        <div id="omAvError" class="hidden text-xs font-semibold rounded-xl px-3 py-2 mt-2" style="background:#fff0f0;color:#d04040"></div>
       </div>
       <!-- COMPACT MODE (after confirmed) -->
       <div id="omAvCompact" class="hidden flex flex-col gap-2">
         <div class="flex items-center justify-between gap-3">
-          <div class="text-xs text-slate-400 flex flex-wrap gap-4">
-            <span>⚓ <span id="omDisplay" class="text-slate-200 font-semibold"></span></span>
-            <span>🫡 <span id="avDisplay" class="text-slate-200 font-semibold"></span></span>
-            <span>📐 <span id="lapDisplay" class="text-slate-200 font-semibold"></span></span>
+          <div style="font-size:.75rem;color:#6b8fa8;display:flex;flex-wrap:wrap;gap:16px">
+            <span>⚓ <span id="omDisplay" style="color:#1b3a52;font-weight:600"></span></span>
+            <span>🫡 <span id="avDisplay" style="color:#1b3a52;font-weight:600"></span></span>
+            <span>📐 <span id="lapDisplay" style="color:#1b3a52;font-weight:600"></span></span>
           </div>
-          <button id="btnClearAvaliador" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-rose-800 text-xs font-semibold text-slate-300 flex items-center gap-1">🗑️ Editar</button>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+            <button id="btnClearAvaliador" style="padding:5px 11px;border-radius:8px;font-size:.75rem;font-weight:600;background:#f0f4f8;border:0.5px solid #c0d0df;color:#5a7a90;cursor:pointer;display:flex;align-items:center;gap:4px">✏️ Editar</button>
+            <button id="btnZerarTudo" onclick="showZerarModal()" style="padding:5px 11px;border-radius:8px;font-size:.75rem;font-weight:600;background:#fff0f0;border:0.5px solid #f0b8b8;color:#a32d2d;cursor:pointer;display:flex;align-items:center;gap:4px">🗑 Zerar tudo</button>
+          </div>
         </div>
-
       </div>
     </section>
 
     <!-- Cronômetro -->
-    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+    <section class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6">
       <div class="flex flex-col items-center gap-3 text-center">
         <div>
-          <p class="text-sm text-slate-400">Tempo total de prova</p>
-          <div id="displayGlobal" class="mono text-4xl sm:text-5xl font-bold">00:00</div>
-          <div id="status" class="text-xs text-slate-400 mt-1">Parado</div>
+          <p class="text-sm text-gray-500">Tempo total de prova</p>
+          <div id="displayGlobal" class="mono text-4xl sm:text-5xl font-bold" style="color:#1b3a52">00:00</div>
+          <div id="status" class="text-xs text-gray-500 mt-1">Parado</div>
         </div>
         <div class="flex items-center gap-2 pt-2 justify-center">
-          <button id="btnStart" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold">Iniciar</button>
-          <button id="btnPause" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 font-semibold">Pausar</button>
-          <button id="btnReset" class="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-600 font-semibold">Zerar</button>
+          <button id="btnStart" class="px-4 py-2 rounded-xl hover:opacity-90" style="background:#17a876;color:#fff;border:none font-semibold">Iniciar</button>
+          <button id="btnPause" class="px-4 py-2 rounded-xl hover:opacity-90" style="background:#f0f4f8;color:#4a7a9b;border:1px solid #c5d8e8 font-semibold">Pausar</button>
+          <button id="btnReset" class="px-4 py-2 rounded-xl hover:opacity-90" style="background:#fff0f0;color:#d04040;border:1px solid #f0b8b8 font-semibold">Zerar</button>
         </div>
-        <div id="startError" class="hidden text-xs font-semibold rounded-xl px-3 py-2 mt-1" style="background:#7f1d1d;color:#fca5a5"></div>
+        <div id="startError" class="hidden text-xs font-semibold rounded-xl px-3 py-2 mt-1" style="background:#fff0f0;color:#d04040"></div>
+        <!-- Controles de pelotão no timer -->
+        <div id="pelotaoControls" style="display:none; width:100%; border-top:1px solid #e0eaf2; padding-top:12px; margin-top:4px;">
+          <p style="font-size:.7rem;color:#6b8fa8;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin:0 0 8px">Pelot&#xF5;es</p>
+          <div id="pelotaoControlsInner" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;"></div>
+        </div>
       </div>
     </section>
 
     <!-- Abas -->
-    <section id="tabsSection" class="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+    <section id="tabsSection" class="bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden">
       <div class="px-4 pt-4 pb-0">
         <div class="tab-header">
           <button class="tab-btn active" data-tab="gola" onclick="switchTab('gola')">
@@ -605,36 +621,36 @@
       <div class="tab-panel active p-4 sm:p-6" id="panel-gola">
         <div class="grid gap-4 sm:grid-cols-2 sm:items-end">
           <div>
-            <label class="block text-sm mb-1">Número de voltas</label>
-            <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
+            <label class="block text-sm mb-1" style="color:#4a7a9b">Número de voltas</label>
+            <div class="w-full sm:w-56 rounded-xl bg-gray-50 border border-gray-200 px-4 py-2 text-center text-gray-600 font-semibold select-none">
               <span id="golaLapsDisplay">11 voltas + 35m</span>
             </div>
             <div class="flex items-center gap-2 mt-2">
-              <div style="display:inline-flex;border-radius:10px;overflow:hidden;border:1px solid #334155;gap:1px;background:#334155">
+              <div style="display:inline-flex;border-radius:10px;overflow:hidden;border:1px solid #c0d0df;gap:1px;background:#c0d0df">
                 <button id="btnModeCorreida" onclick="setGolaMode('corrida')" style="padding:6px 16px;background:#0e7490;color:#fff;font-weight:700;font-size:.85rem;border:none;cursor:pointer;border-radius:9px 0 0 9px;">🏃 Corrida</button>
-                <button id="btnModeCaminhada" onclick="setGolaMode('caminhada')" style="padding:6px 16px;background:#1e293b;color:#64748b;font-weight:600;font-size:.85rem;border:none;cursor:pointer;border-radius:0 9px 9px 0;">🚶 Caminhada</button>
+                <button id="btnModeCaminhada" onclick="setGolaMode('caminhada')" style="padding:6px 16px;background:#e8edf3;color:#5a7a90;font-weight:600;font-size:.85rem;border:none;cursor:pointer;border-radius:0 9px 9px 0;">🚶 Caminhada</button>
               </div>
-              <button id="btnExtraPos-gola" class="btn-extra-pos pos-inicio" onclick="toggleExtraPos('gola')" title="Alterar posição dos metros extras">Metros extras no início</button>
+              <button id="btnExtraPos-gola" class="btn-extra-pos pos-inicio" onclick="toggleExtraPos('gola')" title="Alterar posição dos metros extras" style="display:none">Metros extras no início</button>
             </div>
           </div>
           <div class="w-full sm:w-auto">
-            <label class="block text-sm mb-1">Identificação do participante</label>
+            <label class="block text-sm mb-1" style="color:#4a7a9b">Identificação do participante</label>
             <div class="flex gap-2 items-stretch">
               <div class="flex flex-col gap-2 flex-1">
-                <input class="nipInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" type="text" inputmode="numeric" maxlength="10" data-tab="gola" placeholder="NIP (00.0000.00)" style="letter-spacing:0.1em;font-family:monospace" />
-                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="gola" placeholder="Posto/Grad + Nome de guerra" />
+                <input class="nipInput rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-green-500 text-sm" type="text" inputmode="numeric" maxlength="10" data-tab="gola" placeholder="NIP (00.0000.00)" style="letter-spacing:0.1em;font-family:monospace" />
+                <input class="participantInput rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-green-500" type="text" data-tab="gola" placeholder="Posto/Grad + Nome de guerra" />
                 <div class="flex gap-2">
-                  <select class="sexInput flex-1 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" data-tab="gola">
+                  <select class="sexInput flex-1 rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-green-500 text-sm" data-tab="gola">
                     <option value="">Sexo</option>
                     <option value="M">Masculino</option>
                     <option value="F">Feminino</option>
                   </select>
-                  <input class="ageInput w-24 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 text-center outline-none focus:ring-2 focus:ring-sky-500 text-sm" type="number" min="18" max="99" data-tab="gola" placeholder="Idade" />
+                  <input class="ageInput w-24 rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 text-center outline-none focus:ring-2 focus:ring-green-500 text-sm" type="number" min="18" max="99" data-tab="gola" placeholder="Idade" />
                 </div>
               </div>
-              <button id="btnAddRunnerGola" class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 font-semibold self-stretch" data-tab="gola">Adicionar</button>
+              <button id="btnAddRunnerGola" class="btnAddRunner rounded-xl hover:opacity-90" style="background:#5060d0;color:#fff;border:none px-4 font-semibold self-stretch" data-tab="gola">Adicionar</button>
             </div>
-            <p class="text-xs text-slate-500 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
+            <p class="text-xs text-gray-400 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
             <p id="runnerError-gola" class="text-xs font-semibold mt-1" style="color:#fca5a5;min-height:1rem"></p>
           </div>
         </div>
@@ -644,34 +660,34 @@
       <div class="tab-panel p-4 sm:p-6" id="panel-naval">
         <div class="grid gap-4 sm:grid-cols-2 sm:items-end">
           <div>
-            <label class="block text-sm mb-1">Número de voltas</label>
-            <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
+            <label class="block text-sm mb-1" style="color:#4a7a9b">Número de voltas</label>
+            <div class="w-full sm:w-56 rounded-xl bg-gray-50 border border-gray-200 px-4 py-2 text-center text-gray-600 font-semibold select-none">
               <span id="navalLapsDisplay">14 voltas + 190m</span>
             </div>
             <div class="flex items-center gap-2 mt-2">
-              <button id="btnExtraPos-naval" class="btn-extra-pos pos-final" onclick="toggleExtraPos('naval')" title="Alterar posição dos metros extras">Metros extras no final</button>
+              <button id="btnExtraPos-naval" class="btn-extra-pos pos-final" onclick="toggleExtraPos('naval')" title="Alterar posição dos metros extras" style="display:none">Metros extras no final</button>
             </div>
           </div>
           <div class="w-full sm:w-auto">
-            <label class="block text-sm mb-1">Identificação do participante</label>
+            <label class="block text-sm mb-1" style="color:#4a7a9b">Identificação do participante</label>
             <div class="flex gap-2 items-stretch">
               <!-- Campos empilhados: nome em cima, sexo+idade embaixo -->
               <div class="flex flex-col gap-2 flex-1">
-                <input class="nipInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" type="text" inputmode="numeric" maxlength="10" data-tab="naval" placeholder="NIP (00.0000.00)" style="letter-spacing:0.1em;font-family:monospace" />
-                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500" type="text" data-tab="naval" placeholder="Posto/Grad + Nome de guerra" />
+                <input class="nipInput rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-green-500 text-sm" type="text" inputmode="numeric" maxlength="10" data-tab="naval" placeholder="NIP (00.0000.00)" style="letter-spacing:0.1em;font-family:monospace" />
+                <input class="participantInput rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-green-500" type="text" data-tab="naval" placeholder="Posto/Grad + Nome de guerra" />
                 <div class="flex gap-2">
-                  <select class="sexInput flex-1 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-sky-500 text-sm" data-tab="naval">
+                  <select class="sexInput flex-1 rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-green-500 text-sm" data-tab="naval">
                     <option value="">Sexo</option>
                     <option value="M">Masculino</option>
                     <option value="F">Feminino</option>
                   </select>
-                  <input class="ageInput w-24 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 text-center outline-none focus:ring-2 focus:ring-sky-500 text-sm" type="number" min="18" max="99" data-tab="naval" placeholder="Idade" />
+                  <input class="ageInput w-24 rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 text-center outline-none focus:ring-2 focus:ring-green-500 text-sm" type="number" min="18" max="99" data-tab="naval" placeholder="Idade" />
                 </div>
               </div>
               <!-- Botão ocupando a altura das duas linhas -->
-              <button class="btnAddRunner rounded-xl bg-sky-600 hover:bg-sky-500 px-4 font-semibold self-stretch" data-tab="naval">Adicionar</button>
+              <button class="btnAddRunner rounded-xl hover:opacity-90" style="background:#5060d0;color:#fff;border:none px-4 font-semibold self-stretch" data-tab="naval">Adicionar</button>
             </div>
-            <p class="text-xs text-slate-500 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
+            <p class="text-xs text-gray-400 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
             <p id="runnerError-naval" class="text-xs font-semibold mt-1" style="color:#fca5a5;min-height:1rem"></p>
           </div>
         </div>
@@ -681,32 +697,32 @@
       <div class="tab-panel p-4 sm:p-6" id="panel-aluno">
         <div class="grid gap-4 sm:grid-cols-2 sm:items-end">
           <div>
-            <label class="block text-sm mb-1">Número de voltas</label>
-            <div class="w-full sm:w-56 rounded-xl bg-slate-800/40 border border-slate-700 px-4 py-2 text-center text-slate-300 font-semibold select-none">
+            <label class="block text-sm mb-1" style="color:#4a7a9b">Número de voltas</label>
+            <div class="w-full sm:w-56 rounded-xl bg-gray-50 border border-gray-200 px-4 py-2 text-center text-gray-600 font-semibold select-none">
               <span id="alunoLapsDisplay">11 voltas + 35m</span>
             </div>
             <div class="flex items-center gap-2 mt-2">
-              <button id="btnExtraPos-aluno" class="btn-extra-pos pos-inicio" onclick="toggleExtraPos('aluno')" title="Alterar posição dos metros extras">Metros extras no início</button>
+              <button id="btnExtraPos-aluno" class="btn-extra-pos pos-inicio" onclick="toggleExtraPos('aluno')" title="Alterar posição dos metros extras" style="display:none">Metros extras no início</button>
             </div>
           </div>
           <div class="w-full sm:w-auto">
-            <label class="block text-sm mb-1">Identificação do participante</label>
+            <label class="block text-sm mb-1" style="color:#4a7a9b">Identificação do participante</label>
             <div class="flex gap-2 items-stretch">
               <div class="flex flex-col gap-2 flex-1">
-                <input class="nipInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500 text-sm" type="text" inputmode="numeric" maxlength="10" data-tab="aluno" placeholder="NIP (00.0000.00)" style="letter-spacing:0.1em;font-family:monospace" />
-                <input class="participantInput rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500" type="text" data-tab="aluno" placeholder="Posto/Grad + Nome de guerra" />
+                <input class="nipInput rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400 text-sm" type="text" inputmode="numeric" maxlength="10" data-tab="aluno" placeholder="NIP (00.0000.00)" style="letter-spacing:0.1em;font-family:monospace" />
+                <input class="participantInput rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400" type="text" data-tab="aluno" placeholder="Posto/Grad + Nome de guerra" />
                 <div class="flex gap-2">
-                  <select class="sexInput flex-1 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-orange-500 text-sm" data-tab="aluno">
+                  <select class="sexInput flex-1 rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-orange-400 text-sm" data-tab="aluno">
                     <option value="">Sexo</option>
                     <option value="M">Masculino</option>
                     <option value="F">Feminino</option>
                   </select>
-                  <input class="ageInput w-24 rounded-xl bg-slate-800/80 border border-slate-700 px-3 py-2 text-center outline-none focus:ring-2 focus:ring-orange-500 text-sm" type="number" min="18" max="99" data-tab="aluno" placeholder="Idade" />
+                  <input class="ageInput w-24 rounded-xl bg-gray-50 border border-gray-300 px-3 py-2 text-center outline-none focus:ring-2 focus:ring-orange-400 text-sm" type="number" min="18" max="99" data-tab="aluno" placeholder="Idade" />
                 </div>
               </div>
               <button class="btnAddRunner rounded-xl px-4 font-semibold self-stretch" style="background:#ea580c;color:#fff" data-tab="aluno">Adicionar</button>
             </div>
-            <p class="text-xs text-slate-500 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
+            <p class="text-xs text-gray-400 mt-1">Máx. 12 participantes. Identificadores devem ser únicos.</p>
             <p id="runnerError-aluno" class="text-xs font-semibold mt-1" style="color:#fca5a5;min-height:1rem"></p>
           </div>
         </div>
@@ -715,23 +731,23 @@
 
     <!-- Botões de ação acima da lista -->
     <div class="flex flex-wrap items-center gap-2" id="runnersActionBar">
-      <button onclick="openImportModal()" class="px-3 py-2 text-sm rounded-xl font-semibold flex items-center gap-1" style="background:#0c4a6e;border:1px solid #0ea5e9;color:#38bdf8">📥 Importar lista</button>
-      <button onclick="openPelotaoModal()" id="btnOrganizarPelotoes" class="px-3 py-2 text-sm rounded-xl font-semibold flex items-center gap-1" style="background:#1e293b;border:1px solid #334155;color:#94a3b8">🪖 Organizar pelotões</button>
+      <button onclick="openImportModal()" class="px-3 py-2 text-sm rounded-xl font-semibold flex items-center gap-1" style="background:#e8f8f2;border:1px solid #17a876;color:#17a876">📥 Importar lista</button>
+      <button onclick="openPelotaoModal()" id="btnOrganizarPelotoes" class="px-3 py-2 text-sm rounded-xl font-semibold flex items-center gap-1" style="background:#f0f4f8;border:1px solid #c0d0df;color:#4a7a9b">🪖 Organizar pelotões</button>
     </div>
 
     <!-- Lista de Participantes -->
     <section class="grid md:grid-cols-2 xl:grid-cols-3 gap-4" id="runnersGrid"></section>
 
     <!-- Lixeira -->
-    <section id="trashContainer" class="trash-zone bg-slate-900/60 border-2 border-slate-800 border-dashed rounded-2xl p-6 text-center text-slate-400 font-semibold">
+    <section id="trashContainer" class="trash-zone bg-slate-900/60 border-2 border-gray-300 border-dashed rounded-2xl p-6 text-center font-semibold" style="color:#000">
       Arraste aqui para remover 🚮
     </section>
 
     <!-- Tabelas de Voltas (recolhido) -->
-    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-xl overflow-hidden" id="lapsTablesCard">
+    <section class="bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden" id="lapsTablesCard">
       <button id="btnToggleLapsTables"
         onclick="toggleLapsTables()"
-        class="w-full flex items-center justify-between px-4 py-3 text-left font-bold text-slate-200 hover:bg-slate-800/40 transition-colors">
+        class="w-full flex items-center justify-between px-4 py-3 text-left font-bold text-gray-700 hover:bg-gray-100/40 transition-colors">
         <span>📋 Voltas por participante</span>
         <span id="lapsTablesChevron" style="font-size:1.1rem; transition: transform .25s; display:inline-block; transform: rotate(0deg);">▼</span>
       </button>
@@ -741,10 +757,10 @@
     </section>
 
     <!-- Resumo -->
-    <section class="summarySection bg-slate-900/60 border border-slate-800 rounded-2xl p-4 shadow-xl" id="summarySection">
+    <section class="summarySection bg-white border border-gray-200 rounded-2xl p-4" id="summarySection">
       <h4 class="text-lg font-semibold mb-2">Resumo</h4>
       <table class="min-w-full text-sm">
-        <thead class="bg-slate-800/60">
+        <thead class="bg-gray-100">
           <tr>
             <th class="text-left px-3 py-1">Nº / Participante</th>
             <th class="text-left px-3 py-1">Distância</th>
@@ -754,42 +770,42 @@
         </thead>
         <tbody id="summaryTbody"></tbody>
       </table>
-      <p class="text-xs text-slate-500 mt-2">Linhas em vermelho: ainda não atingiram o total de voltas.</p>
+      <p class="text-xs text-gray-400 mt-2">Linhas em vermelho: ainda não atingiram o total de voltas.</p>
     </section>
 
     <!-- Exportações -->
-    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+    <section class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-xl">
       <div class="flex flex-wrap items-center gap-2">
-        <button id="btnExportCSV" class="px-3 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-500">📄 CSV (todas as voltas)</button>
-        <button id="btnExportCSVParciais" class="px-3 py-2 text-sm rounded-lg bg-fuchsia-600 hover:bg-fuchsia-500">📄 CSV (parciais + finais)</button>
-        <button id="btnExportCSVTotais" class="px-3 py-2 text-sm rounded-lg bg-violet-600 hover:bg-violet-500">📄 CSV (somente tempos totais)</button>
-        <button id="btnExportPDF" class="px-3 py-2 text-sm rounded-lg bg-slate-700 hover:bg-slate-600">🖨️ PDF (tabelas)</button>
-        <button id="btnScoreTable" class="px-3 py-2 text-sm rounded-lg bg-teal-700 hover:bg-teal-600">📋 Tabela de Notas</button>
+        <button id="btnExportCSV" class="px-3 py-2 text-sm rounded-lg hover:opacity-90" style="background:#5060d0;color:#fff;border:none">📄 CSV (todas as voltas)</button>
+        <button id="btnExportCSVParciais" class="px-3 py-2 text-sm rounded-lg hover:opacity-90" style="background:#7040c0;color:#fff;border:none">📄 CSV (parciais + finais)</button>
+        <button id="btnExportCSVTotais" class="px-3 py-2 text-sm rounded-lg hover:opacity-90" style="background:#8050d0;color:#fff;border:none">📄 CSV (somente tempos totais)</button>
+        <button id="btnExportPDF" class="px-3 py-2 text-sm rounded-lg hover:opacity-90" style="background:#4a7a9b;color:#fff;border:none">🖨️ PDF (tabelas)</button>
+        <button id="btnScoreTable" class="px-3 py-2 text-sm rounded-lg hover:opacity-90" style="background:#17a876;color:#fff;border:none">📋 Tabela de Notas</button>
       </div>
     </section>
 
     <!-- Download do modelo de planilha -->
-    <section class="bg-slate-900/60 border border-slate-700 rounded-2xl p-4 sm:p-6 shadow-xl">
+    <section class="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-xl">
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <div class="flex-1">
-          <h3 class="text-sm font-bold text-slate-200 mb-1">📥 Modelo de planilha para importação</h3>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            Baixe a planilha já formatada com validações de dados: NIP no formato <span class="font-mono text-sky-400">00.0000.00</span>, 
-            nascimento em <span class="font-mono text-sky-400">DD/MM/AAAA</span> e sexo restrito a <span class="font-mono text-sky-400">M&nbsp;/&nbsp;F</span>. 
-            Preencha, salve como <strong class="text-slate-300">CSV</strong> e importe diretamente no sistema.
+          <h3 class="text-sm font-bold text-gray-700 mb-1">📥 Modelo de planilha para importação</h3>
+          <p class="text-xs text-gray-500 leading-relaxed">
+            Baixe a planilha já formatada com validações de dados: NIP no formato <span style="font-family:monospace;color:#17a876">00.0000.00</span>, 
+            nascimento em <span style="font-family:monospace;color:#17a876">DD/MM/AAAA</span> e sexo restrito a <span style="font-family:monospace;color:#17a876">M&nbsp;/&nbsp;F</span>. 
+            Preencha, salve como <strong class="text-gray-600">CSV</strong> e importe diretamente no sistema.
           </p>
         </div>
         <div class="flex flex-col sm:flex-row gap-2 flex-shrink-0">
           <button onclick="downloadXlsxModelo()"
             class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap"
-            style="background:#15803d;border:1.5px solid #4ade80;color:#fff;transition:background .2s"
+            style="background:#17a876;border:1.5px solid #13906a;color:#fff;transition:background .2s"
             onmouseover="this.style.background='#166534'" onmouseout="this.style.background='#15803d'">
             📊 Baixar modelo (.xlsx)
           </button>
           <button onclick="downloadCsvModelo()"
             class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap"
-            style="background:#1e293b;border:1.5px solid #334155;color:#94a3b8;transition:background .2s"
-            onmouseover="this.style.background='#273549'" onmouseout="this.style.background='#1e293b'">
+            style="background:#f0f4f8;border:1.5px solid #c0d0df;color:#4a7a9b;transition:background .2s"
+            onmouseover="this.style.background='#e0e8f0'" onmouseout="this.style.background='#f0f4f8'">
             📄 Baixar modelo (.csv)
           </button>
         </div>
@@ -799,28 +815,28 @@
 
   <!-- Modal Tabela de Notas -->
   <div id="scoreModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col">
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col">
       <!-- Header do modal -->
-      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
         <div class="flex items-center gap-3">
-          <h2 class="text-lg font-bold">Tabela de Notas</h2>
+          <h2 class="text-lg font-bold" style="color:#1b3a52">Tabela de Notas</h2>
           <div class="flex flex-col gap-1">
             <div class="flex gap-2">
               <button id="modalTabGola" onclick="switchModalTab('gola')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#0f766e;color:#fff">Gola (2400m)</button>
-              <button id="modalTabNaval" onclick="switchModalTab('naval')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">Naval (3200m)</button>
+              <button id="modalTabNaval" onclick="switchModalTab('naval')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#e8edf3;color:#4a7a9b">Naval (3200m)</button>
             </div>
             <div class="flex gap-2">
-              <button id="modalTabAluno" onclick="switchModalTab('aluno')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">Aluno (2400m)</button>
-              <button id="modalTabGolaCaminhada" onclick="switchModalTab('gola-caminhada')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">Caminhada (4800m)</button>
+              <button id="modalTabAluno" onclick="switchModalTab('aluno')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#e8edf3;color:#4a7a9b">Aluno (2400m)</button>
+              <button id="modalTabGolaCaminhada" onclick="switchModalTab('gola-caminhada')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#e8edf3;color:#4a7a9b">Caminhada (4800m)</button>
             </div>
           </div>
         </div>
-        <button id="btnCloseModal" class="text-slate-400 hover:text-white text-xl font-bold px-2">✕</button>
+        <button id="btnCloseModal" class="text-gray-500 hover:text-white text-xl font-bold px-2">✕</button>
       </div>
       <!-- Abas Masc/Fem -->
       <div class="flex gap-2 px-5 pt-3">
-        <button id="modalSexM" onclick="switchModalSex('M')" class="modal-sex-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#0369a1;color:#fff">♂ Masculino</button>
-        <button id="modalSexF" onclick="switchModalSex('F')" class="modal-sex-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#334155;color:#94a3b8">♀ Feminino</button>
+        <button id="modalSexM" onclick="switchModalSex('M')" class="modal-sex-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#5060d0;color:#fff">♂ Masculino</button>
+        <button id="modalSexF" onclick="switchModalSex('F')" class="modal-sex-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#e8edf3;color:#4a7a9b">♀ Feminino</button>
       </div>
       <!-- Tabela -->
       <div class="overflow-auto flex-1 px-5 py-4">
@@ -828,7 +844,7 @@
           <thead id="scoreModalThead"></thead>
           <tbody id="scoreModalTbody"></tbody>
         </table>
-        <p class="text-xs text-slate-500 mt-3">Tempo máximo para atingir cada nota. Tempo menor ou igual = nota correspondente.</p>
+        <p class="text-xs text-gray-400 mt-3">Tempo máximo para atingir cada nota. Tempo menor ou igual = nota correspondente.</p>
         <div class="flex flex-wrap gap-3 mt-2 text-xs font-semibold">
           <span style="color:#16a34a">● 90–100</span>
           <span style="color:#3b82f6">● 70–80</span>
@@ -849,10 +865,10 @@
             <span class="runner-seq-num text-xl font-bold mr-2 align-middle" style="border-radius:8px;padding:3px 10px;color:#fff;"></span><span class="label"></span>
           </h3>
           <div class="flex items-center gap-2">
-            <button class="btnUndo rounded-xl bg-amber-700 hover:bg-amber-600 font-bold text-xl" style="min-width:52px;min-height:52px" title="Desfazer">−</button>
+            <button class="btnUndo rounded-xl font-bold text-xl" style="min-width:52px;min-height:52px;background:#fff8e8;color:#b07820;border:1px solid #e8d090" title="Desfazer">−</button>
             <span class="lapsCount text-xl font-bold" style="min-width:2rem;text-align:center">0</span>
-            <button class="btnLap rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xl" style="min-width:52px;min-height:52px" title="Marcar volta">+</button>
-            <button class="btnDnf rounded-xl bg-rose-700 hover:bg-rose-600 font-bold text-lg" style="min-width:40px;min-height:52px;padding:0 10px" title="Registrar desistência">✕</button>
+            <button class="btnLap rounded-xl font-bold text-xl" style="min-width:52px;min-height:52px;background:#17a876;color:#fff;border:none" title="Marcar volta">+</button>
+            <button class="btnDnf rounded-xl font-bold text-lg" style="min-width:40px;min-height:52px;padding:0 10px;background:#fff0f0;color:#d04040;border:1px solid #f0b8b8" title="Registrar desistência">✕</button>
           </div>
         </div>
         <div class="flex items-center gap-3 text-xs text-black border-t border-slate-300/40 pt-1">
@@ -907,7 +923,7 @@
 
     function handleCsvDrop(e){
       e.preventDefault();
-      document.getElementById('importUploadArea').style.borderColor = '#334155';
+      document.getElementById('importUploadArea').style.borderColor = '#c0d0df';
       const file = e.dataTransfer.files[0];
       if(file) handleCsvFile(file);
     }
@@ -949,7 +965,7 @@
           dataLines.forEach((line, i) => {
             const parts = line.split(/[,;]/).map(s => s.trim().replace(/^"|"$/g,''));
             if(parts.length < 4){ erros.push('Linha '+(i+2)+': colunas insuficientes'); return; }
-            const [nipRaw, nome, corpo, nascRaw] = parts;
+            const [nipRaw, nome, corpo, nascRaw, sexRaw] = parts;
             const nip = nipRaw.replace(/\D/g,'');
             if(nip.length !== 8){ erros.push('Linha '+(i+2)+': NIP inválido ('+nipRaw+')'); return; }
             // Nascimento: DD/MM/AAAA ou YYYY-MM-DD
@@ -965,13 +981,16 @@
             if(age < 18){ erros.push('Linha '+(i+2)+': idade < 18 ('+nome+')'); return; }
             const corpoNorm = corpo.toLowerCase().includes('naval') ? 'naval' : 'gola';
             const nipFmt = nip.slice(0,2)+'.'+nip.slice(2,6)+'.'+nip.slice(6);
-            importedRows.push({ nip: nipFmt, nipKey: nip, nome: nome.trim().toUpperCase(), corpo: corpoNorm, nasc, age });
+            const sex = (sexRaw||'').trim().toUpperCase() === 'F' ? 'F' : 'M';
+            importedRows.push({ nip: nipFmt, nipKey: nip, nome: nome.trim().toUpperCase(), corpo: corpoNorm, nasc, age, sex });
           });
           if(erros.length && !importedRows.length){ errEl.textContent = erros[0]; return; }
           if(erros.length) errEl.textContent = '⚠️ '+erros.length+' linha(s) ignorada(s): '+erros[0];
           // Ordenar por nome
           importedRows.sort((a,b) => a.nome.localeCompare(b.nome));
           importSelected = new Set(importedRows.map(r => r.nipKey));
+          _importVisibleCount = IMPORT_PAGE_SIZE;
+          if(document.getElementById('importSearch')) document.getElementById('importSearch').value = '';
           renderImportList();
           document.getElementById('importControls').style.display = 'flex';
         }catch(ex){ errEl.textContent = '⚠️ Erro ao ler arquivo: '+ex.message; }
@@ -979,31 +998,86 @@
       reader.readAsText(file);
     }
 
+    const IMPORT_PAGE_SIZE = 50;
+    let _importVisibleCount = IMPORT_PAGE_SIZE;
+
+    function _highlight(text, q){
+      if(!q) return text;
+      const idx = text.toLowerCase().indexOf(q.toLowerCase());
+      if(idx === -1) return text;
+      return text.slice(0,idx) + '<mark style="background:#0ea5e9;color:#fff;border-radius:3px;padding:0 2px">' + text.slice(idx, idx+q.length) + '</mark>' + text.slice(idx+q.length);
+    }
+
     function renderImportList(){
-      const q = (document.getElementById('importSearch')?.value||'').toLowerCase();
+      const q = (document.getElementById('importSearch')?.value||'').trim();
+      const qLow = q.toLowerCase();
+      const qDigits = q.replace(/\D/g,'');
       const list = document.getElementById('importList');
+      const countEl = document.getElementById('importFilterCount');
+      const showMoreWrap = document.getElementById('importShowMore');
+
       const filtered = importedRows.filter(r =>
-        r.nome.toLowerCase().includes(q) || r.nipKey.includes(q.replace(/\D/g,''))
+        r.nome.toLowerCase().includes(qLow) ||
+        r.nip.includes(q) ||
+        (qDigits && r.nipKey.includes(qDigits))
       );
-      if(!filtered.length){ list.innerHTML = '<p style="color:#475569;font-size:.8rem;padding:8px">Nenhum resultado.</p>'; updateImportCount(); return; }
-      list.innerHTML = filtered.map(r => {
+
+      // Atualizar contador
+      if(countEl){
+        if(q && filtered.length < importedRows.length)
+          countEl.textContent = filtered.length + ' de ' + importedRows.length;
+        else if(importedRows.length > 0)
+          countEl.textContent = importedRows.length + ' participantes';
+        else
+          countEl.textContent = '';
+      }
+
+      if(!filtered.length){
+        list.innerHTML = '<p style="color:#475569;font-size:.8rem;padding:12px;text-align:center">Nenhum resultado para <strong style=\"color:#e2e8f0\">' + q + '</strong></p>';
+        if(showMoreWrap) showMoreWrap.style.display = 'none';
+        updateImportCount(); return;
+      }
+
+      const visible = filtered.slice(0, _importVisibleCount);
+      const hasMore = filtered.length > _importVisibleCount;
+
+      list.innerHTML = visible.map(r => {
         const alreadyAdded = runners.has(r.nipKey);
         const checked = importSelected.has(r.nipKey) && !alreadyAdded;
         const disabledAttr = alreadyAdded ? 'disabled' : '';
-        const defaultMode = r.corpo === 'gola' ? 'gola' : 'naval';
+        const nomeHl = _highlight(r.nome, q);
+        const nipHl  = _highlight(r.nip, q);
         return `<label class="import-row" style="${alreadyAdded?'opacity:0.45;cursor:not-allowed':''}">
           <input type="checkbox" ${checked?'checked':''} ${disabledAttr} data-nipkey="${r.nipKey}" onchange="toggleImportRow(this)">
           <div class="import-row-info">
-            <div class="import-row-name">${r.nome}</div>
-            <div class="import-row-meta">${r.nip} · ${r.corpo==='naval'?'Naval':'Gola'} · ${r.age} anos${alreadyAdded?' · <span style=\"color:#4ade80\">já adicionado</span>':''}</div>
+            <div class="import-row-name">${nomeHl}</div>
+            <div class="import-row-meta">${nipHl} · ${r.corpo==='naval'?'Naval':'Gola'} · ${r.age} anos${alreadyAdded?' · <span style=\"color:#4ade80\">já adicionado</span>':''}</div>
           </div>
           ${!alreadyAdded && r.corpo==='gola' ? `<select class="import-mode-sel" data-nipkey="${r.nipKey}"><option value="gola">🏃 Corrida</option><option value="gola-caminhada">🚶 Caminhada</option></select>` : ''}
         </label>`;
       }).join('');
+
+      if(showMoreWrap){
+        if(hasMore){
+          showMoreWrap.style.display = '';
+          showMoreWrap.querySelector('button').textContent =
+            'Mostrar mais… (' + (filtered.length - _importVisibleCount) + ' restantes)';
+        } else {
+          showMoreWrap.style.display = 'none';
+        }
+      }
       updateImportCount();
     }
 
-    function filterImportList(){ renderImportList(); }
+    function importShowMoreRows(){
+      _importVisibleCount += IMPORT_PAGE_SIZE;
+      renderImportList();
+    }
+
+    function filterImportList(){
+      _importVisibleCount = IMPORT_PAGE_SIZE; // reset paginação ao filtrar
+      renderImportList();
+    }
 
     function toggleImportRow(cb){
       const key = cb.dataset.nipkey;
@@ -1039,7 +1113,7 @@
         }
         // Precisamos de sexo — pedir via prompt se não disponível no CSV
         // Por simplicidade, sexo será M por padrão (pode ser ajustado manualmente depois)
-        const ok = addRunner(r.nome, tab, 'M', r.age, r.nip);
+        const ok = addRunner(r.nome, tab, r.sex || 'M', r.age, r.nip);
         if(ok !== false) added++;
         else erros.push(r.nome);
       });
@@ -1050,13 +1124,13 @@
         // Reset
         importedRows = []; importSelected = new Set();
         document.getElementById('importControls').style.display = 'none';
-        document.getElementById('importUploadArea').style.borderColor = '#334155';
+        document.getElementById('importUploadArea').style.borderColor = '#c0d0df';
         document.getElementById('csvFileInput').value = '';
       }
     }
 
     function downloadCsvModelo(){
-      const csv = 'nip,nome,corpo,nascimento\n12.3456.78,TEN SILVA,gola,15/03/1995\n87.6543.21,SGT COSTA,naval,22/07/1988\n';
+      const csv = 'nip,nome,corpo,nascimento,sexo\n12.3456.78,TEN SILVA,gola,15/03/1995,M\n87.6543.21,SGT COSTA,naval,22/07/1988,M\n';
       const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href=url; a.download='modelo_importacao_taf.csv'; a.click();
@@ -1077,12 +1151,16 @@
     // PELOTÕES — funções
     // ══════════════════════════════════════════════════════
     function openPelotaoModal(){
+      const srch = document.getElementById('pelotaoSearch');
+      if(srch) srch.value = '';
       renderPelotaoModal();
       document.getElementById('pelotaoModal').classList.add('show');
     }
     function closePelotaoModal(){
       document.getElementById('pelotaoModal').classList.remove('show');
       renderRunnersGrid(); // re-renderiza a grid com separadores
+      renumberRunners();
+      renderPelotaoControls();
     }
 
     function addPelotao(){
@@ -1104,6 +1182,7 @@
       }
       runnerPelotaoMap.set(nipKey, pelotaoId || null);
       renderPelotaoModal();
+      renumberRunners();
       saveLocalSession();
     }
 
@@ -1115,20 +1194,57 @@
       // Unassigned
       const unassignedEl = document.getElementById('pelotaoUnassigned');
       const allKeys = exportOrder();
-      const assignedKeys = new Set([...runnerPelotaoMap.values()].flatMap(v => v ? [v] : []).map(id => pelotoes.find(p=>p.id===id)?.memberKeys||[]).flat());
-      // Reconstruir mapa a partir dos pelotoes
       const inAnyPelotao = new Set(pelotoes.flatMap(p => p.memberKeys));
       const unassigned = allKeys.filter(k => !inAnyPelotao.has(k));
-      unassignedEl.innerHTML = unassigned.length === 0
-        ? '<span style="color:#475569;font-size:.78rem">Todos alocados</span>'
-        : unassigned.map(k => {
+
+      // Filtro de busca
+      const q = (document.getElementById('pelotaoSearch')?.value||'').trim().toLowerCase();
+      const qDigits = q.replace(/\D/g,'');
+      const filteredUnassigned = q
+        ? unassigned.filter(k => {
+            const r = runners.get(k);
+            if(!r) return false;
+            return r.label.toLowerCase().includes(q) ||
+                   r.nip.includes(q) ||
+                   (qDigits && r.nipKey.includes(qDigits));
+          })
+        : unassigned;
+
+      // Contador
+      const countEl = document.getElementById('pelotaoSearchCount');
+      if(countEl){
+        if(q && filteredUnassigned.length < unassigned.length)
+          countEl.textContent = filteredUnassigned.length + ' de ' + unassigned.length;
+        else if(unassigned.length > 0)
+          countEl.textContent = unassigned.length + ' sem pelotão';
+        else
+          countEl.textContent = '';
+      }
+
+      if(unassigned.length === 0){
+        unassignedEl.innerHTML = '<span style="color:#475569;font-size:.78rem">Todos alocados</span>';
+      } else if(filteredUnassigned.length === 0){
+        unassignedEl.innerHTML = '<span style="color:#475569;font-size:.78rem">Nenhum resultado para <strong style=\"color:#e2e8f0\">' + q + '</strong></span>';
+      } else {
+        unassignedEl.innerHTML = filteredUnassigned.map(k => {
             const r = runners.get(k);
             if(!r) return '';
-            return `<div style="display:inline-flex;align-items:center;gap:5px;background:#1e293b;border-radius:8px;padding:4px 10px;font-size:.78rem;cursor:pointer;border:1px solid #334155" onclick="showAssignMenu(event,'${k}')">
-              <span style="color:#e2e8f0">${r.label}</span>
-              <span style="color:#475569;font-size:.7rem">▾</span>
+            // Highlight do termo buscado no nome
+            let labelHl = r.label;
+            let nipHl = r.nip;
+            if(q){
+              const hiStyle = 'background:#0ea5e9;color:#fff;border-radius:3px;padding:0 2px';
+              const esc = q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+              const rx = new RegExp('('+esc+')','gi');
+              labelHl = r.label.replace(rx, '<mark style="'+hiStyle+'">$1</mark>');
+              nipHl   = r.nip.replace(rx,   '<mark style="'+hiStyle+'">$1</mark>');
+            }
+            return `<div style="display:inline-flex;flex-direction:column;align-items:flex-start;gap:1px;background:#f0f4f8;border-radius:8px;padding:5px 10px;font-size:.78rem;cursor:pointer;border:1px solid #c0d0df;transition:border-color .15s" onclick="showAssignMenu(event,'${k}')" onmouseover="this.style.borderColor='#17a876'" onmouseout="this.style.borderColor='#c0d0df'">
+              <span style="color:#1b3a52;font-weight:600">${labelHl} <span style="color:#475569;font-size:.7rem">▾</span></span>
+              <span style="color:#6b8fa8;font-size:.7rem;font-family:monospace">${nipHl}</span>
             </div>`;
           }).join('');
+      }
 
       // Pelotões
       const grid = document.getElementById('pelotaoGrid');
@@ -1151,12 +1267,12 @@
           <div class="pelotao-header">
             <span class="pelotao-label">${p.name}</span>
             <span class="pelotao-count">${p.memberKeys.length} participante${p.memberKeys.length!==1?'s':''}${locked?' · 🔒 Iniciado':''}</span>
-            ${!locked && !p.memberKeys.length ? `<button onclick="deletePelotao('${p.id}')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:.8rem;padding:2px 6px">🗑</button>` : ''}
+            ${!locked && !p.memberKeys.length ? `<button onclick="deletePelotao('${p.id}')" style="background:none;border:none;color:#d04040;cursor:pointer;font-size:.8rem;padding:2px 6px">🗑</button>` : ''}
           </div>
           <div class="pelotao-body">
-            ${members || '<span style="color:#334155;font-size:.78rem">Arraste ou clique nos participantes acima</span>'}
+            ${members || '<span style="color:#8aaac0;font-size:.78rem">Clique nos participantes acima para adicionar ao pelotão</span>'}
             ${!locked ? `<div style="padding:4px 0">
-              <select onchange="if(this.value){assignToPelotao(this.value,'${p.id}');this.value=''}" style="width:100%;background:#0b1220;border:1px dashed #334155;border-radius:8px;padding:5px 8px;color:#475569;font-size:.78rem;outline:none">
+              <select onchange="if(this.value){assignToPelotao(this.value,'${p.id}');this.value=''}" style="width:100%;background:#f8fafc;border:1px dashed #c0d0df;border-radius:8px;padding:5px 8px;color:#6b8fa8;font-size:.78rem;outline:none">
                 <option value="">+ Adicionar participante…</option>
                 ${allKeys.filter(k=>!inAnyPelotao.has(k)).map(k=>{ const r=runners.get(k); return r?`<option value="${k}">#${r.seqNum} ${r.label}</option>`:''; }).join('')}
               </select>
@@ -1182,12 +1298,12 @@
       if(!pelotoes.length){ alert('Crie ao menos um pelotão primeiro.'); return; }
       const dd = document.createElement('div');
       dd.id = '_assignDropdown';
-      dd.style.cssText = 'position:fixed;z-index:9999;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:6px;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,0.5)';
+      dd.style.cssText = 'position:fixed;z-index:9999;background:#ffffff;border:1px solid #c0d0df;border-radius:10px;padding:6px;min-width:160px;box-shadow:0 4px 20px rgba(0,0,0,0.12)';
       dd.style.left = Math.min(e.clientX, window.innerWidth-180)+'px';
       dd.style.top  = Math.min(e.clientY+8, window.innerHeight-200)+'px';
       dd.innerHTML = pelotoes.filter(p=>!p.started).map(p =>
-        `<div onclick="assignToPelotao('${nipKey}','${p.id}');document.getElementById('_assignDropdown')?.remove()" style="padding:6px 10px;border-radius:7px;cursor:pointer;font-size:.82rem;color:#e2e8f0;transition:background .1s" onmouseover="this.style.background='#334155'" onmouseout="this.style.background=''">${p.name}</div>`
-      ).join('') || '<div style="padding:6px 10px;color:#475569;font-size:.8rem">Nenhum pelotão disponível</div>';
+        `<div onclick="assignToPelotao('${nipKey}','${p.id}');document.getElementById('_assignDropdown')?.remove()" style="padding:6px 10px;border-radius:7px;cursor:pointer;font-size:.82rem;color:#1b3a52;transition:background .1s" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background=''">${p.name}</div>`
+      ).join('') || '<div style="padding:6px 10px;color:#8aaac0;font-size:.8rem">Nenhum pelotão disponível</div>';
       document.body.appendChild(dd);
       setTimeout(() => document.addEventListener('click', () => dd.remove(), {once:true}), 10);
     }
@@ -1197,30 +1313,73 @@
       // Remove separadores antigos
       document.querySelectorAll('.pelotao-divider').forEach(el => el.remove());
       if(!pelotoes.length || !runners.size) return;
-      // Agrupar por pelotão na ordem da grid
-      const order = exportOrder();
-      const processed = new Set();
-      // Inserir separador antes do primeiro membro de cada pelotão
+
+      // Reordenar fisicamente os cards no DOM:
+      // Pelotão 1 → Pelotão 2 → ... → sem pelotão
+      const inAnyPelotao = new Set(pelotoes.flatMap(p => p.memberKeys));
+      const allKeys = [...runners.keys()];
+      const unassigned = allKeys.filter(k => !inAnyPelotao.has(k));
+
+      // Mover cards para a ordem correta
+      pelotoes.forEach(p => {
+        p.memberKeys.forEach(k => {
+          const r = runners.get(k);
+          if(r && r.cardEl) grid.appendChild(r.cardEl);
+        });
+      });
+      unassigned.forEach(k => {
+        const r = runners.get(k);
+        if(r && r.cardEl) grid.appendChild(r.cardEl);
+      });
+
+      // Inserir divisores antes do primeiro membro de cada pelotão
+      const anyOtherRunning = pelotoes.some(pl => pl.started && !pl.finished);
       pelotoes.forEach(p => {
         if(!p.memberKeys.length) return;
-        const firstKey = p.memberKeys.find(k => order.includes(k));
-        if(!firstKey) return;
+        const firstKey = p.memberKeys[0];
         const r = runners.get(firstKey);
-        if(!r) return;
-        const cardEl = r.cardEl;
-        if(!cardEl) return;
+        if(!r || !r.cardEl) return;
         const divider = document.createElement('div');
         divider.className = 'pelotao-divider';
         const timerStr = p.started ? fmt(nowPelotaoMs(p)) : '--:--';
         const btnHtml = p.finished
-          ? `<span style="font-size:.75rem;color:#4ade80;font-weight:700">✓ Concluído</span>`
+          ? `<span style="font-size:.75rem;color:#17a876;font-weight:700">✓ Concluído</span>`
           : p.started
-            ? `<span style="font-size:.75rem;color:#f59e0b;font-weight:700">Em andamento</span>`
-            : `<button class="btn-iniciar-pelotao" onclick="iniciarPelotao('${p.id}')" ${pelotoes.some(pl=>pl.started&&!pl.finished)?' disabled':''}>▶ Iniciar</button>`;
+            ? `<span style="font-size:.75rem;color:#f59e0b;font-weight:700">▶ Em andamento</span>`
+            : `<button class="btn-iniciar-pelotao" onclick="iniciarPelotao('${p.id}')" ${anyOtherRunning?' disabled':''}>▶ Iniciar</button>`;
         divider.innerHTML = `<span class="pelotao-divider-label">${p.name}</span><div class="pelotao-divider-line"></div>${btnHtml}<span class="pelotao-divider-timer" id="disp-${p.id}">${timerStr}</span>`;
-        grid.insertBefore(divider, cardEl);
-        processed.add(p.id);
+        grid.insertBefore(divider, r.cardEl);
       });
+
+      updateGridColors();
+    }
+
+    // Renumera os cards na ordem visual: pelotão 1 → pelotão 2 → sem pelotão
+    function renumberRunners(){
+      const inAnyPelotao = new Set(pelotoes.flatMap(p => p.memberKeys));
+      const allKeys = [...runners.keys()];
+      const unassigned = allKeys.filter(k => !inAnyPelotao.has(k));
+
+      // Ordem: membros dos pelotões em sequência, depois sem pelotão
+      const ordered = [
+        ...pelotoes.flatMap(p => p.memberKeys),
+        ...unassigned
+      ];
+
+      let num = 1;
+      ordered.forEach(k => {
+        const r = runners.get(k);
+        if(!r) return;
+        const seqEl   = r.cardEl.querySelector('.runner-seq-num');
+        const seqCopy = r.cardEl.querySelector('.runner-seq-num-copy');
+        const label   = '#' + num;
+        if(seqEl)   seqEl.textContent   = label;
+        if(seqCopy) seqCopy.textContent = label;
+        // Atualiza seqNum para exportações e summary
+        r.seqNum = num;
+        num++;
+      });
+      renderSummary();
     }
 
     // Iniciar um pelotão
@@ -1232,11 +1391,30 @@
       if(prev){ alert('⚠️ '+prev.name+' ainda não foi finalizado. Aguarde.'); return; }
       if(!omConfirmado){ alert('⚠️ Confirme o Avaliador antes de iniciar.'); return; }
       if(!p.memberKeys.length){ alert('⚠️ Pelotão sem participantes.'); return; }
+
       p.started = true;
       p.running = true;
       p.startEpoch = performance.now();
       p.pausedAccum = 0;
       activePelotaoId = pid;
+
+      // Ligar cronômetro global associado ao pelotão
+      if(!running){
+        running = true;
+        startEpoch = performance.now();
+        pausedAccum = 0;
+        statusEl.textContent = 'Rodando — ' + p.name;
+        acquireWakeLock();
+        lockExtraPosBtns(true);
+        rafId = requestAnimationFrame(tick);
+        setStartLabel();
+      } else {
+        statusEl.textContent = 'Rodando — ' + p.name;
+      }
+
+      // Ocultar abas de cadastro durante a prova
+      setRaceMode(true);
+
       // Habilitar botões de volta dos membros
       p.memberKeys.forEach(k => {
         const r = runners.get(k);
@@ -1245,14 +1423,18 @@
         r.btnUndo.disabled = false; r.btnUndo.classList.remove('btn-disabled');
         r.btnDnf.disabled = false; r.btnDnf.classList.remove('btn-disabled');
       });
-      // Tick do pelotão
+
+      // Tick do pelotão (atualiza display do divider e do controle no timer)
       function tickP(){
         const dispEl = document.getElementById('disp-'+pid);
         if(dispEl) dispEl.textContent = fmt(nowPelotaoMs(p));
+        const ctrlEl = document.getElementById('disp-ctrl-'+pid);
+        if(ctrlEl) ctrlEl.textContent = fmt(nowPelotaoMs(p));
         if(p.running) p.rafId = requestAnimationFrame(tickP);
       }
       p.rafId = requestAnimationFrame(tickP);
       renderRunnersGrid();
+      renderPelotaoControls();
       saveLocalSession();
       checkPelotaoFinished(pid);
     }
@@ -1263,14 +1445,29 @@
       const allDone = p.memberKeys.every(k => {
         const r = runners.get(k);
         if(!r || r.dnf) return true;
-        const maxC = r.extraMetersSnap>0 ? r.lapsGoalSnap+1 : r.lapsGoalSnap;
+        // Usar snaps do runner — número total de cliques necessários
+        const goal  = r.lapsGoalSnap  !== undefined ? r.lapsGoalSnap  : lapsGoalByTab[r.tab];
+        const extra = r.extraMetersSnap !== undefined ? r.extraMetersSnap : TAB_CONFIG[r.tab].extraMeters;
+        const maxC  = extra > 0 ? goal + 1 : goal;
         return r.laps.length >= maxC;
       });
       if(allDone){
         p.finished = true;
-        p.running = false;
+        p.running  = false;
         if(p.rafId) cancelAnimationFrame(p.rafId);
+        // Parar cronômetro global quando último pelotão termina
+        const allPeloToesFinished = pelotoes.every(pl => pl.finished || !pl.started);
+        if(allPeloToesFinished && running){
+          pausedAccum = nowGlobalMs();
+          running = false;
+          statusEl.textContent = 'Concluído';
+          if(rafId) cancelAnimationFrame(rafId);
+          displayGlobal.textContent = fmt(pausedAccum);
+          releaseWakeLock();
+          setStartLabel();
+        }
         renderRunnersGrid();
+        renderPelotaoControls();
         saveLocalSession();
       }
     }
@@ -1309,13 +1506,13 @@
       const lapsDisp=document.getElementById('golaLapsDisplay');
       const addBtn=document.getElementById('btnAddRunnerGola');
       if(golaIsCaminhada){
-        btnC.style.background='#1e293b'; btnC.style.color='#64748b'; btnC.style.fontWeight='600';
+        btnC.style.background='#e8edf3'; btnC.style.color='#5a7a90'; btnC.style.fontWeight='600';
         btnW.style.background='#15803d'; btnW.style.color='#fff'; btnW.style.fontWeight='700';
         if(lapsDisp) lapsDisp.textContent='22 voltas + 90m';
         if(addBtn){ addBtn.dataset.tab='gola-caminhada'; addBtn.style.background='#15803d'; }
       } else {
         btnC.style.background='#0e7490'; btnC.style.color='#fff'; btnC.style.fontWeight='700';
-        btnW.style.background='#1e293b'; btnW.style.color='#64748b'; btnW.style.fontWeight='600';
+        btnW.style.background='#e8edf3'; btnW.style.color='#5a7a90'; btnW.style.fontWeight='600';
         if(lapsDisp) lapsDisp.textContent=TAB_CONFIG.gola.lapsGoal+' voltas + '+TAB_CONFIG.gola.extraMeters+'m';
         if(addBtn){ addBtn.dataset.tab='gola'; addBtn.style.background=''; }
       }
@@ -1504,6 +1701,14 @@
           TAB_CONFIG[tab].extraAtStart = (extraPos === 'inicio');
           lapsGoalByTab[tab]           = lapsGoal;
         });
+        // Atualizar snaps de participantes que ainda não têm voltas registradas
+        for(const [, r] of runners){
+          if(r.laps.length > 0) continue; // já correu — preservar snaps originais
+          const cfg = TAB_CONFIG[r.tab];
+          r.lapsGoalSnap    = cfg.lapsGoal;
+          r.extraMetersSnap = cfg.extraMeters;
+          r.extraAtStartSnap = cfg.extraAtStart !== false;
+        }
         omAvSetCompact(lapM, extraPosByTab);
         ['gola','naval','aluno','gola-caminhada'].forEach(tab => {
           const cfg = TAB_CONFIG[tab];
@@ -1573,6 +1778,9 @@
     // Torna os botões visíveis após confirmar o avaliador
     function showExtraPosBtns(){
       ['gola','naval','aluno','gola-caminhada'].forEach(tab => {
+        const btnTab = (tab === 'gola-caminhada') ? 'gola' : tab;
+        const btn = document.getElementById('btnExtraPos-' + btnTab);
+        if(btn) btn.style.display = '';
         updateExtraPosBtn(tab);
       });
     }
@@ -1581,7 +1789,9 @@
     function lockExtraPosBtns(locked){
       ['gola','naval','aluno'].forEach(tab => {
         const btn = document.getElementById('btnExtraPos-' + tab);
-        if(btn) btn.disabled = locked;
+        if(!btn) return;
+        btn.disabled = locked;
+        btn.style.display = locked ? 'none' : '';
       });
     }
 
@@ -1896,8 +2106,45 @@
     }
 
     function setRaceMode(on){
-      const ids=['omAvSection','tabsSection','trashContainer','modeSection'];
+      const ids=['omAvSection','tabsSection','trashContainer','modeSection','runnersActionBar'];
       ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display=on?'none':''; });
+    }
+
+    // Renderiza os botões de pelotão dentro do timer principal
+    function renderPelotaoControls(){
+      const wrap = document.getElementById('pelotaoControls');
+      const inner = document.getElementById('pelotaoControlsInner');
+      if(!wrap || !inner) return;
+      if(!pelotoes.length){ wrap.style.display='none'; return; }
+      wrap.style.display = '';
+      const anyRunning = pelotoes.some(pl => pl.started && !pl.finished);
+      inner.innerHTML = pelotoes.map(p => {
+        const timerTxt = p.started ? ` <span id="disp-ctrl-${p.id}" style="font-family:monospace;font-size:.85rem;color:#94a3b8">${fmt(nowPelotaoMs(p))}</span>` : '';
+        if(p.finished){
+          return `<div style="display:flex;align-items:center;gap:6px;background:#e8f8f2;border:1px solid #17a876;border-radius:10px;padding:6px 12px">
+            <span style="font-size:.8rem;font-weight:700;color:#17a876">&#x2713; ${p.name}</span>
+            <span id="disp-ctrl-${p.id}" style="font-family:monospace;font-size:.8rem;color:#17a876">${fmt(nowPelotaoMs(p))}</span>
+          </div>`;
+        }
+        if(p.started){
+          return `<div style="display:flex;align-items:center;gap:6px;background:#fff8e8;border:1px solid #e8a020;border-radius:10px;padding:6px 12px">
+            <span style="font-size:.8rem;font-weight:700;color:#b07010">&#x25B6; ${p.name}</span>
+            <span id="disp-ctrl-${p.id}" style="font-family:monospace;font-size:.85rem;color:#b07010">${fmt(nowPelotaoMs(p))}</span>
+          </div>`;
+        }
+        return `<button onclick="iniciarPelotao('${p.id}')"
+          ${anyRunning ? 'disabled' : ''}
+          style="display:flex;align-items:center;gap:6px;background:${anyRunning?'#f0f4f8':'#e8f8f2'};border:1px solid ${anyRunning?'#c0d0df':'#17a876'};border-radius:10px;padding:6px 14px;color:${anyRunning?'#8aaac0':'#17a876'};font-weight:700;font-size:.85rem;cursor:${anyRunning?'not-allowed':'pointer'};transition:background .15s">
+          &#x25B6; Iniciar ${p.name}
+        </button>`;
+      }).join('');
+      // Tick dos timers de controle
+      pelotoes.forEach(p => {
+        if(p.started && !p.finished){
+          const el = document.getElementById('disp-ctrl-'+p.id);
+          if(el) el.textContent = fmt(nowPelotaoMs(p));
+        }
+      });
     }
 
     function toggleLapsTables(){
@@ -1930,32 +2177,186 @@
       if(!omConfirmado){ showStartError('⚠️ Informe a Organização Militar antes de iniciar.'); return; }
       if(!avaliadorConfirmado){ showStartError('⚠️ Confirme o Avaliador antes de iniciar.'); return; }
       if(runners.size===0){ showStartError('⚠️ Adicione ao menos 1 participante antes de iniciar.'); return; }
-      // Se há pelotões configurados, bloquear início global e usar iniciarPelotao()
-      if(pelotoes.length > 0){ showStartError('⚠️ Pelotões configurados — use o botão "▶ Iniciar" de cada pelotão.'); return; }
-      running=true; startEpoch=performance.now(); statusEl.textContent='Rodando';
+
+      // Se há pelotões, o botão Iniciar/Retomar retoma o pelotão que estava ativo pausado
+      if(pelotoes.length > 0){
+        const activePelotao = activePelotaoId ? getPelotaoById(activePelotaoId) : null;
+        if(!activePelotao || !activePelotao.started || activePelotao.finished){
+          showStartError('⚠️ Pelotões configurados — use o botão "▶ Iniciar" de cada pelotão.'); return;
+        }
+        // Retomar pelotão pausado
+        activePelotao.startEpoch = performance.now();
+        activePelotao.running = true;
+        function tickP(){
+          const dispEl = document.getElementById('disp-'+activePelotaoId);
+          if(dispEl) dispEl.textContent = fmt(nowPelotaoMs(activePelotao));
+          const ctrlEl = document.getElementById('disp-ctrl-'+activePelotaoId);
+          if(ctrlEl) ctrlEl.textContent = fmt(nowPelotaoMs(activePelotao));
+          if(activePelotao.running) activePelotao.rafId = requestAnimationFrame(tickP);
+        }
+        activePelotao.rafId = requestAnimationFrame(tickP);
+        statusEl.textContent = 'Rodando — ' + activePelotao.name;
+      } else {
+        statusEl.textContent = 'Rodando';
+      }
+
+      running=true; startEpoch=performance.now();
       acquireWakeLock();
       lockExtraPosBtns(true);
       setRaceMode(true);
       updateLapButtonsState(); setStartLabel(); rafId=requestAnimationFrame(tick);
     }
-    function pause(){if(!running) return; pausedAccum=nowGlobalMs(); running=false; statusEl.textContent='Pausado'; if(rafId) cancelAnimationFrame(rafId); displayGlobal.textContent=fmt(pausedAccum); releaseWakeLock(); updateLapButtonsState(); setStartLabel()}
-    function resetAll(){
-      if(runners.size>0||pausedAccum>0){
-        if(!confirm('Zerar apagará todos os participantes e reiniciará o cronômetro.\nOs dados salvos serão mantidos e poderão ser restaurados.\nConfirma?')) return;
+    function pause(){
+      // Pausar pelotão ativo se houver
+      const activePelotao = activePelotaoId ? getPelotaoById(activePelotaoId) : null;
+      if(activePelotao && activePelotao.running && !activePelotao.finished){
+        activePelotao.pausedAccum = nowPelotaoMs(activePelotao);
+        activePelotao.running = false;
+        if(activePelotao.rafId) cancelAnimationFrame(activePelotao.rafId);
       }
+      // Pausar cronômetro global
+      if(!running) return;
+      pausedAccum = nowGlobalMs();
+      running = false;
+      statusEl.textContent = 'Pausado';
+      if(rafId) cancelAnimationFrame(rafId);
+      displayGlobal.textContent = fmt(pausedAccum);
       releaseWakeLock();
-      _sessionRestoring = true; // bloqueia saves parciais durante remoção
+      updateLapButtonsState();
+      setStartLabel();
+    }
+    // ── Falso start: zera só o tempo/voltas do pelotão ativo ─────────────────
+    function _doFalsoStart(){
+      const activePelotao = activePelotaoId ? getPelotaoById(activePelotaoId) : null;
+      if(activePelotao){
+        activePelotao.started = false; activePelotao.finished = false;
+        activePelotao.running = false; activePelotao.pausedAccum = 0; activePelotao.startEpoch = 0;
+        if(activePelotao.rafId) cancelAnimationFrame(activePelotao.rafId);
+        activePelotao.memberKeys.forEach(k => {
+          const r = runners.get(k);
+          if(!r) return;
+          r.laps = []; r.lastMarkMs = 0; r.score = null; r.state = 'normal';
+          r.cardEl.classList.remove('almost-finish','finished','dnf','flash');
+          r.dnf = false;
+          r.btnLap.disabled = true; r.btnLap.classList.add('btn-disabled');
+          r.btnUndo.disabled = true; r.btnUndo.classList.add('btn-disabled');
+          r.btnDnf.disabled = true; r.btnDnf.classList.add('btn-disabled');
+          const scoreEl = r.cardEl.querySelector('.runner-score');
+          if(scoreEl){ scoreEl.textContent = ''; scoreEl.style.color = ''; }
+          const projEl = r.cardEl.querySelector('.runner-projection');
+          if(projEl){ projEl.textContent = ''; projEl.classList.add('hidden'); }
+          r.lapsCountEl.textContent = '0';
+          r.table.tbody.innerHTML = '';
+        });
+      }
+      if(running){ running=false; if(rafId) cancelAnimationFrame(rafId); }
+      pausedAccum=0; startEpoch=0;
+      displayGlobal.textContent=fmt(0); statusEl.textContent='Parado';
+      releaseWakeLock(); setRaceMode(false);
+      renderRunnersGrid(); renderPelotaoControls();
+      updateLapButtonsState(); setStartLabel(); renderSummary();
+      saveLocalSession();
+    }
+
+    // ── Zerar tudo: apaga tudo ─────────────────────────────────────────────
+    function _doZerarTudo(){
+      releaseWakeLock();
+      _sessionRestoring = true;
       running=false; pausedAccum=0; startEpoch=0; statusEl.textContent='Parado';
       if(rafId) cancelAnimationFrame(rafId);
       displayGlobal.textContent=fmt(0);
       for(const [l] of [...runners]) removeRunner(l);
       runnerSeqGlobal=0;
+      pelotoes.forEach(p => { if(p.rafId) cancelAnimationFrame(p.rafId); });
+      pelotoes=[]; pelotaoSeq=0; runnerPelotaoMap.clear(); activePelotaoId=null;
       omConfirmado=''; avaliadorConfirmado=''; omAvSetEdit();
       setRaceMode(false);
-      _sessionRestoring = false; // libera — mas NÃO salva (sessão foi zerada intencionalmente)
+      _sessionRestoring = false;
       updateLapButtonsState(); setStartLabel(); renderSummary();
+      renderPelotaoControls();
     }
 
+    // ── Botão Zerar (cronômetro): apenas falso start quando prova ativa ───────
+    function resetAll(){
+      const temDados = runners.size > 0 || pausedAccum > 0;
+      if(!temDados) return;
+      const temPelotaoIniciado = pelotoes.some(p => p.started);
+      if(temPelotaoIniciado){
+        if(!confirm('Falso start — zerar o tempo do pelotão atual?\nParticipantes e pelotões são mantidos.')) return;
+        _doFalsoStart();
+        return;
+      }
+      // Sem prova ativa: redirecionar para o botão Zerar tudo no card do avaliador
+      showZerarModal();
+    }
+
+    // ── Modal de Zerar tudo com contador de 3s ─────────────────────────────
+    window._zerarTimerInterval = null;
+    function showZerarModal(){
+      const modal      = document.getElementById('zerarModal');
+      const arc        = document.getElementById('zerarArc');
+      const numEl      = document.getElementById('zerarTimerNum');
+      const confirmBtn = document.getElementById('zerarConfirmBtn');
+      const wrap       = document.getElementById('zerarTimerWrap');
+      if(!modal) return;
+
+      // Reset visual
+      arc.style.transition = 'none';
+      arc.style.stroke = '#f0b8b8';
+      arc.style.strokeDashoffset = '0';
+      numEl.textContent = '3';
+      confirmBtn.disabled = true;
+      confirmBtn.style.background = '#f0f4f8';
+      confirmBtn.style.color = '#8aaac0';
+      confirmBtn.style.cursor = 'not-allowed';
+      confirmBtn.style.borderColor = '#d0dce8';
+      wrap.style.display = 'flex';
+      modal.style.display = 'flex';
+
+      let remaining = 3;
+      const circumference = 87.96;
+
+      arc.getBoundingClientRect(); // force reflow
+      arc.style.transition = 'stroke-dashoffset 1s linear';
+
+      if(window._zerarTimerInterval) clearInterval(window._zerarTimerInterval);
+      window._zerarTimerInterval = setInterval(() => {
+        remaining--;
+        numEl.textContent = remaining;
+        arc.style.strokeDashoffset = String(circumference * (1 - remaining / 3));
+        if(remaining <= 0){
+          clearInterval(_zerarTimerInterval);
+          wrap.style.display = 'none';
+          confirmBtn.disabled = false;
+          confirmBtn.style.background = '#fff0f0';
+          confirmBtn.style.color = '#a32d2d';
+          confirmBtn.style.cursor = 'pointer';
+          confirmBtn.style.borderColor = '#f0b8b8';
+        }
+      }, 1000);
+    }
+
+    // ── Wiring do modal de zerar ───────────────────────────────────────────
+    document.getElementById('zerarConfirmBtn')?.addEventListener('click', () => {
+      document.getElementById('zerarModal').style.display = 'none';
+      if(window._zerarTimerInterval) clearInterval(window._zerarTimerInterval);
+      _doZerarTudo();
+    });
+    document.getElementById('zerarCancelBtn')?.addEventListener('click', () => {
+      document.getElementById('zerarModal').style.display = 'none';
+      if(window._zerarTimerInterval) clearInterval(window._zerarTimerInterval);
+    });
+    document.getElementById('zerarModal')?.addEventListener('click', e => {
+      if(e.target === document.getElementById('zerarModal')){
+        document.getElementById('zerarModal').style.display = 'none';
+        if(window._zerarTimerInterval) clearInterval(window._zerarTimerInterval);
+      }
+    });
+
+    // ── Botão Zerar tudo no card do avaliador ─────────────────────────────
+    document.getElementById('btnZerarTudo')?.addEventListener('click', () => {
+      showZerarModal();
+    });
     document.getElementById('btnStart')?.addEventListener('click',start);
     document.getElementById('btnPause')?.addEventListener('click',pause);
     document.getElementById('btnReset')?.addEventListener('click',resetAll);
@@ -1983,7 +2384,7 @@
     // ======= Tabelas externas =======
     function createRunnerTable(label){
       const section=document.createElement('section');
-      section.className='bg-slate-900/60 border border-slate-800 rounded-2xl p-4 shadow-xl';
+      section.className='bg-white border border-gray-200 rounded-2xl p-4 shadow-xl';
       section.dataset.label=label;
 
       // Header row: title + toggle button
@@ -1991,7 +2392,7 @@
       header.className='flex items-center justify-between mb-2';
       const title=document.createElement('h4'); title.className='text-lg font-semibold'; title.textContent=label;
       const toggleBtn=document.createElement('button');
-      toggleBtn.className='text-slate-400 hover:text-slate-100 transition-colors px-2 py-0.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-bold select-none';
+      toggleBtn.className='text-gray-500 hover:text-gray-800 transition-colors px-2 py-0.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-bold select-none';
       toggleBtn.title='Expandir/recolher voltas';
       toggleBtn.textContent='+';
       toggleBtn.setAttribute('aria-expanded','false');
@@ -2001,7 +2402,7 @@
       const tableWrap=document.createElement('div');
       tableWrap.style.display='none'; // collapsed by default
       const table=document.createElement('table'); table.className='min-w-full text-sm';
-      const thead=document.createElement('thead'); thead.className='bg-slate-800/60';
+      const thead=document.createElement('thead'); thead.className='bg-gray-100';
       thead.innerHTML='<tr><th class="text-left px-3 py-1">#</th><th class="text-left px-3 py-1">Parcial</th><th class="text-left px-3 py-1">Marcação</th></tr>';
       const tbody=document.createElement('tbody'); tbody.className='lapsTbodyOuter';
       table.appendChild(thead); table.appendChild(tbody);
@@ -2019,7 +2420,7 @@
       return {section, tbody, title};
     }
 
-    const CARD_COLORS = ['#F2EFE8', '#9E9E9E'];
+    const CARD_COLORS = ['#ffffff', '#f5f8fb'];
     function updateGridColors(){
       const cards=[...grid.querySelectorAll('.runner-card')];
       cards.forEach((el,i)=>{
@@ -2068,7 +2469,7 @@
       const badge=frag.querySelector('.runner-tab-badge');
       if(badge){
         badge.textContent=TAB_CONFIG[tab].shortLabel||TAB_CONFIG[tab].label;
-        badge.style.background = tab==='gola' ? '#0e7490' : tab==='gola-caminhada' ? '#15803d' : tab==='naval' ? '#7c3aed' : '#ea580c';
+        badge.style.background = tab==='gola' ? '#17a876' : tab==='gola-caminhada' ? '#13906a' : tab==='naval' ? '#5060d0' : '#ea580c';
         badge.style.color = '#fff';
       }
 
@@ -2085,7 +2486,7 @@
 
       const seqEl=cardEl.querySelector('.runner-seq-num');
       const seqCopy=cardEl.querySelector('.runner-seq-num-copy');
-      const seqBg = tab==='gola' ? '#0e7490' : tab==='gola-caminhada' ? '#15803d' : tab==='naval' ? '#7c3aed' : '#ea580c';
+      const seqBg = tab==='gola' ? '#17a876' : tab==='gola-caminhada' ? '#13906a' : tab==='naval' ? '#5060d0' : '#ea580c';
       if(seqEl){ seqEl.textContent='#'+seqNum; seqEl.style.background=seqBg; }
       if(seqCopy){ seqCopy.textContent='#'+seqNum; seqCopy.style.background=seqBg; }
       const strip=cardEl.querySelector('.runner-top-strip'); if(strip) strip.style.background=seqBg;
@@ -2114,18 +2515,21 @@
         if(lapsLen===0) return '0';
         const hasExtra = extraMeters > 0;
         if(!hasExtra){
-          // Voltas exatas, sem segmento extra — cada clique = 1 volta
+          // Sem segmento extra — cada clique = 1 volta
           if(lapsLen >= goal) return goal+'✓';
           return String(lapsLen)+'/'+goal;
         }
         if(extraAtStart){
           // Extra primeiro, depois voltas — total de cliques = 1 + goal
+          // clique 1 = extra; cliques 2..goal+1 = voltas
           if(lapsLen >= goal+1) return goal+'✓';
-          if(lapsLen===1) return extraMeters+'m';
+          if(lapsLen === 1) return extraMeters+'m';
           return String(lapsLen-1)+'/'+goal;
         } else {
           // Voltas primeiro, extra no final — total de cliques = goal + 1
-          if(lapsLen > goal) return goal+'✓';
+          // cliques 1..goal = voltas; clique goal+1 = extra
+          if(lapsLen >= goal+1) return goal+'✓';         // completou tudo (goal+1 cliques)
+          if(lapsLen === goal) return extraMeters+'m';   // está no segmento extra (clique goal)
           return String(lapsLen)+'/'+goal;
         }
       }
@@ -2150,7 +2554,7 @@
         const maxC_s = runner.extraMetersSnap>0 ? goal_r+1 : goal_r;
         const minMs = getMinScoreMs(runner.tab, runner.sex, runner.age);
         const minTag = minMs !== null
-          ? `<span style="font-size:11px;background:rgba(220,38,38,0.13);color:#b91c1c;border-radius:6px;padding:2px 7px;font-weight:700;white-space:nowrap">Até: ${fmt(minMs)}</span>`
+          ? `<span style="font-size:11px;background:#fff0f0;color:#d04040;border-radius:6px;padding:2px 7px;font-weight:700;white-space:nowrap">Até: ${fmt(minMs)}</span>`
           : '';
         if(runner.laps.length >= maxC_s){
           // Finished — show final score
@@ -2175,7 +2579,7 @@
             const divider = minTag ? '<span style="color:#94a3b8;margin:0 4px">|</span>' : '';
             projEl.classList.remove('hidden');
             projEl.style.background = belowMin ? 'rgba(220,38,38,0.13)' : 'rgba(0,0,0,0.08)';
-            projEl.innerHTML=`<span style="color:#000;font-weight:700">Projeção: </span><strong style="color:${col}">${s!==null?s:'—'}</strong><span style="color:#000;font-weight:700"> · pace ${pace}/volta</span>${divider}${minTag}`;
+            projEl.innerHTML=`<span style="color:#1b3a52;font-weight:700">Projeção: </span><strong style="color:${col}">${s!==null?s:'—'}</strong><span style="color:#1b3a52;font-weight:700"> · pace ${pace}/volta</span>${divider}${minTag}`;
           }
         } else {
           // Not started yet — show only minTag
@@ -2366,9 +2770,9 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
       const when=new Date().toLocaleString();
       const lapsTables=document.getElementById('lapsTables');
       const summarySection=document.getElementById('summarySection');
-      const css=`body{font-family:'League Spartan',system-ui,-apple-system,Segoe UI,Roboto,Arial,'Noto Sans',sans-serif;padding:24px;color:#0b1220}
+      const css=`body{font-family:'League Spartan',system-ui,-apple-system,Segoe UI,Roboto,Arial,'Noto Sans',sans-serif;padding:24px;color:#1b3a52}
         h1{font-size:20px;margin:0 0 8px}
-        .meta{font-size:12px;color:#334155;margin:0 0 16px}
+        .meta{font-size:12px;color:#5a7a90;margin:0 0 16px}
         section{break-inside:avoid-page;margin:0 0 20px;padding:12px;border:1px solid #e5e7eb;border-radius:12px}
         h4{margin:0 0 10px}
         table{width:100%;border-collapse:separate;border-spacing:0}
@@ -2377,10 +2781,10 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
         .note{font-size:11px;color:#64748b;margin-top:6px}
         @media print{@page{margin:12mm}body{padding:0}}
       `;
-      const html=`<!doctype html><html><head><meta charset="utf-8"><title>Relatório de Voltas — TAF-TECH</title>
+      const html=`<!doctype html><html><head><meta charset="utf-8"><title>Relatório de Voltas — TROPA PACE</title>
         <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;700&display=swap" rel="stylesheet">
         <style>${css}</style></head><body>
-        <h1>Relatório de Voltas — TAF-TECH</h1>
+        <h1>Relatório de Voltas — TROPA PACE</h1>
         <p class="meta">Gerado em ${when}</p>
         <section>
           <h4>Tabelas de Parciais</h4>
@@ -2398,10 +2802,10 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
         <button class="taf-modal-close" onclick="closeImportModal()">✕</button>
       </div>
       <!-- Área de upload -->
-      <div id="importUploadArea" style="border:2px dashed #334155;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s" onclick="document.getElementById('csvFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='#38bdf8'" ondragleave="this.style.borderColor='#334155'" ondrop="handleCsvDrop(event)">
+      <div id="importUploadArea" style="border:2px dashed #c0d0df;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;background:#f8fafc" onclick="document.getElementById('csvFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='#17a876'" ondragleave="this.style.borderColor='#c0d0df'" ondrop="handleCsvDrop(event)">
         <div style="font-size:2rem;margin-bottom:6px">📂</div>
-        <p style="color:#94a3b8;font-size:.9rem;margin:0">Clique ou arraste um arquivo <strong style="color:#38bdf8">.csv</strong></p>
-        <p style="color:#475569;font-size:.75rem;margin:4px 0 0">Colunas: nip, nome, corpo, nascimento (DD/MM/AAAA)</p>
+        <p style="color:#94a3b8;font-size:.9rem;margin:0">Clique ou arraste um arquivo <strong style="color:#17a876">.csv</strong></p>
+        <p style="color:#8aaac0;font-size:.75rem;margin:4px 0 0">Colunas: nip, nome, corpo, nascimento (DD/MM/AAAA), sexo (M/F)</p>
       </div>
       <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleCsvFile(this.files[0])">
       <!-- Dica modelo de planilha -->
@@ -2415,21 +2819,29 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
       <!-- Filtro + selectAll -->
       <div id="importControls" style="display:none;gap:8px;flex-direction:column">
         <div style="display:flex;gap:8px;align-items:center">
-          <input id="importSearch" type="text" placeholder="Filtrar por nome ou NIP…" oninput="filterImportList()" style="flex:1;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:7px 12px;color:#e2e8f0;font-size:.85rem;outline:none">
+          <div style="position:relative;flex:1">
+            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.9rem;pointer-events:none">🔍</span>
+            <input id="importSearch" type="text" placeholder="Filtrar por nome ou NIP…" oninput="filterImportList()" autocomplete="off"
+              style="width:100%;box-sizing:border-box;background:#f8fafc;border:1px solid #c0d0df;border-radius:10px;padding:7px 12px 7px 32px;color:#1b3a52;font-size:.85rem;outline:none">
+          </div>
+          <span id="importFilterCount" style="font-size:.75rem;color:#8aaac0;white-space:nowrap;flex-shrink:0"></span>
           <label style="font-size:.8rem;color:#94a3b8;display:flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap">
             <input type="checkbox" id="importSelectAll" onchange="toggleSelectAll(this.checked)" style="accent-color:#0ea5e9">Todos
           </label>
         </div>
-        <div id="importList" class="taf-modal-scroll" style="max-height:280px;border:1px solid #1e293b;border-radius:10px;padding:4px"></div>
+        <div id="importList" class="taf-modal-scroll" style="max-height:300px;border:1px solid #e0eaf2;border-radius:10px;padding:4px"></div>
+        <div id="importShowMore" style="display:none;text-align:center">
+          <button onclick="importShowMoreRows()" style="font-size:.78rem;color:#38bdf8;background:none;border:none;cursor:pointer;padding:4px 8px">Mostrar mais…</button>
+        </div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-          <span id="importSelCount" style="font-size:.8rem;color:#64748b">0 selecionados</span>
+          <span id="importSelCount" style="font-size:.8rem;color:#6b8fa8">0 selecionados</span>
           <div style="display:flex;gap:8px">
-            <button onclick="downloadCsvModelo()" style="padding:7px 14px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#94a3b8;font-size:.8rem;font-weight:700;cursor:pointer">⬇ Modelo CSV</button>
-            <button id="btnConfirmImport" onclick="confirmImport()" style="padding:7px 18px;border-radius:10px;background:#0369a1;border:none;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer">✓ Adicionar selecionados</button>
+            <button onclick="downloadCsvModelo()" style="padding:7px 14px;border-radius:10px;background:#f0f4f8;border:1px solid #c0d0df;color:#4a7a9b;font-size:.8rem;font-weight:700;cursor:pointer">⬇ Modelo CSV</button>
+            <button id="btnConfirmImport" onclick="confirmImport()" style="padding:7px 18px;border-radius:10px;background:#17a876;border:none;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer">✓ Adicionar selecionados</button>
           </div>
         </div>
       </div>
-      <p id="importError" style="color:#fca5a5;font-size:.8rem;font-weight:700;min-height:1rem;margin:0"></p>
+      <p id="importError" style="color:#d04040;font-size:.8rem;font-weight:700;min-height:1rem;margin:0"></p>
     </div>
   </div>
 
@@ -2443,14 +2855,22 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
       <p style="color:#64748b;font-size:.8rem;margin:0">Selecione participantes e adicione ao pelotão desejado. Pelotões iniciados ficam bloqueados.</p>
       <!-- Não alocados -->
       <div>
-        <p style="font-size:.8rem;font-weight:700;color:#94a3b8;margin:0 0 6px">Sem pelotão</p>
-        <div id="pelotaoUnassigned" style="display:flex;flex-wrap:wrap;gap:6px;min-height:36px;background:#0b1220;border-radius:10px;padding:8px;border:1px solid #1e293b"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <p style="font-size:.8rem;font-weight:700;color:#94a3b8;margin:0;flex-shrink:0">Sem pelotão</p>
+          <div style="position:relative;flex:1">
+            <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:.8rem;pointer-events:none">🔍</span>
+            <input id="pelotaoSearch" type="text" placeholder="Filtrar por nome ou NIP…" oninput="renderPelotaoModal()" autocomplete="off"
+              style="width:100%;box-sizing:border-box;background:#f8fafc;border:1px solid #c0d0df;border-radius:8px;padding:5px 10px 5px 26px;color:#1b3a52;font-size:.78rem;outline:none">
+          </div>
+          <span id="pelotaoSearchCount" style="font-size:.72rem;color:#475569;white-space:nowrap;flex-shrink:0"></span>
+        </div>
+        <div id="pelotaoUnassigned" style="display:flex;flex-wrap:wrap;gap:6px;min-height:36px;background:#f8fafc;border-radius:10px;padding:8px;border:1px solid #e0eaf2"></div>
       </div>
       <!-- Grid de pelotões -->
       <div id="pelotaoGrid" class="taf-modal-scroll" style="display:flex;flex-direction:column;gap:12px;max-height:340px"></div>
       <!-- Rodapé -->
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <button onclick="addPelotao()" style="padding:7px 14px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#38bdf8;font-size:.85rem;font-weight:700;cursor:pointer">+ Novo pelotão</button>
+        <button onclick="addPelotao()" style="padding:7px 14px;border-radius:10px;background:#f0f4f8;border:1px solid #c0d0df;color:#5060d0;font-size:.85rem;font-weight:700;cursor:pointer">+ Novo pelotão</button>
         <button onclick="closePelotaoModal()" style="padding:7px 18px;border-radius:10px;background:#0369a1;border:none;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer;margin-left:auto">✓ Confirmar</button>
       </div>
     </div>
@@ -2509,20 +2929,20 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
       const tbody = document.getElementById('scoreModalTbody');
       if(modalTab === 'gola-caminhada'){
         const table = SCORING_CAMINHADA[modalSex];
-        thead.innerHTML = `<tr class="bg-slate-800"><th class="px-3 py-2 text-left rounded-tl-lg">Idade</th><th class="px-3 py-2" style="color:#f59e0b">50</th><th class="px-3 py-2" style="color:#f59e0b">60</th><th class="px-3 py-2" style="color:#3b82f6">70</th><th class="px-3 py-2" style="color:#3b82f6">80</th><th class="px-3 py-2" style="color:#16a34a">90</th><th class="px-3 py-2 rounded-tr-lg" style="color:#16a34a">100</th></tr>`;
+        thead.innerHTML = `<tr class="bg-gray-100"><th class="px-3 py-2 text-left rounded-tl-lg">Idade</th><th class="px-3 py-2" style="color:#f59e0b">50</th><th class="px-3 py-2" style="color:#f59e0b">60</th><th class="px-3 py-2" style="color:#3b82f6">70</th><th class="px-3 py-2" style="color:#3b82f6">80</th><th class="px-3 py-2" style="color:#16a34a">90</th><th class="px-3 py-2 rounded-tr-lg" style="color:#16a34a">100</th></tr>`;
         tbody.innerHTML = table.map((row,i)=>{
           const ag=row.max>=999?'>'+row.min+' anos':row.min+' a '+row.max+' anos';
-          const bg=i%2===0?'bg-slate-800/30':'';
-          return `<tr class="${bg}"><td class="px-3 py-2 font-semibold text-slate-300 whitespace-nowrap">${ag}</td><td class="px-3 py-2 text-center font-semibold" style="color:#f59e0b">${fmtSecs(row.t50)}</td><td class="px-3 py-2 text-center font-semibold" style="color:#f59e0b">${fmtSecs(row.t60)}</td><td class="px-3 py-2 text-center font-semibold" style="color:#3b82f6">${fmtSecs(row.t70)}</td><td class="px-3 py-2 text-center font-semibold" style="color:#3b82f6">${fmtSecs(row.t80)}</td><td class="px-3 py-2 text-center font-semibold" style="color:#16a34a">${fmtSecs(row.t90)}</td><td class="px-3 py-2 text-center font-bold" style="color:#16a34a">${fmtSecs(row.t100)}</td></tr>`;
+          const bg=i%2===0?'bg-gray-50':'';
+          return `<tr class="${bg}"><td class="px-3 py-2 font-semibold text-gray-600 whitespace-nowrap">${ag}</td><td class="px-3 py-2 text-center font-semibold" style="color:#f59e0b">${fmtSecs(row.t50)}</td><td class="px-3 py-2 text-center font-semibold" style="color:#f59e0b">${fmtSecs(row.t60)}</td><td class="px-3 py-2 text-center font-semibold" style="color:#3b82f6">${fmtSecs(row.t70)}</td><td class="px-3 py-2 text-center font-semibold" style="color:#3b82f6">${fmtSecs(row.t80)}</td><td class="px-3 py-2 text-center font-semibold" style="color:#16a34a">${fmtSecs(row.t90)}</td><td class="px-3 py-2 text-center font-bold" style="color:#16a34a">${fmtSecs(row.t100)}</td></tr>`;
         }).join('');
         return;
       }
       if(modalTab === 'aluno'){
         const tbl = SCORING_ALUNO[modalSex];
-        thead.innerHTML = `<tr class="bg-slate-800">
+        thead.innerHTML = `<tr class="bg-gray-100">
           <th class="px-3 py-2 text-left rounded-tl-lg">Idade</th>
           <th class="px-3 py-2 rounded-tr-lg" colspan="21">Nota → Tempo máximo</th>
-        </tr><tr class="bg-slate-800/60">
+        </tr><tr class="bg-gray-100">
           <th class="px-3 py-2 text-left">Faixa</th>
           ${[10,9.5,9,8.5,8,7.5,7,6.5,6,5.5,5,4.5,4,3.5,3,2.5,2,1.5,1,0.5,0].map(s=>{
             const col = s>=8 ? '#16a34a' : s>=6 ? '#3b82f6' : s>=5 ? '#f59e0b' : '#dc2626';
@@ -2531,8 +2951,8 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
         </tr>`;
         tbody.innerHTML = tbl.map((row,i) => {
           const ageLabel = row.max>=999 ? '>'+row.min+' anos' : row.min+' a '+row.max+' anos';
-          const bg = i%2===0 ? 'bg-slate-800/30' : '';
-          return '<tr class="'+bg+'"><td class="px-3 py-2 font-semibold text-slate-300 whitespace-nowrap">'+ageLabel+'</td>'
+          const bg = i%2===0 ? 'bg-gray-50' : '';
+          return '<tr class="'+bg+'"><td class="px-3 py-2 font-semibold text-gray-600 whitespace-nowrap">'+ageLabel+'</td>'
             + row.entries.map(e => {
                 const col = e.s>=8 ? '#16a34a' : e.s>=6 ? '#3b82f6' : e.s>=5 ? '#f59e0b' : '#dc2626';
                 const disp = e.s===0 ? '—' : fmtSecs(e.ms);
@@ -2543,7 +2963,7 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
         return;
       }
       const table = SCORING[modalTab][modalSex];
-      thead.innerHTML = `<tr class="bg-slate-800">
+      thead.innerHTML = `<tr class="bg-gray-100">
         <th class="px-3 py-2 text-left rounded-tl-lg">Idade</th>
         <th class="px-3 py-2">50</th>
         <th class="px-3 py-2">60</th>
@@ -2554,9 +2974,9 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
       </tr>`;
       tbody.innerHTML = table.map((row,i) => {
         const ageLabel = row.max>=999 ? '>'+row.min+' anos' : row.min+' a '+row.max+' anos';
-        const bg = i%2===0 ? 'bg-slate-800/30' : '';
+        const bg = i%2===0 ? 'bg-gray-50' : '';
         return `<tr class="${bg}">
-          <td class="px-3 py-2 font-semibold text-slate-300 whitespace-nowrap">${ageLabel}</td>
+          <td class="px-3 py-2 font-semibold text-gray-600 whitespace-nowrap">${ageLabel}</td>
           <td class="px-3 py-2 text-center font-semibold" style="color:#f59e0b">${fmtSecs(row.t50)}</td>
           <td class="px-3 py-2 text-center font-semibold" style="color:#f59e0b">${fmtSecs(row.t60)}</td>
           <td class="px-3 py-2 text-center font-semibold" style="color:#3b82f6">${fmtSecs(row.t70)}</td>
@@ -2573,7 +2993,7 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
       document.querySelectorAll('.modal-tab-btn').forEach(b=>{
         const _idMap={gola:'modalTabGola',naval:'modalTabNaval',aluno:'modalTabAluno','gola-caminhada':'modalTabGolaCaminhada'};
         const isActive = b.id===(_idMap[tab]||'');
-        b.style.background = isActive ? (colors[tab]||'#0f766e') : '#334155';
+        b.style.background = isActive ? (colors[tab]||'#17a876') : '#334155';
         b.style.color = isActive ? '#fff' : '#94a3b8';
       });
       renderScoreModal();
@@ -2583,7 +3003,7 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
       modalSex=sex;
       document.querySelectorAll('.modal-sex-btn').forEach(b=>{
         const isActive = b.id==='modalSex'+sex;
-        b.style.background = isActive ? '#0369a1' : '#334155';
+        b.style.background = isActive ? '#5060d0' : '#e8edf3';
         b.style.color = isActive ? '#fff' : '#94a3b8';
       });
       renderScoreModal();
@@ -2624,7 +3044,8 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
         if(lapsLen===1) return extraMeters+'m';
         return String(lapsLen-1)+'/'+goal;
       } else {
-        if(lapsLen > goal) return goal+'✓';
+        if(lapsLen >= goal+1) return goal+'✓';
+        if(lapsLen === goal) return extraMeters+'m';
         return String(lapsLen)+'/'+goal;
       }
     }
@@ -2639,12 +3060,19 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
     let _exitTimerInterval = null;
     let _exitPendingAction = null; // função a executar após confirmar
 
-    function showExitModal(onConfirm) {
+    function showExitModal(onConfirm, opts) {
       const modal     = document.getElementById('exitModal');
       const arc       = document.getElementById('exitTimerArc');
       const numEl     = document.getElementById('exitTimerNum');
       const msgEl     = document.getElementById('exitTimerMsg');
       const confirmBtn= document.getElementById('exitConfirmBtn');
+      const titleEl   = document.getElementById('exitModalTitle');
+
+      // Customizar textos se fornecidos
+      if(opts && opts.title)   titleEl.textContent = opts.title;
+      else                     titleEl.textContent = 'Sair da página?';
+      if(opts && opts.confirm) confirmBtn.textContent = opts.confirm;
+      else                     confirmBtn.textContent = 'Sair mesmo assim';
 
       // Reset visual
       const circumference = 188.5;
@@ -2761,8 +3189,8 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
         btn.disabled = true;
         btn.style.cursor = 'not-allowed';
         btn.style.opacity = '0.5';
-        btn.style.background = '#1e293b';
-        btn.style.borderColor = '#334155';
+        btn.style.background = '#e8edf3';
+        btn.style.borderColor = '#c0d0df';
         btn.style.color = '#94a3b8';
         btn.title = 'Nenhuma sessão salva encontrada';
       }
@@ -2941,7 +3369,7 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
         runnerSeqGlobal = d.runnerSeqGlobal || runnerSeqGlobal;
         _sessionRestoring = false; // libera saves normais
         updateLapButtonsState(); setStartLabel(); renderSummary();
-        if(pelotoes.length) setTimeout(renderRunnersGrid, 50);
+        if(pelotoes.length) setTimeout(()=>{ renderRunnersGrid(); renumberRunners(); renderPelotaoControls(); }, 50);
       }catch(e){ _sessionRestoring = false; console.warn('Erro ao restaurar sessao:', e); clearLocalSession(); }
     }
 
@@ -3087,10 +3515,10 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
         <button class="taf-modal-close" onclick="closeImportModal()">✕</button>
       </div>
       <!-- Área de upload -->
-      <div id="importUploadArea" style="border:2px dashed #334155;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s" onclick="document.getElementById('csvFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='#38bdf8'" ondragleave="this.style.borderColor='#334155'" ondrop="handleCsvDrop(event)">
+      <div id="importUploadArea" style="border:2px dashed #c0d0df;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;background:#f8fafc" onclick="document.getElementById('csvFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='#17a876'" ondragleave="this.style.borderColor='#c0d0df'" ondrop="handleCsvDrop(event)">
         <div style="font-size:2rem;margin-bottom:6px">📂</div>
-        <p style="color:#94a3b8;font-size:.9rem;margin:0">Clique ou arraste um arquivo <strong style="color:#38bdf8">.csv</strong></p>
-        <p style="color:#475569;font-size:.75rem;margin:4px 0 0">Colunas: nip, nome, corpo, nascimento (DD/MM/AAAA)</p>
+        <p style="color:#94a3b8;font-size:.9rem;margin:0">Clique ou arraste um arquivo <strong style="color:#17a876">.csv</strong></p>
+        <p style="color:#8aaac0;font-size:.75rem;margin:4px 0 0">Colunas: nip, nome, corpo, nascimento (DD/MM/AAAA), sexo (M/F)</p>
       </div>
       <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleCsvFile(this.files[0])">
       <!-- Dica modelo de planilha -->
@@ -3104,21 +3532,29 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
       <!-- Filtro + selectAll -->
       <div id="importControls" style="display:none;gap:8px;flex-direction:column">
         <div style="display:flex;gap:8px;align-items:center">
-          <input id="importSearch" type="text" placeholder="Filtrar por nome ou NIP…" oninput="filterImportList()" style="flex:1;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:7px 12px;color:#e2e8f0;font-size:.85rem;outline:none">
+          <div style="position:relative;flex:1">
+            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.9rem;pointer-events:none">🔍</span>
+            <input id="importSearch" type="text" placeholder="Filtrar por nome ou NIP…" oninput="filterImportList()" autocomplete="off"
+              style="width:100%;box-sizing:border-box;background:#f8fafc;border:1px solid #c0d0df;border-radius:10px;padding:7px 12px 7px 32px;color:#1b3a52;font-size:.85rem;outline:none">
+          </div>
+          <span id="importFilterCount" style="font-size:.75rem;color:#8aaac0;white-space:nowrap;flex-shrink:0"></span>
           <label style="font-size:.8rem;color:#94a3b8;display:flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap">
             <input type="checkbox" id="importSelectAll" onchange="toggleSelectAll(this.checked)" style="accent-color:#0ea5e9">Todos
           </label>
         </div>
-        <div id="importList" class="taf-modal-scroll" style="max-height:280px;border:1px solid #1e293b;border-radius:10px;padding:4px"></div>
+        <div id="importList" class="taf-modal-scroll" style="max-height:300px;border:1px solid #e0eaf2;border-radius:10px;padding:4px"></div>
+        <div id="importShowMore" style="display:none;text-align:center">
+          <button onclick="importShowMoreRows()" style="font-size:.78rem;color:#38bdf8;background:none;border:none;cursor:pointer;padding:4px 8px">Mostrar mais…</button>
+        </div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-          <span id="importSelCount" style="font-size:.8rem;color:#64748b">0 selecionados</span>
+          <span id="importSelCount" style="font-size:.8rem;color:#6b8fa8">0 selecionados</span>
           <div style="display:flex;gap:8px">
-            <button onclick="downloadCsvModelo()" style="padding:7px 14px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#94a3b8;font-size:.8rem;font-weight:700;cursor:pointer">⬇ Modelo CSV</button>
-            <button id="btnConfirmImport" onclick="confirmImport()" style="padding:7px 18px;border-radius:10px;background:#0369a1;border:none;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer">✓ Adicionar selecionados</button>
+            <button onclick="downloadCsvModelo()" style="padding:7px 14px;border-radius:10px;background:#f0f4f8;border:1px solid #c0d0df;color:#4a7a9b;font-size:.8rem;font-weight:700;cursor:pointer">⬇ Modelo CSV</button>
+            <button id="btnConfirmImport" onclick="confirmImport()" style="padding:7px 18px;border-radius:10px;background:#17a876;border:none;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer">✓ Adicionar selecionados</button>
           </div>
         </div>
       </div>
-      <p id="importError" style="color:#fca5a5;font-size:.8rem;font-weight:700;min-height:1rem;margin:0"></p>
+      <p id="importError" style="color:#d04040;font-size:.8rem;font-weight:700;min-height:1rem;margin:0"></p>
     </div>
   </div>
 
@@ -3132,19 +3568,62 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
       <p style="color:#64748b;font-size:.8rem;margin:0">Selecione participantes e adicione ao pelotão desejado. Pelotões iniciados ficam bloqueados.</p>
       <!-- Não alocados -->
       <div>
-        <p style="font-size:.8rem;font-weight:700;color:#94a3b8;margin:0 0 6px">Sem pelotão</p>
-        <div id="pelotaoUnassigned" style="display:flex;flex-wrap:wrap;gap:6px;min-height:36px;background:#0b1220;border-radius:10px;padding:8px;border:1px solid #1e293b"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <p style="font-size:.8rem;font-weight:700;color:#94a3b8;margin:0;flex-shrink:0">Sem pelotão</p>
+          <div style="position:relative;flex:1">
+            <span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:.8rem;pointer-events:none">🔍</span>
+            <input id="pelotaoSearch" type="text" placeholder="Filtrar por nome ou NIP…" oninput="renderPelotaoModal()" autocomplete="off"
+              style="width:100%;box-sizing:border-box;background:#f8fafc;border:1px solid #c0d0df;border-radius:8px;padding:5px 10px 5px 26px;color:#1b3a52;font-size:.78rem;outline:none">
+          </div>
+          <span id="pelotaoSearchCount" style="font-size:.72rem;color:#475569;white-space:nowrap;flex-shrink:0"></span>
+        </div>
+        <div id="pelotaoUnassigned" style="display:flex;flex-wrap:wrap;gap:6px;min-height:36px;background:#f8fafc;border-radius:10px;padding:8px;border:1px solid #e0eaf2"></div>
       </div>
       <!-- Grid de pelotões -->
       <div id="pelotaoGrid" class="taf-modal-scroll" style="display:flex;flex-direction:column;gap:12px;max-height:340px"></div>
       <!-- Rodapé -->
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <button onclick="addPelotao()" style="padding:7px 14px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#38bdf8;font-size:.85rem;font-weight:700;cursor:pointer">+ Novo pelotão</button>
+        <button onclick="addPelotao()" style="padding:7px 14px;border-radius:10px;background:#f0f4f8;border:1px solid #c0d0df;color:#5060d0;font-size:.85rem;font-weight:700;cursor:pointer">+ Novo pelotão</button>
         <button onclick="closePelotaoModal()" style="padding:7px 18px;border-radius:10px;background:#0369a1;border:none;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer;margin-left:auto">✓ Confirmar</button>
       </div>
     </div>
   </div>
 
+
+  <!-- ══ Modal Zerar Tudo ══ -->
+  <div id="zerarModal" onclick="if(event.target===this){this.style.display='none';if(window._zerarTimerInterval)clearInterval(window._zerarTimerInterval);}" style="display:none;position:fixed;inset:0;z-index:9996;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px">
+    <div style="background:#ffffff;border:1px solid #d0dce8;border-radius:20px;padding:28px 24px 20px;max-width:360px;width:100%;text-align:center">
+      <div style="width:44px;height:44px;border-radius:50%;background:#fff0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 3L17 16H3L10 3Z" stroke="#a32d2d" stroke-width="1.5" stroke-linejoin="round"/>
+          <line x1="10" y1="8" x2="10" y2="12" stroke="#a32d2d" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="10" cy="14" r="0.8" fill="#a32d2d"/>
+        </svg>
+      </div>
+      <h2 style="font-size:1.05rem;font-weight:700;color:#1b3a52;margin:0 0 6px">Zerar tudo?</h2>
+      <p style="font-size:.85rem;color:#5a7a90;line-height:1.6;margin:0 0 18px">
+        Apagará todos os participantes, pelotões e o cronômetro.<br>
+        A sessão atual fica salva e pode ser restaurada.
+      </p>
+      <div id="zerarTimerWrap" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px">
+        <div style="position:relative;width:36px;height:36px">
+          <svg width="36" height="36" viewBox="0 0 36 36" style="transform:rotate(-90deg)">
+            <circle cx="18" cy="18" r="14" fill="none" stroke="#e0eaf2" stroke-width="3"/>
+            <circle id="zerarArc" cx="18" cy="18" r="14" fill="none" stroke="#f0b8b8" stroke-width="3"
+              stroke-linecap="round" stroke-dasharray="87.96" stroke-dashoffset="0"/>
+          </svg>
+          <div id="zerarTimerNum" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#a32d2d">3</div>
+        </div>
+        <span style="font-size:12px;color:#8aaac0">aguarde para confirmar…</span>
+      </div>
+      <button id="zerarConfirmBtn" disabled onclick="if(!this.disabled){document.getElementById('zerarModal').style.display='none';if(window._zerarTimerInterval)clearInterval(window._zerarTimerInterval);_doZerarTudo();}" style="width:100%;padding:11px 0;border-radius:10px;font-size:.95rem;font-weight:700;background:#f0f4f8;color:#8aaac0;border:0.5px solid #d0dce8;cursor:not-allowed;margin-bottom:8px;transition:background .3s,color .3s">
+        Confirmar e apagar tudo
+      </button>
+      <button id="zerarCancelBtn" onclick="document.getElementById('zerarModal').style.display='none';if(window._zerarTimerInterval)clearInterval(window._zerarTimerInterval);" style="width:100%;padding:10px 0;border-radius:10px;font-size:.9rem;font-weight:600;background:transparent;color:#8aaac0;border:0.5px solid #d0dce8;cursor:pointer">
+        Cancelar
+      </button>
+    </div>
+  </div>
 
 </body>
 </html>
