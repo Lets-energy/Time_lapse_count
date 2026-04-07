@@ -1,7 +1,7 @@
 // TAF-TECH Service Worker
 // Cache-first para recursos estáticos, network-first para navegação
 
-const CACHE_NAME = 'taf-tech-v1';
+const CACHE_NAME = 'Tropa-pace';
 const BASE = '/Time_lapse_count/';
 
 // Recursos para cachear imediatamente na instalação
