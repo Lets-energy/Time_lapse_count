@@ -177,7 +177,7 @@
     }
     #btnInstallPwa.pwa-pulse {
       background: #17a876 !important;
-      border-color: #4ade80 !important;
+      border-color: #13906a !important;
       color: #fff !important;
       box-shadow: 0 0 0 0 rgba(23,168,118,0.5);
       animation: pwaPulse 2s infinite;
@@ -464,7 +464,7 @@
       <div style="font-size:2.8rem; margin-bottom:10px;">📲</div>
       <h2 style="font-size:1.15rem; font-weight:800; color:#1b3a52; margin-bottom:8px;">Instalar o TROPA PACE</h2>
       <p style="font-size:0.85rem; color:#5a7a90; line-height:1.6;">
-        Adicione o app à tela inicial do seu celular para acessar <strong style="color:#38bdf8;">offline</strong>, sem precisar de internet e sem abrir o navegador.
+        Adicione o app à tela inicial do seu celular para acessar <strong style="color:#17a876;">offline</strong>, sem precisar de internet e sem abrir o navegador.
       </p>
       <div style="display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap;">
         <span style="background:#f0f4f8; border-radius:10px; padding:6px 12px; font-size:0.78rem; color:#4a7a9b;">⚡ Rápido</span>
@@ -505,7 +505,7 @@
       <button id="btnInstallPwa"
         title="Instalar como app no celular"
         class="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap flex-shrink-0"
-        style="display:none; background:#0c4a6e; border-color:#0ea5e9; color:#38bdf8;">
+        style="display:none; background:#e8f8f2; border-color:#17a876; color:#17a876;">
         📲 <span class="hidden sm:inline">Instalar</span>
       </button>
       <!-- Botão restaurar -->
@@ -3394,7 +3394,7 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
     // ======= Registrar Service Worker (PWA / Offline) =======
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/Time_lapse_count/sw.js', { scope: '/Time_lapse_count/' })
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
           .then(reg => {
             console.log('[PWA] Service Worker registrado:', reg.scope);
             // Verifica atualização a cada 30 min
@@ -3443,6 +3443,46 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
         setTimeout(_showPwaModal, 2000);
       }
     });
+
+    // iOS Safari: não dispara beforeinstallprompt — detectar e mostrar instrução manual
+    const _isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const _isInStandaloneMode = ('standalone' in navigator) && navigator.standalone;
+    const _isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (_isIos && _isSafari && !_isInStandaloneMode && !localStorage.getItem(PWA_INSTALLED_KEY)) {
+      const iosBtn = document.getElementById('btnInstallPwa');
+      if (iosBtn) {
+        iosBtn.style.display = 'flex';
+        iosBtn.title = 'Adicionar à tela inicial';
+        iosBtn.addEventListener('click', () => {
+          const box = document.getElementById('pwaModalBox');
+          if (box) {
+            const d = document;
+          box.innerHTML =
+            '<div style="font-size:2rem;margin-bottom:10px">📲</div>' +
+            '<h2 style="font-size:1.1rem;font-weight:800;color:#1b3a52;margin-bottom:8px">Instalar no iPhone / iPad</h2>' +
+            '<p style="font-size:.85rem;color:#5a7a90;line-height:1.6;margin-bottom:12px">' +
+              'No Safari, toque em <strong style="color:#17a876">Compartilhar</strong> ' +
+              'e depois em <strong style="color:#17a876">Adicionar à Tela de Início</strong>.' +
+            '</p>' +
+            '<div style="background:#f0f4f8;border-radius:12px;padding:12px;font-size:.82rem;color:#4a7a9b;line-height:1.7;text-align:left">' +
+              '1. Toque em ⬆️ (botão Compartilhar)<br>' +
+              '2. Role para baixo e toque em <strong>Adicionar à Tela de Início</strong><br>' +
+              '3. Confirme com <strong>Adicionar</strong>' +
+            '</div>' +
+            '<button id="iosDismissBtn" style="width:100%;padding:11px 0;margin-top:16px;border-radius:12px;font-size:.95rem;font-weight:700;background:#17a876;color:#fff;border:none;cursor:pointer">Entendido</button>';
+          setTimeout(() => {
+            const b = d.getElementById('iosDismissBtn');
+            if(b) b.addEventListener('click', () => {
+              d.getElementById('pwaModal').classList.remove('show');
+              localStorage.setItem(PWA_SEEN_KEY, '1');
+            });
+          }, 50);
+          }
+          document.getElementById('pwaModal').classList.add('show');
+          localStorage.setItem(PWA_SEEN_KEY, '1');
+        });
+      }
+    }
 
     // Usuário instalou via SO (Android)
     window.addEventListener('appinstalled', () => {
