@@ -476,30 +476,29 @@
     </div>
   </div>
 
-  <!-- Modal de Download com notificação de primeira instalação -->
+  <!-- Modal de Instalação PWA com notificação de primeira instalação -->
   <div id="downloadModal" role="dialog" aria-modal="true" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:999; display:none; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#fff; border-radius:16px; padding:24px; max-width:420px; box-shadow:0 10px 40px rgba(0,0,0,0.2); animation:slideUp 0.3s ease-out;">
+    <div style="background:#fff; border-radius:16px; padding:24px; max-width:420px; box-shadow:0 10px 40px rgba(0,0,0,0.2); animation:slideUp 0.3s ease-out;" onclick="event.stopPropagation();">
       <div style="text-align:center; margin-bottom:16px;">
-        <div style="font-size:3rem; margin-bottom:12px;">📦</div>
-        <h2 style="font-size:1.2rem; font-weight:800; color:#1b3a52; margin-bottom:8px;">Download do TROPA PACE</h2>
+        <div style="font-size:3rem; margin-bottom:12px;">📲</div>
+        <h2 style="font-size:1.2rem; font-weight:800; color:#1b3a52; margin-bottom:8px;">Instalar TROPA PACE</h2>
         <p id="downloadModalMsg" style="font-size:0.9rem; color:#5a7a90; line-height:1.6;">
-          Baixe o arquivo para usar a aplicação em outro dispositivo ou para backup. O arquivo contém tudo o que você precisa.
+          Adicione o app à tela inicial do seu celular para acessar offline, sem precisar de internet e sem abrir o navegador.
         </p>
       </div>
       
-      <div id="downloadProgress" style="display:none; margin-bottom:16px;">
-        <div style="background:#f0f4f8; border-radius:8px; height:8px; overflow:hidden;">
-          <div id="progressBar" style="background:#17a876; height:100%; width:0%; transition:width 0.3s ease;"></div>
-        </div>
-        <p style="font-size:0.75rem; color:#5a7a90; margin-top:6px; text-align:center;" id="progressText">Preparando...</p>
+      <div style="display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap;">
+        <span style="background:#f0f4f8; border-radius:10px; padding:6px 12px; font-size:0.78rem; color:#4a7a90;">⚡ Rápido</span>
+        <span style="background:#f0f4f8; border-radius:10px; padding:6px 12px; font-size:0.78rem; color:#4a7a90;">📵 Offline</span>
+        <span style="background:#f0f4f8; border-radius:10px; padding:6px 12px; font-size:0.78rem; color:#4a7a90;">💾 Dados seguros</span>
       </div>
 
-      <div style="display:flex; gap:10px; justify-content:center;">
-        <button id="btnConfirmDownload" onclick="downloadAppFile()" style="flex:1; background:#17a876; color:#fff; border:none; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer; transition:opacity 0.2s;">
-          ⬇️ Download HTML
+      <div style="display:flex; gap:10px; justify-content:center; margin-top:16px;">
+        <button id="btnConfirmDownload" onclick="event.stopPropagation(); confirmPwaInstall();" style="flex:1; background:#17a876; color:#fff; border:none; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer; transition:opacity 0.2s;">
+          ✓ Instalar na tela inicial
         </button>
-        <button id="btnCancelDownload" onclick="closeDownloadModal()" style="flex:1; background:#f0f4f8; color:#5a7a90; border:1px solid #c0d0df; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer; transition:opacity 0.2s;">
-          Fechar
+        <button id="btnCancelDownload" onclick="event.stopPropagation(); closeDownloadModal();" style="flex:1; background:#f0f4f8; color:#5a7a90; border:1px solid #c0d0df; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer; transition:opacity 0.2s;">
+          Agora não
         </button>
       </div>
     </div>
@@ -556,13 +555,13 @@
         disabled>
         🔄 <span class="hidden sm:inline">Restaurar</span>
       </button>
-      <!-- Botão download (sempre visível) -->
+      <!-- Botão Instalar PWA (sempre visível) -->
       <button id="btnDownloadApp"
-        onclick="initiateDownload()"
-        title="Download para usar offline em outro dispositivo"
+        onclick="event.stopPropagation(); triggerPwaInstall();"
+        title="Instalar como app na tela inicial"
         class="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap flex-shrink-0"
         style="background:#e8edf3; border-color:#8aaac0; color:#5a7a90; cursor:pointer;">
-        ⬇️ <span class="hidden sm:inline">Download</span>
+        📲 <span class="hidden sm:inline">Instalar</span>
       </button>
     </div>
     <!-- Banner offline -->
@@ -3482,13 +3481,9 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
       // Já instalou antes? Não mostra nada
       if (localStorage.getItem(PWA_INSTALLED_KEY)) return;
 
-      // Sempre mostra o botão no header
-      _showPwaBtn();
-
-      // Primeira visita: mostra modal após 2s
-      if (!localStorage.getItem(PWA_SEEN_KEY)) {
-        setTimeout(_showPwaModal, 2000);
-      }
+      // NÃO mostrar modal automático mais — apenas ter o botão disponível
+      // O modal agora é mostrado quando clica no botão "📲 Instalar" do header
+      // (antes: _showPwaModal() após 2s)
     });
 
     // iOS Safari: não dispara beforeinstallprompt — detectar e mostrar instrução manual
@@ -3569,90 +3564,66 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
       }
     });
 
-    // ======= DOWNLOAD — Sistema inteligente de cache + download =======
-    const DOWNLOAD_FIRST_TIME_KEY = 'tropa_pace_download_first_time';
-    let downloadFirstTime = !localStorage.getItem(DOWNLOAD_FIRST_TIME_KEY);
+    // ======= INSTALAÇÃO PWA — Sistema inteligente com mensagem de primeira vez =======
+    const INSTALL_FIRST_TIME_KEY = 'tropa_pace_install_first_time';
+    let installFirstTime = !localStorage.getItem(INSTALL_FIRST_TIME_KEY);
+    let isInstallingPwa = false; // Flag para evitar cliques duplos
 
-    // Função para abrir modal de download
-    function initiateDownload() {
+    // Função para abrir modal de instalação
+    function triggerPwaInstall() {
+      if (isInstallingPwa) return;
+      
       const modal = document.getElementById('downloadModal');
       const msg = document.getElementById('downloadModalMsg');
       
       // Mostrar mensagem diferente na primeira vez
-      if (downloadFirstTime) {
-        msg.innerHTML = '<strong style="color:#17a876">✓ Nova versão disponível!</strong><br><br>Baixe o arquivo para usar a aplicação em outro dispositivo ou para backup. O arquivo contém tudo o que você precisa.';
-        downloadFirstTime = false;
-        localStorage.setItem(DOWNLOAD_FIRST_TIME_KEY, '1');
+      if (installFirstTime) {
+        msg.innerHTML = '<strong style="color:#17a876">✓ Nova versão disponível!</strong><br><br>Adicione o app à tela inicial do seu celular para acessar offline, sem precisar de internet e sem abrir o navegador.';
+        installFirstTime = false;
+        localStorage.setItem(INSTALL_FIRST_TIME_KEY, '1');
       } else {
-        msg.innerHTML = 'Baixe o arquivo para usar a aplicação em outro dispositivo ou para backup. O arquivo contém tudo o que você precisa.';
+        msg.innerHTML = 'Adicione o app à tela inicial do seu celular para acessar offline, sem precisar de internet e sem abrir o navegador.';
       }
       
       modal.style.display = 'flex';
     }
 
-    // Fechar modal de download
+    // Fechar modal de instalação
     function closeDownloadModal() {
       const modal = document.getElementById('downloadModal');
       modal.style.display = 'none';
+      isInstallingPwa = false;
     }
 
-    // Fazer download do arquivo HTML
-    function downloadAppFile() {
-      const btn = document.getElementById('btnConfirmDownload');
-      const progress = document.getElementById('downloadProgress');
-      const progressBar = document.getElementById('progressBar');
-      const progressText = document.getElementById('progressText');
+    // Confirmar instalação PWA
+    function confirmPwaInstall() {
+      if (isInstallingPwa) return;
+      isInstallingPwa = true;
       
-      btn.disabled = true;
-      progress.style.display = 'block';
-      
-      // Simular progresso
-      let currentProgress = 0;
-      const progressInterval = setInterval(() => {
-        currentProgress = Math.min(currentProgress + Math.random() * 30, 90);
-        progressBar.style.width = currentProgress + '%';
-        progressText.textContent = Math.round(currentProgress) + '%';
-      }, 200);
-
-      // Fazer fetch do arquivo HTML atual
-      fetch(window.location.href)
-        .then(response => response.text())
-        .then(html => {
-          clearInterval(progressInterval);
-          progressBar.style.width = '100%';
-          progressText.textContent = '100%';
-
-          // Criar blob e download
-          const blob = new Blob([html], { type: 'text/html' });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = 'TROPA-PACE.html';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-
-          // Reset do UI
-          setTimeout(() => {
-            progress.style.display = 'none';
-            progressBar.style.width = '0%';
-            progressText.textContent = 'Preparando...';
-            btn.disabled = false;
-            closeDownloadModal();
-          }, 500);
-        })
-        .catch(err => {
-          console.error('Erro ao fazer download:', err);
-          clearInterval(progressInterval);
-          progress.style.display = 'none';
-          btn.disabled = false;
-          alert('❌ Erro ao preparar o download. Tente novamente.');
+      if (_deferredInstallPrompt) {
+        _deferredInstallPrompt.prompt();
+        _deferredInstallPrompt.userChoice.then(choiceResult => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('✓ App instalado com sucesso!');
+            localStorage.setItem(PWA_INSTALLED_KEY, '1');
+            _hidePwaBtn();
+            alert('✓ App instalado com sucesso! Você pode encontrá-lo na tela inicial do seu telefone.');
+          } else {
+            console.log('✗ Instalação cancelada pelo usuário');
+          }
+          _deferredInstallPrompt = null;
+          closeDownloadModal();
+          isInstallingPwa = false;
+        }).catch(err => {
+          console.error('Erro na instalação:', err);
+          isInstallingPwa = false;
         });
+      } else {
+        alert('❌ A instalação não está disponível no seu navegador.\n\nTente:\n1. Abrir no Chrome ou Edge\n2. Acessar via https://lets-energy.github.io/Time_lapse_count/');
+        closeDownloadModal();
+        isInstallingPwa = false;
+      }
     }
-
-    // Botão de download no header
-    document.getElementById('btnDownloadApp')?.addEventListener('click', initiateDownload);
 
     // Botão no header (clique direto)
     document.getElementById('btnInstallPwa')?.addEventListener('click', async () => {
