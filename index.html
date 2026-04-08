@@ -3445,11 +3445,66 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
         navigator.serviceWorker.register('./sw.js', { scope: './' })
           .then(reg => {
             console.log('[PWA] Service Worker registrado:', reg.scope);
-            // Verifica atualização a cada 30 min
+            
+            // Forçar verificação de atualização imediatamente
+            reg.update().then(() => {
+              console.log('[PWA] Verificação de atualização concluída');
+            });
+            
+            // Verificar atualizações a cada 30 minutos
             setInterval(() => reg.update(), 30 * 60 * 1000);
+            
+            // Listener para quando uma nova versão do SW estiver disponível
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('[PWA] Nova versão disponível! Atualizando...');
+                  // Força instalação da nova versão
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  window.location.reload();
+                }
+              });
+            });
           })
           .catch(err => console.warn('[PWA] Falha ao registrar SW:', err));
       });
+    }
+
+    // ======= Força limpeza de cache antigo na primeira visita =======
+    const CACHE_VERSION_KEY = 'tropa_pace_cache_version';
+    const CURRENT_CACHE_VERSION = '2'; // Incrementar quando fizer mudanças importantes
+    
+    // Verificar se versão do cache mudou
+    const lastCacheVersion = localStorage.getItem(CACHE_VERSION_KEY);
+    if (lastCacheVersion !== CURRENT_CACHE_VERSION) {
+      console.log('[PWA] Detectada mudança de versão. Limpando caches antigos...');
+      
+      // Limpar todos os caches antigos
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          names.forEach(name => {
+            caches.delete(name).then(() => {
+              console.log('[PWA] Cache removido:', name);
+            });
+          });
+        });
+      }
+      
+      // Limpar localStorage de versões antigas
+      const keysToClean = [
+        'taf_pwa_modal_seen',
+        'taf_pwa_installed',
+        'tropa_pace_download_first_time'
+      ];
+      keysToClean.forEach(key => {
+        localStorage.removeItem(key);
+        console.log('[PWA] localStorage limpo:', key);
+      });
+      
+      // Registrar nova versão
+      localStorage.setItem(CACHE_VERSION_KEY, CURRENT_CACHE_VERSION);
+      console.log('[PWA] Versão de cache atualizada para:', CURRENT_CACHE_VERSION);
     }
 
     // ======= PWA — Modal de boas-vindas + botão com pulso =======
