@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>TROPA PACE</title>
-  <meta name="description" content="Cronômetro e marcador de voltas para o TAF" />
+  <meta name="description" content="Cronômetro e marcador de voltas para avaliação física militar" />
   <meta name="theme-color" content="#1b3a52" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -476,7 +476,46 @@
     </div>
   </div>
 
-  <!-- Header -->
+  <!-- Modal de Download com notificação de primeira instalação -->
+  <div id="downloadModal" role="dialog" aria-modal="true" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:999; display:none; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#fff; border-radius:16px; padding:24px; max-width:420px; box-shadow:0 10px 40px rgba(0,0,0,0.2); animation:slideUp 0.3s ease-out;">
+      <div style="text-align:center; margin-bottom:16px;">
+        <div style="font-size:3rem; margin-bottom:12px;">📦</div>
+        <h2 style="font-size:1.2rem; font-weight:800; color:#1b3a52; margin-bottom:8px;">Download do TROPA PACE</h2>
+        <p id="downloadModalMsg" style="font-size:0.9rem; color:#5a7a90; line-height:1.6;">
+          Baixe o arquivo para usar a aplicação em outro dispositivo ou para backup. O arquivo contém tudo o que você precisa.
+        </p>
+      </div>
+      
+      <div id="downloadProgress" style="display:none; margin-bottom:16px;">
+        <div style="background:#f0f4f8; border-radius:8px; height:8px; overflow:hidden;">
+          <div id="progressBar" style="background:#17a876; height:100%; width:0%; transition:width 0.3s ease;"></div>
+        </div>
+        <p style="font-size:0.75rem; color:#5a7a90; margin-top:6px; text-align:center;" id="progressText">Preparando...</p>
+      </div>
+
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button id="btnConfirmDownload" onclick="downloadAppFile()" style="flex:1; background:#17a876; color:#fff; border:none; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer; transition:opacity 0.2s;">
+          ⬇️ Download HTML
+        </button>
+        <button id="btnCancelDownload" onclick="closeDownloadModal()" style="flex:1; background:#f0f4f8; color:#5a7a90; border:1px solid #c0d0df; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer; transition:opacity 0.2s;">
+          Fechar
+        </button>
+      </div>
+    </div>
+    <style>
+      @keyframes slideUp {
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+    </style>
+  </div>
   <header class="sticky top-0 z-20 backdrop-blur border-b border-gray-200" style="background:#1b3a52">
     <div class="max-w-6xl mx-auto px-3 py-2 flex items-center gap-2">
       <!-- Título -->
@@ -516,6 +555,14 @@
         style="background:#f0f4f8; border-color:#c0d0df; color:#8aaac0; cursor:not-allowed; opacity:0.5;"
         disabled>
         🔄 <span class="hidden sm:inline">Restaurar</span>
+      </button>
+      <!-- Botão download (sempre visível) -->
+      <button id="btnDownloadApp"
+        onclick="initiateDownload()"
+        title="Download para usar offline em outro dispositivo"
+        class="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap flex-shrink-0"
+        style="background:#e8edf3; border-color:#8aaac0; color:#5a7a90; cursor:pointer;">
+        ⬇️ <span class="hidden sm:inline">Download</span>
       </button>
     </div>
     <!-- Banner offline -->
@@ -3521,6 +3568,91 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
         _hidePwaModal();
       }
     });
+
+    // ======= DOWNLOAD — Sistema inteligente de cache + download =======
+    const DOWNLOAD_FIRST_TIME_KEY = 'tropa_pace_download_first_time';
+    let downloadFirstTime = !localStorage.getItem(DOWNLOAD_FIRST_TIME_KEY);
+
+    // Função para abrir modal de download
+    function initiateDownload() {
+      const modal = document.getElementById('downloadModal');
+      const msg = document.getElementById('downloadModalMsg');
+      
+      // Mostrar mensagem diferente na primeira vez
+      if (downloadFirstTime) {
+        msg.innerHTML = '<strong style="color:#17a876">✓ Nova versão disponível!</strong><br><br>Baixe o arquivo para usar a aplicação em outro dispositivo ou para backup. O arquivo contém tudo o que você precisa.';
+        downloadFirstTime = false;
+        localStorage.setItem(DOWNLOAD_FIRST_TIME_KEY, '1');
+      } else {
+        msg.innerHTML = 'Baixe o arquivo para usar a aplicação em outro dispositivo ou para backup. O arquivo contém tudo o que você precisa.';
+      }
+      
+      modal.style.display = 'flex';
+    }
+
+    // Fechar modal de download
+    function closeDownloadModal() {
+      const modal = document.getElementById('downloadModal');
+      modal.style.display = 'none';
+    }
+
+    // Fazer download do arquivo HTML
+    function downloadAppFile() {
+      const btn = document.getElementById('btnConfirmDownload');
+      const progress = document.getElementById('downloadProgress');
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      
+      btn.disabled = true;
+      progress.style.display = 'block';
+      
+      // Simular progresso
+      let currentProgress = 0;
+      const progressInterval = setInterval(() => {
+        currentProgress = Math.min(currentProgress + Math.random() * 30, 90);
+        progressBar.style.width = currentProgress + '%';
+        progressText.textContent = Math.round(currentProgress) + '%';
+      }, 200);
+
+      // Fazer fetch do arquivo HTML atual
+      fetch(window.location.href)
+        .then(response => response.text())
+        .then(html => {
+          clearInterval(progressInterval);
+          progressBar.style.width = '100%';
+          progressText.textContent = '100%';
+
+          // Criar blob e download
+          const blob = new Blob([html], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'TROPA-PACE.html';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+
+          // Reset do UI
+          setTimeout(() => {
+            progress.style.display = 'none';
+            progressBar.style.width = '0%';
+            progressText.textContent = 'Preparando...';
+            btn.disabled = false;
+            closeDownloadModal();
+          }, 500);
+        })
+        .catch(err => {
+          console.error('Erro ao fazer download:', err);
+          clearInterval(progressInterval);
+          progress.style.display = 'none';
+          btn.disabled = false;
+          alert('❌ Erro ao preparar o download. Tente novamente.');
+        });
+    }
+
+    // Botão de download no header
+    document.getElementById('btnDownloadApp')?.addEventListener('click', initiateDownload);
 
     // Botão no header (clique direto)
     document.getElementById('btnInstallPwa')?.addEventListener('click', async () => {

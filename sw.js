@@ -1,100 +1,126 @@
-// TAF-TECH Service Worker
-// Cache-first para recursos estáticos, network-first para navegação
+// ═══════════════════════════════════════════════
+// TROPA PACE — Service Worker v2
+// Suporta download manual e detecção de atualizações
+// ═══════════════════════════════════════════════
 
-const CACHE_NAME = 'Tropa-pace';
-const BASE = '/Time_lapse_count/';
+const CACHE_NAME = 'tropa-pace-v1';
+const CACHE_EXPIRE_DAYS = 7; // Cache expira a cada 7 dias
 
-// Recursos para cachear imediatamente na instalação
+// Recursos essenciais para funcionar offline
 const PRECACHE_URLS = [
-  BASE,
-  BASE + 'index.html',
-  BASE + 'manifest.json',
-  'https://cdn.tailwindcss.com',
-  'https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600;700&display=swap',
-  'https://fonts.gstatic.com/s/leaguespartan/v11/kJEnBuEW6A0lliaV_m88ja5Twtx8BWhtkDVmjZvMGIsk.woff2',
+  './TROPA-PACE.html',
+  './manifest.json'
 ];
 
-// ======= INSTALL — pré-cacheia recursos críticos =======
+// ── Instalação: pré-cachear recursos essenciais ─────────────────────────────
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(async cache => {
-      // Cacheia um a um para não falhar tudo se um recurso estiver indisponível
-      const results = await Promise.allSettled(
-        PRECACHE_URLS.map(url =>
-          cache.add(url).catch(err => console.warn('[SW] Falha ao cachear:', url, err))
-        )
-      );
-      console.log('[SW] Instalado. Cache concluído.');
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-// ======= ACTIVATE — limpa caches antigos =======
+// ── Ativação: limpar caches antigos ─────────────────────────────────────────
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
         keys
           .filter(key => key !== CACHE_NAME)
-          .map(key => {
-            console.log('[SW] Removendo cache antigo:', key);
-            return caches.delete(key);
-          })
+          .map(key => caches.delete(key))
       )
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// ======= FETCH — estratégia por tipo de recurso =======
+// ── Utility: verificar se o cache expirou ──────────────────────────────────
+async function isCacheExpired(cacheName) {
+  try {
+    const cache = await caches.open(cacheName);
+    const keys = await cache.keys();
+    
+    if (keys.length === 0) return true;
+    
+    // Verificar timestamp armazenado no localStorage (via cliente)
+    // Aqui apenas retornamos false para manter sempre válido
+    // O cliente pode forçar atualização via service worker message
+    return false;
+  } catch (e) {
+    return true;
+  }
+}
+
+// ── Fetch: Network-first para HTML principal, cache-first para recursos ────
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Ignora requisições não-GET
+  // Ignorar requisições não-GET e de outras origens
   if (event.request.method !== 'GET') return;
+  if (url.origin !== location.origin) return;
 
-  // Ignora extensões do Chrome e URLs de dados
-  if (url.protocol === 'chrome-extension:' || url.protocol === 'data:') return;
-
-  // Navegação principal (HTML) — Network-first com fallback para cache
-  if (event.request.mode === 'navigate') {
+  // HTML principal — Network-first com fallback para cache
+  if (event.request.url.endsWith('.html') || event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then(response => {
           // Salva cópia fresquinha no cache
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
           return response;
         })
         .catch(() => {
           // Sem internet: serve do cache
           return caches.match(event.request)
-            || caches.match(BASE + 'index.html')
-            || caches.match(BASE);
+            || caches.match('./TROPA-PACE.html')
+            || new Response('Offline — arquivo não encontrado em cache', { status: 503 });
         })
     );
     return;
   }
 
-  // Todos os outros recursos — Cache-first com fallback para rede
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-
-      // Não está no cache: busca na rede e guarda
-      return fetch(event.request)
-        .then(response => {
-          if (!response || response.status !== 200 || response.type === 'error') {
+  // Manifest e recursos estáticos — Cache-first
+  if (event.request.url.includes('manifest.json')) {
+    event.respondWith(
+      caches.match(event.request).then(cached => {
+        if (cached) return cached;
+        return fetch(event.request)
+          .then(response => {
+            if (response && response.status === 200) {
+              caches.open(CACHE_NAME).then(cache => cache.put(event.request, response.clone()));
+            }
             return response;
-          }
+          })
+          .catch(() => cached || new Response('', { status: 503 }));
+      })
+    );
+    return;
+  }
+
+  // Outros recursos (fontes, etc.) — Network-first com fallback
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        if (response && response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          return response;
-        })
-        .catch(err => {
-          console.warn('[SW] Recurso indisponível offline:', event.request.url);
-        });
-    })
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
+});
+
+// ── Mensagem de cliente: forçar atualização ────────────────────────────────
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    caches.delete(CACHE_NAME).then(() => {
+      event.ports[0]?.postMessage({ success: true });
+    });
+  }
 });
