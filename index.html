@@ -2025,7 +2025,7 @@
       return '<50'; // below minimum
     }
     // Retorna o tempo limite (ms) para a nota mínima aprovável por aba
-    // gola/naval/caminhada → nota 50 (t50); aluno → nota 5 (entry s===5)
+    // gola/naval/caminhada → nota 50 (t50); aluno → nota 6.5 (entry s===6.5)
     function getMinScoreMs(tab, sex, age){
       if(!sex || !age) return null;
       if(tab === 'gola-caminhada'){
@@ -2039,7 +2039,7 @@
         if(!tbl) return null;
         const row = tbl.find(r => age >= r.min && age <= r.max);
         if(!row) return null;
-        const entry = row.entries.find(e => e.s === 5);
+        const entry = row.entries.find(e => e.s === 6.5);
         return entry ? entry.ms * 1000 : null;
       }
       const table = SCORING[tab]?.[sex];
