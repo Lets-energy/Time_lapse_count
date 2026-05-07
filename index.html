@@ -1100,7 +1100,7 @@
           dataLines.forEach((line, i) => {
             const parts = line.split(/[,;]/).map(s => s.trim().replace(/^"|"$/g,''));
             if(parts.length < 4){ erros.push('Linha '+(i+2)+': colunas insuficientes'); return; }
-            const [nipRaw, nome, corpo, nascRaw, sexRaw] = parts;
+            const [nipRaw, nome, corpo, nascRaw, sexRaw, notaRaw] = parts;
             const nip = nipRaw.replace(/\D/g,'');
             if(nip.length !== 8){ erros.push('Linha '+(i+2)+': NIP inválido ('+nipRaw+')'); return; }
             // Nascimento: DD/MM/AAAA ou YYYY-MM-DD
@@ -1117,7 +1117,8 @@
             const corpoNorm = corpo.toLowerCase().includes('naval') ? 'naval' : 'gola';
             const nipFmt = nip.slice(0,2)+'.'+nip.slice(2,6)+'.'+nip.slice(6);
             const sex = (sexRaw||'').trim().toUpperCase() === 'F' ? 'F' : 'M';
-            importedRows.push({ nip: nipFmt, nipKey: nip, nome: nome.trim().toUpperCase(), corpo: corpoNorm, nasc, age, sex });
+            const nota = notaRaw?.trim() || ''; // Adicionar nota se fornecida
+            importedRows.push({ nip: nipFmt, nipKey: nip, nome: nome.trim().toUpperCase(), corpo: corpoNorm, nasc, age, sex, nota });
           });
           if(erros.length && !importedRows.length){ errEl.textContent = erros[0]; return; }
           if(erros.length) errEl.textContent = '⚠️ '+erros.length+' linha(s) ignorada(s): '+erros[0];
@@ -1249,7 +1250,14 @@
         // Precisamos de sexo — pedir via prompt se não disponível no CSV
         // Por simplicidade, sexo será M por padrão (pode ser ajustado manualmente depois)
         const ok = addRunner(r.nome, tab, r.sex || 'M', r.age, r.nip);
-        if(ok !== false) added++;
+        if(ok !== false) {
+          added++;
+          // Se há nota no CSV, atribuir ao runner
+          if(r.nota) {
+            const runner = runners.get(r.nipKey);
+            if(runner) runner.score = r.nota;
+          }
+        }
         else erros.push(r.nome);
       });
       const errEl = document.getElementById('importError');
@@ -1265,7 +1273,7 @@
     }
 
     function downloadCsvModelo(){
-      const csv = 'nip,nome,corpo,nascimento,sexo\n12.3456.78,TEN SILVA,gola,15/03/1995,M\n87.6543.21,SGT COSTA,naval,22/07/1988,M\n';
+      const csv = 'nip,nome,corpo,nascimento,sexo,nota\n12.3456.78,TEN SILVA,gola,15/03/1995,M,\n87.6543.21,SGT COSTA,naval,22/07/1988,M,\n';
       const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href=url; a.download='modelo_importacao_taf.csv'; a.click();
