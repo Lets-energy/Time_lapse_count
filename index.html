@@ -454,6 +454,7 @@
     }
     .taf-modal-close:hover { color: #1b3a52; background: #f0f4f8; }
     .taf-modal-scroll { overflow-y: auto; flex: 1; }
+    #scoreModalThead th { position: sticky; top: 0; background: #fff; z-index: 2; }
 
     /* ── Checklist de importação ── */
     .import-row {
@@ -949,38 +950,32 @@
   </main>
 
   <!-- Modal Tabela de Notas -->
-  <div id="scoreModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden">
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col">
-      <!-- Header do modal -->
-      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
-        <div class="flex items-center gap-3">
-          <h2 class="text-lg font-bold" style="color:#1b3a52">Tabela de Notas</h2>
-          <div class="flex flex-col gap-1">
-            <div class="flex gap-2">
-              <button id="modalTabGola" onclick="switchModalTab('gola')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#0f766e;color:#fff">Gola (2400m)</button>
-              <button id="modalTabNaval" onclick="switchModalTab('naval')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#e8edf3;color:#4a7a9b">Naval (3200m)</button>
-            </div>
-            <div class="flex gap-2">
-              <button id="modalTabAluno" onclick="switchModalTab('aluno')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#e8edf3;color:#4a7a9b">Aluno (2400m)</button>
-              <button id="modalTabGolaCaminhada" onclick="switchModalTab('gola-caminhada')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#e8edf3;color:#4a7a9b">Caminhada (4800m)</button>
-            </div>
-          </div>
-        </div>
-        <button id="btnCloseModal" class="text-gray-500 hover:text-white text-xl font-bold px-2">✕</button>
+  <div id="scoreModal" class="taf-modal-overlay" role="dialog" aria-modal="true">
+    <div class="taf-modal-box" style="max-width:700px">
+      <div class="taf-modal-header">
+        <span class="taf-modal-title">📋 Tabela de Notas</span>
+        <button class="taf-modal-close" id="btnCloseModal">✕</button>
+      </div>
+      <!-- Abas categoria -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px 0">
+        <button id="modalTabGola" onclick="switchModalTab('gola')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#0f766e;color:#fff">Gola (2400m)</button>
+        <button id="modalTabNaval" onclick="switchModalTab('naval')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#e8edf3;color:#4a7a9b">Naval (3200m)</button>
+        <button id="modalTabAluno" onclick="switchModalTab('aluno')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#e8edf3;color:#4a7a9b">Aluno (2400m)</button>
+        <button id="modalTabGolaCaminhada" onclick="switchModalTab('gola-caminhada')" class="modal-tab-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#e8edf3;color:#4a7a9b">Caminhada (4800m)</button>
       </div>
       <!-- Abas Masc/Fem -->
-      <div class="flex gap-2 px-5 pt-3">
+      <div style="display:flex;gap:8px;padding:8px 16px 0">
         <button id="modalSexM" onclick="switchModalSex('M')" class="modal-sex-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#5060d0;color:#fff">♂ Masculino</button>
         <button id="modalSexF" onclick="switchModalSex('F')" class="modal-sex-btn px-3 py-1 rounded-lg text-sm font-semibold" style="background:#e8edf3;color:#4a7a9b">♀ Feminino</button>
       </div>
       <!-- Tabela -->
-      <div class="overflow-auto flex-1 px-5 py-4">
+      <div class="taf-modal-scroll" style="padding:12px 16px 16px">
         <table class="min-w-full text-sm border-collapse">
           <thead id="scoreModalThead"></thead>
           <tbody id="scoreModalTbody"></tbody>
         </table>
         <p class="text-xs text-gray-400 mt-3">Tempo máximo para atingir cada nota. Tempo menor ou igual = nota correspondente.</p>
-        <div class="flex flex-wrap gap-3 mt-2 text-xs font-semibold">
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:0.75rem;font-weight:600">
           <span style="color:#16a34a">● 90–100</span>
           <span style="color:#3b82f6">● 70–80</span>
           <span style="color:#f59e0b">● 50–60</span>
@@ -3153,14 +3148,14 @@ rows.push(['#'+r.seqNum, JSON.stringify(r.nip||''), JSON.stringify(r.label||''),
     }
 
     document.getElementById('btnScoreTable')?.addEventListener('click',()=>{
-      document.getElementById('scoreModal').classList.remove('hidden');
+      document.getElementById('scoreModal').classList.add('show');
       renderScoreModal();
     });
     document.getElementById('btnCloseModal')?.addEventListener('click',()=>{
-      document.getElementById('scoreModal').classList.add('hidden');
+      document.getElementById('scoreModal').classList.remove('show');
     });
     document.getElementById('scoreModal')?.addEventListener('click',e=>{
-      if(e.target===document.getElementById('scoreModal')) document.getElementById('scoreModal').classList.add('hidden');
+      if(e.target===document.getElementById('scoreModal')) document.getElementById('scoreModal').classList.remove('show');
     });
 
     // Auto-salvar: encapsula renderSummary para chamar saveLocalSession depois
